@@ -27,6 +27,9 @@ This repository contains an **n8n‑based ETL workflow** that migrates data from
 | `alim_bodega` | `srs_bodega` | Basic catalog with `codigo_bodega`, `estado_bodega` (value mappings). |
 | `alim_empresa_persona_bodega` | `srs_empresa_persona_bodega` | Includes special fields `ruta_archivo_constancia_arrendamiento` (VARCHAR(250)) and `registrado` (BOOLEAN DEFAULT false). |
 | `alim_certificado_libre_venta` | `srs_certificado_libre_venta` | New table added – fields for CLV code, type, country, emission date, file path, authority, etc.; `tipo_clv` mapped to *NACIONAL* / *EXTERIOR*. |
+| `alim_producto` | `srs_producto` | Producto nacional/importado; enum `tipo_producto` y `estado_registro` con mapeos; relaciones a país, estado producto y sub-grupo alimenticio. |
+| `alim_marca_producto` | `srs_marca_producto` | Relación marca-producto (expedientes); `estado_marca_producto` mapeado a ACTIVO/INACTIVO. |
+| `alim_producto_certificado_libre_venta` | `srs_producto_certificado_libre_venta` | Relación producto-CLV; incluye `fecha_vigencia`, `nombre_prod_segun_clv` y vínculos a CLV, estado proceso y producto. |
 | `ctl_estado_producto` | `srs_estado_producto` | Simple lookup table (`id`, `nombre`). |
 | `alim_empresa` / `alim_persona` | `srs_entidad_experiment` | Unified entity table; `use_db_prefix` set to false. |
 | … (other catalog tables such as `ctl_pais`, `ctl_departamento`, `ctl_municipio`, `ctl_tipo_bodega`, etc.) |
