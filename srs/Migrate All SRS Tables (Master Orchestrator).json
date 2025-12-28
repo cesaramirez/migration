@@ -1,0 +1,1473 @@
+{
+  "name": "Migrate All SRS Tables (Master Orchestrator)",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        8000,
+        0
+      ],
+      "id": "161b884f-81ef-44d0-8f6f-483446d79047",
+      "name": "Start Master Migration"
+    },
+    {
+      "parameters": {
+        "path": "migrate-all-srs",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [
+        8000,
+        150
+      ],
+      "id": "webhook-trigger-001",
+      "name": "Webhook Trigger (for MCP)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst masterBatchId = 'MASTER_' + now.toISOString().replace(/[:.]/g, '').replace(/-/g, '').substring(0, 15);\n\nreturn {\n  master_batch_id: masterBatchId,\n  master_start_time: now.toISOString(),\n  total_tables: 23,\n  workflow_id: $execution.id\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8250,
+        0
+      ],
+      "id": "c13fe585-ddc7-4404-a186-2b82546846a0",
+      "name": "Initialize Master Variables"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_material',\n  table_destination: 'srs_material',\n  code_prefix: 'MAT',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8500,
+        0
+      ],
+      "id": "adf6804c-05bb-4800-a2cb-5ba0d99a40d5",
+      "name": "Config: srs_material"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        8750,
+        0
+      ],
+      "id": "3fdc0154-17f3-4b78-bb47-59f35f526919",
+      "name": "Migrate: srs_material",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_tipo_riesgo',\n  table_destination: 'srs_tipo_riesgo',\n  code_prefix: 'RIESGO',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9000,
+        0
+      ],
+      "id": "322e601d-7dff-4770-8bca-7aa025d07ea8",
+      "name": "Config: srs_tipo_riesgo"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        9250,
+        0
+      ],
+      "id": "96cdd6f9-3ceb-491c-a424-9ab412964c96",
+      "name": "Migrate: srs_tipo_riesgo",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_clasificacion_grupo_alimenticio',\n  table_destination: 'srs_clasificacion_grupo_alimenticio',\n  code_prefix: 'CLASIF',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9500,
+        0
+      ],
+      "id": "a47d9ac5-60d3-497c-a64b-e6af13bfd892",
+      "name": "Config: srs_clasificacion"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        9750,
+        0
+      ],
+      "id": "91e674ae-8af2-4524-896d-5ce6ca893196",
+      "name": "Migrate: srs_clasificacion",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_tipo_tramitador',\n  table_destination: 'srs_tipo_tramitador',\n  code_prefix: 'TRAM',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        11000,
+        0
+      ],
+      "id": "config-tipo-tramitador-001",
+      "name": "Config: srs_tipo_tramitador"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        11250,
+        0
+      ],
+      "id": "migrate-tipo-tramitador-001",
+      "name": "Migrate: srs_tipo_tramitador",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_estado_proceso',\n  table_destination: 'srs_estado_proceso',\n  code_prefix: 'ESTADO',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        11500,
+        0
+      ],
+      "id": "config-estado-proceso-001",
+      "name": "Config: srs_estado_proceso"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        11750,
+        0
+      ],
+      "id": "migrate-estado-proceso-001",
+      "name": "Migrate: srs_estado_proceso",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_marca',\n  table_destination: 'srs_marcas',\n  code_prefix: 'MARCA',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        10000,
+        0
+      ],
+      "id": "dcbfd0e7-0d5d-42f1-849e-f948a5e017f8",
+      "name": "Config: srs_marcas"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        10250,
+        0
+      ],
+      "id": "9e845322-20fc-4f3f-b32f-55483273359d",
+      "name": "Migrate: srs_marcas",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_unidad_medida',\n  table_destination: 'srs_unidad_medida',\n  code_prefix: 'UNIDAD',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'simbolo', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        10500,
+        0
+      ],
+      "id": "27bacb52-665d-43d1-b8aa-294337b16727",
+      "name": "Config: srs_unidad_medida"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        10750,
+        0
+      ],
+      "id": "8656c174-4c26-4bd4-86b5-c826fc68192b",
+      "name": "Migrate: srs_unidad_medida",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_funcion_empresa_persona',\n  table_destination: 'srs_funcion_empresa_persona',\n  code_prefix: 'FUNC',\n  use_db_prefix: true,\n  required_fields: ['id', 'funcion'],\n  promoted_fields: ['funcion', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8500,
+        400
+      ],
+      "id": "e2d6c8c8-778e-4de8-83dc-b2f2043bdda1",
+      "name": "Config: srs_funcion"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        8750,
+        400
+      ],
+      "id": "6dd5a25f-6721-494d-b629-cfb67a6fb08e",
+      "name": "Migrate: srs_funcion",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_giro_empresa',\n  table_destination: 'srs_giro_empresa',\n  code_prefix: 'GIRO',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'alimentos', 'codigo_giro'],\n  field_types: {\n    'alimentos': 'BOOLEAN DEFAULT false'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9500,
+        400
+      ],
+      "id": "config-giro-001",
+      "name": "Config: srs_giro_empresa"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        9750,
+        400
+      ],
+      "id": "migrate-giro-001",
+      "name": "Migrate: srs_giro_empresa",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_tamanio_empresa',\n  table_destination: 'srs_tamanio_empresa',\n  code_prefix: 'TAM',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9000,
+        400
+      ],
+      "id": "config-tamanio-001",
+      "name": "Config: srs_tamanio_empresa"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        9250,
+        400
+      ],
+      "id": "migrate-tamanio-001",
+      "name": "Migrate: srs_tamanio_empresa",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_empresa',\n  table_destination: 'srs_empresa',\n  code_prefix: 'EMP',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre_comercial', 'razon_social', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre_comercial', \n    'razon_social', \n    'direccion', \n    'correo_electronico', \n    'nit', \n    'iva', \n    'estado_empresa',\n    'id_ctl_tamanio_empresa',\n    'id_ctl_giro_empresa',\n    'id_ctl_municipio',\n    'id_ctl_pais',\n    'sin_nit',\n    'importa_lac',\n    'fecha_registro'\n  ],\n  field_types: {\n    'sin_nit': 'BOOLEAN DEFAULT false',\n    'importa_lac': 'BOOLEAN DEFAULT false',\n    'fecha_registro': 'TIMESTAMP'\n  },\n  value_mappings: {\n    'estado_empresa': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_ctl_tamanio_empresa': 'tamanio_empresa_code',\n    'id_ctl_giro_empresa': 'giro_empresa_code',\n    'id_ctl_municipio': 'municipio_code',\n    'id_ctl_pais': 'pais_code'\n  },\n  relationships: {\n    'id_ctl_tamanio_empresa': 'TAM',\n    'id_ctl_giro_empresa': 'GIRO',\n    'id_ctl_municipio': 'MUNI',\n    'id_ctl_pais': 'PAIS'\n  },\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        10000,
+        400
+      ],
+      "id": "f0d872ff-941b-4f18-b523-59d0cdca8135",
+      "name": "Config: srs_empresa"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        10250,
+        400
+      ],
+      "id": "bbf7b264-4e2c-4b09-a64f-7a5ac956ec1b",
+      "name": "Migrate: srs_empresa",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_persona',\n  table_destination: 'srs_persona',\n  code_prefix: 'PER',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre', 'apellido', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre',\n    'apellido',\n    'dui',\n    'iva',\n    'nit',\n    'carne_residente',\n    'estado_persona',\n    'direccion',\n    'correo_electronico',\n    'id_ctl_pais',\n    'id_ctl_municipio',\n    'importa_lac',\n    'tipo_persona_tramitador',\n    'fecha_registro',\n    'fecha_emision_documento_identidad',\n    'fecha_vencimiento_documento_identidad'\n  ],\n  field_types: {\n    'importa_lac': 'BOOLEAN',\n    'fecha_registro': 'TIMESTAMP',\n    'fecha_emision_documento_identidad': 'DATE',\n    'fecha_vencimiento_documento_identidad': 'DATE'\n  },\n  value_mappings: {\n    'estado_persona': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_persona_tramitador': {\n      1: 'NATURAL/INDIVIDUAL',\n      2: 'REPRESENTANTE LEGAL',\n      3: 'TRAMITADOR'\n    }\n  },\n  field_mappings: {\n    'id_ctl_pais': 'pais_code',\n    'id_ctl_municipio': 'municipio_code'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS',\n    'id_ctl_municipio': 'MUNI'\n  },\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        10500,
+        400
+      ],
+      "id": "config-persona-001",
+      "name": "Config: srs_persona"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        10750,
+        400
+      ],
+      "id": "migrate-persona-001",
+      "name": "Migrate: srs_persona",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_empresa_persona_tramitador',\n  table_destination: 'srs_empresa_persona_tramitador',\n  code_prefix: 'EMPTRAM',\n  use_db_prefix: false,\n  required_fields: ['id', 'id_alim_empresa', 'id_alim_persona_tramitador'],\n  promoted_fields: [\n    'fecha_estado',\n    'estado_empresa_tramitador',\n    'ruta_archivo_poder',\n    'id_alim_empresa',\n    'id_alim_persona',\n    'id_alim_empresa:unif',\n    'id_alim_persona:unif',\n    'tipo_registro',\n    'id_alim_persona_tramitador',\n    'id_ctl_tipo_tramitador',\n    'id_ctl_estado_proceso',\n    'fecha_emision_credencial',\n    'fecha_vencimiento_credencial'\n  ],\n  field_types: {\n    'fecha_estado': 'TIMESTAMP',\n    'fecha_emision_credencial': 'DATE',\n    'fecha_vencimiento_credencial': 'DATE'\n  },\n  value_mappings: {\n    'estado_empresa_tramitador': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_registro': {\n      1: 'SISTEMA',\n      2: 'MANUAL'\n    }\n  },\n  field_mappings: {\n    'id_alim_empresa': 'empresa_code',\n    'id_alim_persona': 'persona_representada_code',\n    'id_alim_empresa:unif': 'entidad_representada_code',\n    'id_alim_persona:unif': 'entidad_representada_code',\n    'id_alim_persona_tramitador': 'persona_tramitador_code',\n    'id_ctl_tipo_tramitador': 'tipo_tramitador_code',\n    'id_ctl_estado_proceso': 'estado_proceso_code'\n  },\n  relationships: {\n    'id_alim_empresa': 'EMP',\n    'id_alim_persona': 'PER',\n    'id_alim_empresa:unif': 'ENT-EMP',\n    'id_alim_persona:unif': 'ENT-PER',\n    'id_alim_persona_tramitador': 'PER',\n    'id_ctl_tipo_tramitador': 'TRAM',\n    'id_ctl_estado_proceso': 'ESTADO'\n  },\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        11000,
+        400
+      ],
+      "id": "config-empresa-persona-tramitador-001",
+      "name": "Config: srs_empresa_persona_tramitador"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        11250,
+        400
+      ],
+      "id": "migrate-empresa-persona-tramitador-001",
+      "name": "Migrate: srs_empresa_persona_tramitador",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_pais',\n  table_destination: 'srs_pais',\n  code_prefix: 'PAIS',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'dominio2', 'dominio3', 'isonumero', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {\n    'dominio2': 'iso_alpha2',\n    'dominio3': 'iso_alpha3',\n    'isonumero': 'iso_numeric'\n  },\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "id": "c6a1e3b4-5d6e-4f7a-8b9c-0d1e2f3a4b5c",
+      "name": "Config: srs_pais",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8500,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        8750,
+        800
+      ],
+      "id": "7317a70a-8e5a-4de2-ad15-f61b60286ff4",
+      "name": "Migrate: srs_pais",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_certificado_libre_venta',\n  table_destination: 'srs_certificado_libre_venta',\n  code_prefix: 'CLV',\n  use_db_prefix: false,\n  required_fields: ['id', 'cod_clv', 'tipo_clv', 'id_ctl_pais', 'fecha_emision', 'autoridad_sanitaria_emite'],\n  promoted_fields: [\n    'cod_clv',\n    'tipo_clv',\n    'id_ctl_pais',\n    'fecha_emision',\n    'ruta_archivo_clv',\n    'autoridad_sanitaria_emite',\n    'id_alim_empresa',\n    'id_alim_persona',\n    'id_alim_empresa:unif',\n    'id_alim_persona:unif',\n    'usuario',\n    'fecha_registro',\n    'id_ctl_pais_destino'\n  ],\n  field_types: {\n    'fecha_emision': 'DATE',\n    'fecha_registro': 'DATE',\n    'ruta_archivo_clv': 'VARCHAR(250)',\n    'autoridad_sanitaria_emite': 'VARCHAR(250)'\n  },\n  value_mappings: {\n    'tipo_clv': {\n      1: 'NACIONAL',\n      2: 'EXTERIOR'\n    }\n  },\n  field_mappings: {\n    'id_ctl_pais': 'pais_code',\n    'id_ctl_pais_destino': 'pais_destino_code',\n    'id_alim_empresa': 'empresa_code',\n    'id_alim_persona': 'persona_code',\n    'id_alim_empresa:unif': 'entidad_code',\n    'id_alim_persona:unif': 'entidad_code'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS',\n    'id_ctl_pais_destino': 'PAIS',\n    'id_alim_empresa': 'EMP',\n    'id_alim_persona': 'PER',\n    'id_alim_empresa:unif': 'ENT-EMP',\n    'id_alim_persona:unif': 'ENT-PER'\n  },\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9000,
+        800
+      ],
+      "id": "config-clv-001",
+      "name": "Config: srs_certificado_libre_venta"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        9250,
+        800
+      ],
+      "id": "migrate-clv-001",
+      "name": "Migrate: srs_certificado_libre_venta",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_departamento',\n  table_destination: 'srs_departamento',\n  code_prefix: 'DEP',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre', 'id_ctl_pais'],\n  promoted_fields: ['nombre', 'abreviatura', 'codigo_cnr', 'iso31662', 'id_ctl_pais'],\n  field_types: {},\n  field_mappings: {\n    'id_ctl_pais': 'pais_code'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS'\n  },\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9500,
+        800
+      ],
+      "id": "9f9d2705-c4dd-46b8-99cf-9f673c88c07c",
+      "name": "Config: srs_departamento"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        9750,
+        800
+      ],
+      "id": "7e521ddd-699f-45aa-8a41-9aaabd5f7113",
+      "name": "Migrate: srs_departamento",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_municipio',\n  table_destination: 'srs_municipio',\n  code_prefix: 'MUNI',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre', 'id_ctl_departamento'],\n  promoted_fields: ['nombre', 'abreviatura', 'codigo_cnr', 'id_ctl_departamento'],\n  field_types: {},\n  field_mappings: {\n    'id_ctl_departamento': 'departamento_code'\n  },\n  relationships: {\n    'id_ctl_departamento': 'DEP'\n  },\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        10000,
+        800
+      ],
+      "id": "8e81b7ef-eeda-46dd-8b57-ad8425dc705f",
+      "name": "Config: srs_municipio"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        10250,
+        800
+      ],
+      "id": "4e7c765b-4987-4547-a352-18bcd955d754",
+      "name": "Migrate: srs_municipio",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## 🧪 LAB: Unificación de Entidades (Experimento)\nAquí probamos el concepto de 'Flat Model' uniendo Personas y Empresas en una sola tabla de destino.",
+        "height": 300,
+        "width": 1000,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        9300,
+        1050
+      ],
+      "id": "note-lab-001",
+      "name": "Note: Unification Lab"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_empresa',\n  table_destination: 'srs_entidad_experiment',\n  code_prefix: 'ENT-EMP',\n  use_db_prefix: false,\n  promoted_fields: [\n    'dui',\n    'nit',\n    'razon_social',\n    'nombre_comercial',\n    'iva',\n    'correo_electronico',\n    'direccion',\n    'estado_empresa',\n    'id_ctl_pais',\n    'id_ctl_municipio',\n    'importa_lac'\n  ],\n  field_mappings: {\n    'razon_social': 'nombre',\n    'nombre_comercial': 'nombre_secundario',\n    'correo_electronico': 'correo',\n    'estado_empresa': 'estado',\n    'id_ctl_pais': 'pais_code',\n    'id_ctl_municipio': 'municipio_code'\n  },\n  value_mappings: {\n    'estado_empresa': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_types: {\n    'importa_lac': 'BOOLEAN DEFAULT false'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS',\n    'id_ctl_municipio': 'MUNI'\n  },\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9400,
+        1200
+      ],
+      "id": "exp-config-empresa",
+      "name": "Exp: Config Unificada Empresa"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        9600,
+        1200
+      ],
+      "id": "exp-migrate-empresa",
+      "name": "Exp: Migrate Unificada Empresa",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_persona',\n  table_destination: 'srs_entidad_experiment',\n  code_prefix: 'ENT-PER',\n  use_db_prefix: false,\n  promoted_fields: [\n    'dui',\n    'nit',\n    'nombre',\n    'apellido',\n    'iva',\n    'correo_electronico',\n    'direccion',\n    'estado_persona',\n    'id_ctl_pais',\n    'id_ctl_municipio',\n    'importa_lac'\n  ],\n  field_mappings: {\n    'nombre': 'nombre',\n    'apellido': 'nombre_secundario',\n    'correo_electronico': 'correo',\n    'estado_persona': 'estado',\n    'id_ctl_pais': 'pais_code',\n    'id_ctl_municipio': 'municipio_code'\n  },\n  value_mappings: {\n    'estado_persona': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_types: {\n    'importa_lac': 'BOOLEAN DEFAULT false'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS',\n    'id_ctl_municipio': 'MUNI'\n  },\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9800,
+        1200
+      ],
+      "id": "exp-config-persona",
+      "name": "Exp: Config Unificada Persona"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        10000,
+        1200
+      ],
+      "id": "exp-migrate-persona",
+      "name": "Exp: Migrate Unificada Persona",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT COUNT(*) as total_tables, SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) as tables_completed, SUM(CASE WHEN status = 'FAILED' THEN 1 ELSE 0 END) as tables_failed, SUM(records_inserted) as total_records_migrated, SUM(records_errors) as total_errors FROM sys_migration_audit WHERE workflow_name = 'Migrate SRS Table (Parametrized)' AND created_at >= NOW() - INTERVAL '1 hour'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        10500,
+        800
+      ],
+      "id": "a66e6318-1964-4c4b-9211-872543b213f2",
+      "name": "Query Audit Summary",
+      "credentials": {
+        "postgres": {
+          "id": "zfnOF6kSkxVUYiFo",
+          "name": "SDT Data Center Dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const masterVars = $('Initialize Master Variables').first().json;\nconst auditSummary = $input.first().json;\n\nconst endTime = new Date();\nconst startTime = new Date(masterVars.master_start_time);\nconst totalDuration = Math.round((endTime - startTime) / 1000);\n\nreturn {\n  status: '✅ MIGRATION COMPLETE',\n  master_batch_id: masterVars.master_batch_id,\n  execution_id: masterVars.workflow_id,\n  duration_seconds: totalDuration,\n  duration_human: `${Math.floor(totalDuration / 60)}m ${totalDuration % 60}s`,\n  total_tables: auditSummary.total_tables || 0,\n  tables_completed: auditSummary.tables_completed || 0,\n  tables_failed: auditSummary.tables_failed || 0,\n  total_records_migrated: auditSummary.total_records_migrated || 0,\n  total_errors: auditSummary.total_errors || 0,\n  completed_at: endTime.toISOString()\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        10750,
+        800
+      ],
+      "id": "97cf9612-9800-4ec8-91c8-d1a1581fcef5",
+      "name": "Generate Final Report"
+    },
+    {
+      "parameters": {
+        "content": "## 📦 Gestión de Bodegas\nTipos de bodega y almacenes detallados.",
+        "height": 300,
+        "width": 1800,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        8400,
+        1450
+      ],
+      "id": "note-bodega-001",
+      "name": "Note: Bodega Catalogs"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_bodega',\n  table_destination: 'srs_bodega',\n  code_prefix: 'BOD',\n  use_db_prefix: true,\n  required_fields: ['id', 'codigo_bodega', 'nombre', 'id_ctl_municipio'],\n  promoted_fields: [\n    'codigo_bodega',\n    'nombre',\n    'estado_bodega',\n    'direccion',\n    'id_ctl_municipio',\n    'id_ctl_tipo_bodega',\n    'tipo_establecimiento'\n  ],\n  field_types: {},\n  value_mappings: {\n    'estado_bodega': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_establecimiento': {\n      'B': 'BODEGA',\n      'F': 'FABRICA',\n      'T': 'TIENDA COMERCIAL'\n    }\n  },\n  field_mappings: {\n    'codigo_bodega': 'codigo_externo',\n    'estado_bodega': 'estado',\n    'id_ctl_municipio': 'municipio_code',\n    'id_ctl_tipo_bodega': 'tipo_bodega_code'\n  },\n  relationships: {\n    'id_ctl_municipio': 'MUNI',\n    'id_ctl_tipo_bodega': 'TBOD'\n  },\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9000,
+        1600
+      ],
+      "id": "config-bodega-001",
+      "name": "Config: srs_bodega"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        9250,
+        1600
+      ],
+      "id": "migrate-bodega-001",
+      "name": "Migrate: srs_bodega",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_tipo_bodega',\n  table_destination: 'srs_tipo_bodega',\n  code_prefix: 'TBOD',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8500,
+        1600
+      ],
+      "id": "config-tipo-bodega-001",
+      "name": "Config: srs_tipo_bodega"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        8750,
+        1600
+      ],
+      "id": "migrate-tipo-bodega-001",
+      "name": "Migrate: srs_tipo_bodega",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## 🧪 Catálogos Base (SRS)\nMateriales, riesgos, clasificaciones, marcas, unidades de medida, tipos de tramitador y estados de proceso.",
+        "height": 300,
+        "width": 3800,
+        "color": 1
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        8400,
+        -150
+      ],
+      "id": "note-base-001",
+      "name": "Note: Base Catalogs"
+    },
+    {
+      "parameters": {
+        "content": "## 📁 Expedientes\nCatálogos y tablas relacionadas a expedientes y formularios.",
+        "height": 300,
+        "width": 1800,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        8400,
+        2050
+      ],
+      "id": "note-expediente-001",
+      "name": "Note: Expedientes"
+    },
+    {
+      "parameters": {
+        "content": "## 🏢 Catálogos de Empresa & Entidades\nEnfoque en Funciones, Empresas, Personas y sus Vínculos.",
+        "height": 300,
+        "width": 3100,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        8400,
+        250
+      ],
+      "id": "note-empresa-001",
+      "name": "Note: Empresa Catalogs"
+    },
+    {
+      "parameters": {
+        "content": "## 🌍 Información Geográfica\nPaíses, departamentos y municipios vinculados.",
+        "height": 300,
+        "width": 2400,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        8400,
+        650
+      ],
+      "id": "note-geo-001",
+      "name": "Note: Geo Info"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_empresa_persona_bodega',\n  table_destination: 'srs_empresa_persona_bodega',\n  code_prefix: 'EPBOD',\n  use_db_prefix: true,\n  required_fields: ['id', 'relacion_bodega_empresa_persona', 'id_alim_bodega', 'tipo_empresa_bodega', 'id_ctl_estado_proceso'],\n  promoted_fields: [\n    'relacion_bodega_empresa_persona',\n    'ruta_archivo_constancia_arrendamiento',\n    'estado_empresa_persona_bodega',\n    'id_alim_bodega',\n    'tipo_empresa_bodega',\n    'id_alim_empresa',\n    'id_ctl_estado_proceso',\n    'id_alim_persona',\n    'id_ctl_modulo',\n    'registrado'\n  ],\n  field_types: {\n    'registrado': 'BOOLEAN DEFAULT false',\n    'ruta_archivo_constancia_arrendamiento': 'VARCHAR(250)'\n  },\n  value_mappings: {\n    'relacion_bodega_empresa_persona': {\n      1: 'PROPIA',\n      2: 'ALQUILADA',\n      3: 'PRESTADA'\n    },\n    'estado_empresa_persona_bodega': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_empresa_bodega': {\n      1: 'EMPRESA DUENA',\n      2: 'EMPRESA NO DUENA'\n    }\n  },\n  field_mappings: {\n    'relacion_bodega_empresa_persona': 'relacion_tipo',\n    'estado_empresa_persona_bodega': 'estado',\n    'tipo_empresa_bodega': 'tipo_registro_propiedad',\n    'id_alim_bodega': 'bodega_code',\n    'id_alim_empresa': 'empresa_code',\n    'id_alim_persona': 'persona_code',\n    'id_ctl_estado_proceso': 'estado_proceso_code',\n    'id_ctl_modulo': 'modulo_code'\n  },\n  relationships: {\n    'id_alim_bodega': 'BOD',\n    'id_alim_empresa': 'EMP',\n    'id_alim_persona': 'PER',\n    'id_ctl_estado_proceso': 'ESTADO',\n    'id_ctl_modulo': 'MODULO'\n  },\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9500,
+        1600
+      ],
+      "id": "config-empresa-persona-bodega-001",
+      "name": "Config: srs_empresa_persona_bodega"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        9750,
+        1600
+      ],
+      "id": "migrate-empresa-persona-bodega-001",
+      "name": "Migrate: srs_empresa_persona_bodega",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_estado_producto',\n  table_destination: 'srs_estado_producto',\n  code_prefix: 'ESTPROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        9000,
+        2200
+      ],
+      "id": "config-estado-producto-001",
+      "name": "Config: srs_estado_producto"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        9250,
+        2200
+      ],
+      "id": "migrate-estado-producto-001",
+      "name": "Migrate: srs_estado_producto",
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Start Master Migration": {
+      "main": [
+        [
+          {
+            "node": "Initialize Master Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Trigger (for MCP)": {
+      "main": [
+        [
+          {
+            "node": "Initialize Master Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize Master Variables": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_material",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_material": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_material",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_material": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_tipo_riesgo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_tipo_riesgo": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_tipo_riesgo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_tipo_riesgo": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_clasificacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_clasificacion": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_clasificacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_clasificacion": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_marcas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_marcas": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_marcas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_marcas": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_unidad_medida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_unidad_medida": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_unidad_medida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_unidad_medida": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_tipo_tramitador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_tipo_tramitador": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_tipo_tramitador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_tipo_tramitador": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_estado_proceso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_estado_proceso": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_estado_proceso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_estado_proceso": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_funcion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_funcion": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_funcion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_funcion": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_tamanio_empresa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_tamanio_empresa": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_tamanio_empresa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_tamanio_empresa": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_giro_empresa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_giro_empresa": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_giro_empresa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_giro_empresa": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_empresa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_empresa": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_empresa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_empresa": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_persona",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_persona": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_persona",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_persona": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_empresa_persona_tramitador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_empresa_persona_tramitador": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_empresa_persona_tramitador",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_empresa_persona_tramitador": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_pais",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_pais": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_pais",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_pais": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_certificado_libre_venta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_certificado_libre_venta": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_certificado_libre_venta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_certificado_libre_venta": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_departamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_departamento": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_departamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_departamento": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_municipio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_municipio": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_municipio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_municipio": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_tipo_bodega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_tipo_bodega": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_tipo_bodega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_tipo_bodega": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_bodega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_bodega": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_bodega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_bodega": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_empresa_persona_bodega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_empresa_persona_bodega": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_empresa_persona_bodega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_empresa_persona_bodega": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_estado_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_estado_producto": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_estado_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_estado_producto": {
+      "main": [
+        [
+          {
+            "node": "Exp: Config Unificada Empresa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exp: Config Unificada Empresa": {
+      "main": [
+        [
+          {
+            "node": "Exp: Migrate Unificada Empresa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exp: Migrate Unificada Empresa": {
+      "main": [
+        [
+          {
+            "node": "Exp: Config Unificada Persona",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exp: Config Unificada Persona": {
+      "main": [
+        [
+          {
+            "node": "Exp: Migrate Unificada Persona",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Exp: Migrate Unificada Persona": {
+      "main": [
+        [
+          {
+            "node": "Query Audit Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Audit Summary": {
+      "main": [
+        [
+          {
+            "node": "Generate Final Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "fbd894b1-bdaf-4f72-a0eb-27defd150a19",
+  "meta": {
+    "instanceId": "99a10a2e4d1c6e0339f8404860de7592311f0cf1b86a83dc405fe9cd64c583eb"
+  },
+  "id": "DulpvZS8UEc23iCb",
+  "tags": []
+}
