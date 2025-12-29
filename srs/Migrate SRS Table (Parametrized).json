@@ -435,7 +435,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "INSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nVALUES (\n  '{{ $json.table_id }}',\n  '{{ $json.table_name }}',\n  '{{ $json.table_description }}',\n  '{{ $json.columns_json }}'::jsonb,\n  NOW(),\n  NOW()\n)\nON CONFLICT (name)\nDO UPDATE SET\n  description = EXCLUDED.description,\n  columns = EXCLUDED.columns,\n  updated_at = NOW();"
+        "query": "WITH existing AS (\n  SELECT id FROM data_center_tables WHERE name = '{{ $json.table_name }}'\n)\nINSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nSELECT \n  COALESCE((SELECT id FROM existing), '{{ $json.table_id }}'),\n  '{{ $json.table_name }}',\n  '{{ $json.table_description }}',\n  '{{ $json.columns_json }}'::jsonb,\n  COALESCE((SELECT created_at FROM data_center_tables WHERE name = '{{ $json.table_name }}'), NOW()),\n  NOW()\nWHERE NOT EXISTS (SELECT 1 FROM existing);\n\nUPDATE data_center_tables\nSET \n  description = '{{ $json.table_description }}',\n  columns = '{{ $json.columns_json }}'::jsonb,\n  updated_at = NOW()\nWHERE name = '{{ $json.table_name }}';"
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
