@@ -43,7 +43,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_material',\n  table_destination: 'srs_material',\n  code_prefix: 'MAT',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Cat\u00e1logo de materiales para envases de productos']*'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_material',\n  table_destination: 'srs_material',\n  code_prefix: 'MAT',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Cat\u00e1logo de materiales para envases de productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
