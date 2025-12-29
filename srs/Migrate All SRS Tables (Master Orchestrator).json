@@ -28,7 +28,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const now = new Date();\nconst masterBatchId = 'MASTER_' + now.toISOString().replace(/[:.]/g, '').replace(/-/g, '').substring(0, 15);\n\nreturn {\n  master_batch_id: masterBatchId,\n  master_start_time: now.toISOString(),\n  total_tables: 27,\n  workflow_id: $execution.id\n};"
+        "jsCode": "const now = new Date();\nconst masterBatchId = 'MASTER_' + now.toISOString().replace(/[:.]/g, '').replace(/-/g, '').substring(0, 15);\n\nreturn {\n  master_batch_id: masterBatchId,\n  master_start_time: now.toISOString(),\n  total_tables: 29,\n  workflow_id: $execution.id\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -829,7 +829,7 @@
       "parameters": {
         "content": "## 📁 Expedientes\nCatálogos y tablas relacionadas a expedientes y formularios.",
         "height": 300,
-        "width": 2800,
+        "width": 3300,
         "color": 6
       },
       "type": "n8n-nodes-base.stickyNote",
@@ -1031,6 +1031,70 @@
       ],
       "id": "migrate-producto-clv-001",
       "name": "Migrate: srs_producto_certificado_libre_venta",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_bodega_producto',\n  table_destination: 'srs_bodega_producto',\n  code_prefix: 'BODPROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'fecha_registro', 'id_alim_producto', 'id_alim_bodega'],\n  promoted_fields: [\n    'fecha_registro',\n    'fecha_traslado',\n    'id_alim_producto',\n    'id_alim_bodega'\n  ],\n  field_types: {\n    'fecha_registro': 'DATE',\n    'fecha_traslado': 'DATE'\n  },\n  field_mappings: {\n    'id_alim_producto': 'producto_code',\n    'id_alim_bodega': 'bodega_code'\n  },\n  relationships: {\n    'id_alim_producto': 'PROD',\n    'id_alim_bodega': 'BOD'\n  },\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        10500,
+        1600
+      ],
+      "id": "config-bodega-producto-001",
+      "name": "Config: srs_bodega_producto"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        10750,
+        1600
+      ],
+      "id": "migrate-bodega-producto-001",
+      "name": "Migrate: srs_bodega_producto",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_material_envase_producto',\n  table_destination: 'srs_material_envase_producto',\n  code_prefix: 'MATENV',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_ctl_material', 'id_alim_envase_producto'],\n  promoted_fields: [\n    'id_ctl_material',\n    'id_alim_envase_producto'\n  ],\n  field_types: {},\n  field_mappings: {\n    'id_ctl_material': 'material_code',\n    'id_alim_envase_producto': 'envase_producto_code'\n  },\n  relationships: {\n    'id_ctl_material': 'MAT',\n    'id_alim_envase_producto': 'ENVPROD'\n  },\n  batch_size: 1000\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        11000,
+        1600
+      ],
+      "id": "config-material-envase-producto-001",
+      "name": "Config: srs_material_envase_producto"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        11250,
+        1600
+      ],
+      "id": "migrate-material-envase-producto-001",
+      "name": "Migrate: srs_material_envase_producto",
       "onError": "continueRegularOutput"
     }
   ],
@@ -1664,6 +1728,50 @@
       ]
     },
     "Migrate: srs_producto_certificado_libre_venta": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_bodega_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_bodega_producto": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_bodega_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_bodega_producto": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_material_envase_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_material_envase_producto": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_material_envase_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_material_envase_producto": {
       "main": [
         [
           {

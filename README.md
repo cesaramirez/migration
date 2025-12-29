@@ -30,6 +30,8 @@ This repository contains an **n8n‑based ETL workflow** that migrates data from
 | `alim_producto` | `srs_producto` | Producto nacional/importado; enum `tipo_producto` y `estado_registro` con mapeos; relaciones a país, estado producto y sub-grupo alimenticio. |
 | `alim_marca_producto` | `srs_marca_producto` | Relación marca-producto (expedientes); `estado_marca_producto` mapeado a ACTIVO/INACTIVO. |
 | `alim_producto_certificado_libre_venta` | `srs_producto_certificado_libre_venta` | Relación producto-CLV; incluye `fecha_vigencia`, `nombre_prod_segun_clv` y vínculos a CLV, estado proceso y producto. |
+| `alim_bodega_producto` | `srs_bodega_producto` | Relación bodega-producto; incluye fechas de registro/traslado y vínculo a bodega y producto. |
+| `alim_material_envase_producto` | `srs_material_envase_producto` | Relación material-envase de producto; tabla de unión (N:N) que conecta materiales con envases de productos. |
 | `ctl_estado_producto` | `srs_estado_producto` | Simple lookup table (`id`, `nombre`). |
 | `alim_empresa` / `alim_persona` | `srs_entidad_experiment` | Unified entity table; `use_db_prefix` set to false. |
 | … (other catalog tables such as `ctl_pais`, `ctl_departamento`, `ctl_municipio`, `ctl_tipo_bodega`, etc.) |
