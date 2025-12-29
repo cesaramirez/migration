@@ -63,7 +63,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -99,7 +106,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -135,7 +149,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -171,7 +192,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -207,7 +235,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -243,7 +278,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -279,7 +321,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -315,7 +364,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -351,7 +407,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -387,7 +450,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -423,7 +493,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -459,7 +536,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -495,7 +579,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -531,7 +622,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -567,7 +665,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -603,7 +708,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -639,7 +751,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -675,7 +794,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -727,7 +853,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -763,7 +896,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -849,7 +989,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -885,7 +1032,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -985,7 +1139,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -1021,7 +1182,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -1057,7 +1225,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -1093,7 +1268,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -1129,7 +1311,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -1165,7 +1354,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },
@@ -1201,7 +1397,14 @@
         },
         "options": {
           "fields": {
-            "parameters": "{{ $json }}"
+            "table_source": "={{ $json.table_source }}",
+            "table_destination": "={{ $json.table_destination }}",
+            "code_prefix": "={{ $json.code_prefix }}",
+            "field_mappings": "={{ $json.field_mappings }}",
+            "validation_rules": "={{ $json.validation_rules || {} }}",
+            "batch_size": "={{ $json.batch_size }}",
+            "register_in_data_center": "={{ $json.register_in_data_center }}",
+            "table_description": "={{ $json.table_description }}"
           }
         }
       },

@@ -18,7 +18,35 @@
               "type": "string"
             },
             {
+              "name": "source_database",
+              "type": "string"
+            },
+            {
+              "name": "use_db_prefix",
+              "type": "boolean"
+            },
+            {
+              "name": "required_fields",
+              "type": "json"
+            },
+            {
+              "name": "promoted_fields",
+              "type": "json"
+            },
+            {
+              "name": "field_types",
+              "type": "json"
+            },
+            {
+              "name": "value_mappings",
+              "type": "json"
+            },
+            {
               "name": "field_mappings",
+              "type": "json"
+            },
+            {
+              "name": "relationships",
               "type": "json"
             },
             {
