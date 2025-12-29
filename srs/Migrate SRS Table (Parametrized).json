@@ -28,6 +28,14 @@
             {
               "name": "batch_size",
               "type": "number"
+            },
+            {
+              "name": "register_in_data_center",
+              "type": "boolean"
+            },
+            {
+              "name": "table_description",
+              "type": "string"
             }
           ]
         }
