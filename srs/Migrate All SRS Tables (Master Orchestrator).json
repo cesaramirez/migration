@@ -617,15 +617,15 @@
     },
     {
       "parameters": {
-        "content": "## 🧪 LAB: Unificación de Entidades (Experimento)\nAquí probamos el concepto de 'Flat Model' uniendo Personas y Empresas en una sola tabla de destino.",
-        "height": 300,
-        "width": 1300,
+        "content": "## 🧪 LAB: Unificación de Entidades (Experimento)\n\nAquí probamos el concepto de 'Flat Model' uniendo Personas y Empresas en una sola tabla de destino.",
+        "height": 380,
+        "width": 1800,
         "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        9000,
+        8900,
         1950
       ],
       "id": "note-lab-001",
@@ -639,7 +639,7 @@
       "typeVersion": 2,
       "position": [
         9000,
-        2000
+        2100
       ],
       "id": "exp-config-empresa",
       "name": "Exp: Config Unificada Empresa"
@@ -657,7 +657,7 @@
       "typeVersion": 1.1,
       "position": [
         9250,
-        2000
+        2100
       ],
       "id": "exp-migrate-empresa",
       "name": "Exp: Migrate Unificada Empresa",
@@ -671,7 +671,7 @@
       "typeVersion": 2,
       "position": [
         9500,
-        2000
+        2100
       ],
       "id": "exp-config-persona",
       "name": "Exp: Config Unificada Persona"
@@ -689,7 +689,7 @@
       "typeVersion": 1.1,
       "position": [
         9750,
-        2000
+        2100
       ],
       "id": "exp-migrate-persona",
       "name": "Exp: Migrate Unificada Persona",
@@ -705,7 +705,7 @@
       "typeVersion": 2.6,
       "position": [
         10250,
-        2000
+        2100
       ],
       "id": "a66e6318-1964-4c4b-9211-872543b213f2",
       "name": "Query Audit Summary",
@@ -724,7 +724,7 @@
       "typeVersion": 2,
       "position": [
         10500,
-        2000
+        2100
       ],
       "id": "97cf9612-9800-4ec8-91c8-d1a1581fcef5",
       "name": "Generate Final Report"
@@ -1792,6 +1792,5 @@
   "meta": {
     "instanceId": "99a10a2e4d1c6e0339f8404860de7592311f0cf1b86a83dc405fe9cd64c583eb"
   },
-  "id": "DulpvZS8UEc23iCb",
-  "tags": []
+  "id": "DulpvZS8UEc23iCb"
 }
