@@ -43,7 +43,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const params = $input.first().json;\n\nconst now = new Date();\nconst year = now.getFullYear();\nconst month = String(now.getMonth() + 1).padStart(2, '0');\nconst day = String(now.getDate()).padStart(2, '0');\nconst hours = String(now.getHours()).padStart(2, '0');\nconst minutes = String(now.getMinutes()).padStart(2, '0');\nconst seconds = String(now.getSeconds()).padStart(2, '0');\n\nconst batchId = `BATCH_${year}${month}${day}_${hours}${minutes}${seconds}`;\n\n// Determine Database Short Code (SISAM -> SIS)\nconst dbCode = params.source_database === 'SISAM' ? 'SIS' : (params.source_database || 'SIS');\n\nreturn {\n  batch_id: batchId,\n  start_time: now.toISOString(),\n  table_source: params.table_source,\n  table_destination: params.table_destination,\n  source_database: params.source_database || 'SISAM',\n  db_code: dbCode,\n  use_db_prefix: params.use_db_prefix !== undefined ? params.use_db_prefix : true, // Default to true if not specified\n  code_prefix: params.code_prefix,\n  required_fields: params.required_fields || ['id', 'nombre'],\n  promoted_fields: params.promoted_fields || ['nombre'],\n  field_types: params.field_types || {},\n  value_mappings: params.value_mappings || {},\n  field_mappings: params.field_mappings || {},\n  relationships: params.relationships || {},\n  batch_size: params.batch_size || 1000\n};"
+        "jsCode": "const params = $input.first().json;\n\nconst now = new Date();\nconst year = now.getFullYear();\nconst month = String(now.getMonth() + 1).padStart(2, '0');\nconst day = String(now.getDate()).padStart(2, '0');\nconst hours = String(now.getHours()).padStart(2, '0');\nconst minutes = String(now.getMinutes()).padStart(2, '0');\nconst seconds = String(now.getSeconds()).padStart(2, '0');\n\nconst batchId = `BATCH_${year}${month}${day}_${hours}${minutes}${seconds}`;\n\n// Determine Database Short Code (SISAM -> SIS)\nconst dbCode = params.source_database === 'SISAM' ? 'SIS' : (params.source_database || 'SIS');\n\nreturn {\n  batch_id: batchId,\n  start_time: now.toISOString(),\n  table_source: params.table_source,\n  table_destination: params.table_destination,\n  source_database: params.source_database || 'SISAM',\n  db_code: dbCode,\n  use_db_prefix: params.use_db_prefix !== undefined ? params.use_db_prefix : true, // Default to true if not specified\n  code_prefix: params.code_prefix,\n  required_fields: params.required_fields || ['id', 'nombre'],\n  promoted_fields: params.promoted_fields || ['nombre'],\n  field_types: params.field_types || {},\n  value_mappings: params.value_mappings || {},\n  field_mappings: params.field_mappings || {},\n  relationships: params.relationships || {},\n  batch_size: params.batch_size || 1000,\n  register_in_data_center: params.register_in_data_center || false,\n  table_description: params.table_description || ''\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -190,8 +190,7 @@
           "name": "SDT Data Center Dev"
         }
       },
-      "onError": "continueRegularOutput",
-      "retryErrorHandler": "pause"
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -357,6 +356,66 @@
       ],
       "id": "no-data-001",
       "name": "No Source Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "condition-1",
+              "operator": {
+                "name": "eq",
+                "type": "boolean"
+              },
+              "value": true,
+              "leftValue": "{{ $('Initialize Variables').first().json.register_in_data_center }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3200,
+        0
+      ],
+      "id": "should-register-001",
+      "name": "Should Register?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate UUID v4 without require()\nfunction generateUUID() {\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {\n    const r = Math.random() * 16 | 0;\n    const v = c === 'x' ? r : (r & 0x3 | 0x8);\n    return v.toString(16);\n  });\n}\n\nconst vars = $('Initialize Variables').first().json;\nconst promotedFields = vars.promoted_fields || [];\nconst fieldTypes = vars.field_types || {};\n\nconst columns = promotedFields.map(fieldName => {\n  let fieldType = 'STRING';\n  \n  if (fieldTypes[fieldName]) {\n    const typeStr = fieldTypes[fieldName].toUpperCase();\n    if (typeStr.includes('BOOLEAN')) fieldType = 'BOOLEAN';\n    else if (typeStr.includes('INTEGER') || typeStr.includes('INT')) fieldType = 'INTEGER';\n    else if (typeStr.includes('REAL') || typeStr.includes('NUMERIC') || typeStr.includes('DECIMAL')) fieldType = 'NUMERIC';\n    else if (typeStr.includes('TIMESTAMP') || typeStr.includes('DATE')) fieldType = 'TIMESTAMP';\n    else if (typeStr.includes('JSONB') || typeStr.includes('JSON')) fieldType = 'JSON';\n  }\n  \n  return {\n    id: generateUUID(),\n    name: fieldName,\n    type: fieldType\n  };\n});\n\nreturn {\n  table_id: generateUUID(),\n  table_name: vars.table_destination,\n  table_description: vars.table_description,\n  columns_json: JSON.stringify(columns),\n  batch_id: vars.batch_id,\n  workflow_execution_id: $execution.id\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3400,
+        -100
+      ],
+      "id": "build-columns-001",
+      "name": "Build Columns JSON"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nVALUES (\n  '{{ $json.table_id }}',\n  '{{ $json.table_name }}',\n  '{{ $json.table_description }}',\n  '{{ $json.columns_json }}'::jsonb,\n  NOW(),\n  NOW()\n)\nON CONFLICT (name)\nDO UPDATE SET\n  description = EXCLUDED.description,\n  columns = EXCLUDED.columns,\n  updated_at = NOW();"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3600,
+        -100
+      ],
+      "id": "register-table-001",
+      "name": "Register in data_center_tables",
+      "credentials": {
+        "postgres": {
+          "id": "xLCzLfVfYEqVxsV3",
+          "name": "SDT Core Dev"
+        }
+      },
+      "onError": "continueRegularOutput"
     }
   ],
   "connections": {
@@ -559,11 +618,45 @@
     },
     "Log Audit Record": {
       "main": [
+        [
+          {
+            "node": "Should Register?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Register?": {
+      "main": [
+        [
+          {
+            "node": "Build Columns JSON",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Build Columns JSON": {
+      "main": [
+        [
+          {
+            "node": "Register in data_center_tables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register in data_center_tables": {
+      "main": [
         []
       ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false
@@ -571,11 +664,5 @@
   "versionId": "parametrized-v1",
   "meta": {
     "templateCredsSetupCompleted": true
-  },
-  "tags": [
-    "migration",
-    "parametrized",
-    "reusable",
-    "fase2"
-  ]
+  }
 }
