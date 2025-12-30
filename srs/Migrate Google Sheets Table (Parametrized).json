@@ -104,12 +104,18 @@
           "mode": "name"
         },
         "options": {
-          "headerRow": "={{ $('Initialize Variables').first().json.header_row }}",
-          "dataStartRow": "={{ $('Initialize Variables').first().json.data_start_row }}"
+          "dataLocationOnSheet": {
+            "values": {
+              "rangeDefinition": "specifyRange",
+              "headerRow": "={{ $('Initialize Variables').first().json.header_row }}",
+              "firstDataRow": "={{ $('Initialize Variables').first().json.data_start_row }}"
+            }
+          },
+          "returnFirstMatch": false
         }
       },
       "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.5,
+      "typeVersion": 4.7,
       "position": [
         400,
         0
@@ -201,7 +207,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const allItems = $input.all();\n\n// FILTRO: Eliminar filas que no tienen código válido (Google Sheets)\nconst items = allItems.filter(item => {\n  const row = item.json;\n  const codigo = row['Código *'] || row['Código'] || row['codigo'] || row['code'] || row['Id'];\n\n  if (!codigo) return false;\n  const codigoStr = String(codigo).trim();\n  if (!codigoStr) return false;\n  if (codigoStr.includes('=')) return false;  // Rosa = Obligatorio\n  if (codigoStr.includes('Cambie')) return false;\n  if (codigoStr.includes('Color')) return false;\n  if (codigoStr.includes('Ponga')) return false;\n\n  return true;\n});\n\nconsole.log('📊 Items leídos:', allItems.length);\nconsole.log('✅ Items válidos:', items.length);\nconsole.log('🗑️ Filtrados:', allItems.length - items.length);\n\nif (!Array.isArray(items) || items.length === 0) {\n  return [];\n}\n\nconst initVars = $('Initialize Variables').first().json;\nconst batchId = initVars.batch_id;\nconst tableDest = initVars.table_destination;\nconst promotedFields = initVars.promoted_fields || ['nombre'];\nconst fieldMappings = initVars.field_mappings || {};\nconst relationships = initVars.relationships || {};\nconst valueMappings = initVars.value_mappings || {};\nconst BATCH_SIZE = 500;\n\nconst getDestName = (src) => fieldMappings[src] || src;\nconst targetColumns = [...new Set(promotedFields.map(f => getDestName(f)))];\n\nconst colToSources = {};\ntargetColumns.forEach(target => {\n  colToSources[target] = promotedFields.filter(src => getDestName(src) === target);\n});\n\nconst fieldTypes = initVars.field_types || {};\n\nconst colDefinitions = targetColumns.map(destField => {\n  const sources = colToSources[destField];\n  let type = null;\n\n  for (const src of sources) {\n    if (fieldTypes[src]) { type = fieldTypes[src]; break; }\n    if (relationships[src]) { type = 'VARCHAR(100)'; break; }\n    if (valueMappings[src]) { type = 'VARCHAR(100)'; break; }\n  }\n\n  if (!type) {\n    if (fieldTypes[destField]) type = fieldTypes[destField];\n    else {\n      type = 'TEXT';\n      if (['activo', 'sin_nit', 'importa_lac', 'alimentos'].includes(destField) || destField.startsWith('is_')) {\n        type = 'BOOLEAN DEFAULT true';\n      } else if (destField.includes('fecha_') || destField.endsWith('_at')) {\n        type = 'TIMESTAMP';\n      } else if (destField.startsWith('estado_') || destField === 'estado' || destField === 'status') {\n        const hasMapping = sources.some(s => valueMappings[s]);\n        type = hasMapping ? 'VARCHAR(100)' : 'INTEGER';\n      }\n    }\n  }\n\n  return destField + ' ' + type;\n}).join(', ');\n\nconst alterTableSQL = targetColumns.map(destField => {\n  const sources = colToSources[destField];\n  let type = 'TEXT';\n  for (const src of sources) {\n    if (fieldTypes[src]) { type = fieldTypes[src]; break; }\n    if (relationships[src]) { type = 'VARCHAR(100)'; break; }\n    if (valueMappings[src]) { type = 'VARCHAR(100)'; break; }\n  }\n  if (type === 'TEXT' && fieldTypes[destField]) type = fieldTypes[destField];\n  return `ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS ${destField} ${type};`;\n}).join(' ');\n\nconst commentStatements = [];\ntargetColumns.forEach(destCol => {\n  const sources = colToSources[destCol];\n  for (const srcKey of sources) {\n    if (valueMappings[srcKey]) {\n      const mappings = valueMappings[srcKey];\n      const mappingDesc = Object.entries(mappings)\n        .map(([key, val]) => `${key} → ${JSON.stringify(val)}`)\n        .join(', ');\n      const comment = `COMMENT ON COLUMN ${tableDest}.${destCol} IS 'Valores posibles: ${mappingDesc.replace(/'/g, \"''\")}';`;\n      commentStatements.push(comment);\n      break;\n    }\n  }\n});\n\nconst commentSQL = commentStatements.join(' ');\n\n// CREATE TABLE sin original_id (no aplica para Google Sheets)\nconst createTableSQL = `CREATE EXTENSION IF NOT EXISTS \"pgcrypto\"; CREATE TABLE IF NOT EXISTS ${tableDest} (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), code VARCHAR(50) UNIQUE, ${colDefinitions ? colDefinitions + ', ' : ''} attributes JSONB, sys_migrated_at TIMESTAMP DEFAULT NOW(), sys_batch_id VARCHAR(100), created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP, deleted_at TIMESTAMP); ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW(); ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP; ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP; ${alterTableSQL} ${commentSQL}`;\n\n// Column list for INSERT (sin original_id)\nconst allColumns = ['code', ...targetColumns, 'attributes', 'sys_migrated_at', 'sys_batch_id', 'created_at'];\n\nconst escVal = (v) => {\n  if (v === null || v === undefined) return 'NULL';\n  if (typeof v === 'boolean') return v;\n  if (typeof v === 'number') return v;\n  return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n};\n\nconst updateSet = ['code = EXCLUDED.code', 'attributes = EXCLUDED.attributes', 'updated_at = NOW()'];\ntargetColumns.forEach(f => updateSet.push(f + ' = EXCLUDED.' + f));\n\nconst allValuesTuples = items.map((item) => {\n  const data = item.json;\n  \n  // Usar código directamente del Excel\n  const codigo = data['Código *'] || data['Código'] || data['codigo'] || data['code'] || data['Id'];\n  const code = String(codigo).trim();\n\n  const targetValues = targetColumns.map(destCol => {\n    const sources = colToSources[destCol];\n    let finalVal = null;\n\n    for (const srcKey of sources) {\n      const realSrcField = srcKey.includes(':') ? srcKey.split(':')[0] : srcKey;\n      let val = data[realSrcField];\n\n      if (val !== null && val !== undefined) {\n        if (relationships[srcKey]) {\n          const relPrefix = relationships[srcKey];\n          finalVal = `${relPrefix}_${String(val).padStart(6, '0')}`;\n        }\n        else if (valueMappings[srcKey] && valueMappings[srcKey][val]) {\n           finalVal = valueMappings[srcKey][val];\n        }\n        else {\n          finalVal = val;\n        }\n        break;\n      }\n    }\n    return escVal(finalVal);\n  });\n\n  const attributes = {\n    original_record: data,\n    extracted_at: new Date().toISOString(),\n    source_table: initVars.sheet_name || 'Google Sheet',\n    source_database: 'Google Drive XLSX'\n  };\n\n  const vals = [\n    \"'\" + code + \"'\",\n    ...targetValues,\n    \"'\" + JSON.stringify(attributes).replace(/'/g, \"''\") + \"'::jsonb\",\n    'NOW()',\n    \"'\" + batchId + \"'\",\n    'NOW()'\n  ];\n\n  return '(' + vals.join(', ') + ')';\n});\n\nconst batches = [];\nfor (let i = 0; i < allValuesTuples.length; i += BATCH_SIZE) {\n  batches.push(allValuesTuples.slice(i, i + BATCH_SIZE));\n}\n\nconst results = batches.map((batchTuples, batchIndex) => {\n  const valuesSQL = batchTuples.join(', ');\n\n  return {\n    batch_index: batchIndex,\n    batch_count: batches.length,\n    records_in_batch: batchTuples.length,\n    total_records: items.length,\n    _sql_columns: allColumns.join(', '),\n    _sql_values: valuesSQL,\n    _sql_update_set: updateSet.join(', '),\n    _create_table: createTableSQL\n  };\n});\n\nreturn results;"
+        "jsCode": "const allItems = $input.all();\n\nconst normalizeKey = (key) => String(key)\n  .normalize('NFD')\n  .replace(/[\\u0300-\\u036f]/g, '')\n  .toLowerCase()\n  .replace(/\\s+/g, '')\n  .replace(/\\*/g, '')\n  .replace(/[¿?]/g, '');\n\nconst buildRowIndex = (row) => {\n  const index = {};\n  Object.keys(row || {}).forEach((key) => {\n    index[normalizeKey(key)] = key;\n  });\n  return index;\n};\n\nconst getValue = (row, index, key) => {\n  if (row && row[key] !== undefined) return row[key];\n  const normalized = index[normalizeKey(key)];\n  if (normalized) return row[normalized];\n  return undefined;\n};\n\nconst getFirstValue = (row, index, keys) => {\n  for (const key of keys) {\n    const val = getValue(row, index, key);\n    if (val !== undefined && val !== null && String(val).trim() !== '') return val;\n  }\n  return undefined;\n};\n\nconst initVars = $('Initialize Variables').first().json;\nconst batchId = initVars.batch_id;\nconst tableDest = initVars.table_destination;\nconst promotedFields = Array.isArray(initVars.promoted_fields) ? initVars.promoted_fields : [];\nconst fieldMappings = initVars.field_mappings || {};\nconst relationships = initVars.relationships || {};\nconst valueMappings = initVars.value_mappings || {};\nconst fieldTypes = initVars.field_types || {};\nconst BATCH_SIZE = 500;\n\nconst getDestName = (src) => fieldMappings[src] || src;\nconst targetColumns = [...new Set(promotedFields.map(f => getDestName(f)))];\n\nconst colToSources = {};\ntargetColumns.forEach(target => {\n  colToSources[target] = promotedFields.filter(src => getDestName(src) === target);\n});\n\nconst colDefinitions = targetColumns.map(destField => {\n  const sources = colToSources[destField];\n  let type = null;\n\n  for (const src of sources) {\n    if (fieldTypes[src]) { type = fieldTypes[src]; break; }\n    if (relationships[src]) { type = 'VARCHAR(100)'; break; }\n    if (valueMappings[src]) { type = 'VARCHAR(100)'; break; }\n  }\n\n  if (!type) {\n    if (fieldTypes[destField]) type = fieldTypes[destField];\n    else {\n      type = 'TEXT';\n      if (['activo', 'sin_nit', 'importa_lac', 'alimentos'].includes(destField) || destField.startsWith('is_')) {\n        type = 'BOOLEAN DEFAULT true';\n      } else if (destField.includes('fecha_') || destField.endsWith('_at')) {\n        type = 'TIMESTAMP';\n      } else if (destField.startsWith('estado_') || destField === 'estado' || destField === 'status') {\n        const hasMapping = sources.some(s => valueMappings[s]);\n        type = hasMapping ? 'VARCHAR(100)' : 'INTEGER';\n      }\n    }\n  }\n\n  return destField + ' ' + type;\n}).join(', ');\n\nconst alterTableSQL = targetColumns.map(destField => {\n  const sources = colToSources[destField];\n  let type = 'TEXT';\n  for (const src of sources) {\n    if (fieldTypes[src]) { type = fieldTypes[src]; break; }\n    if (relationships[src]) { type = 'VARCHAR(100)'; break; }\n    if (valueMappings[src]) { type = 'VARCHAR(100)'; break; }\n  }\n  if (type === 'TEXT' && fieldTypes[destField]) type = fieldTypes[destField];\n  return `ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS ${destField} ${type};`;\n}).join(' ');\n\nconst commentStatements = [];\ntargetColumns.forEach(destCol => {\n  const sources = colToSources[destCol];\n  for (const srcKey of sources) {\n    if (valueMappings[srcKey]) {\n      const mappings = valueMappings[srcKey];\n      const mappingDesc = Object.entries(mappings)\n        .map(([key, val]) => `${key} → ${JSON.stringify(val)}`)\n        .join(', ');\n      const comment = `COMMENT ON COLUMN ${tableDest}.${destCol} IS 'Valores posibles: ${mappingDesc.replace(/'/g, \"''\")}';`;\n      commentStatements.push(comment);\n      break;\n    }\n  }\n});\n\nconst commentSQL = commentStatements.join(' ');\n\n// CREATE TABLE sin original_id (no aplica para Google Sheets)\nconst createTableSQL = `CREATE EXTENSION IF NOT EXISTS \\\"pgcrypto\\\"; CREATE TABLE IF NOT EXISTS ${tableDest} (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), code VARCHAR(50) UNIQUE, ${colDefinitions ? colDefinitions + ', ' : ''} attributes JSONB, sys_migrated_at TIMESTAMP DEFAULT NOW(), sys_batch_id VARCHAR(100), created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP, deleted_at TIMESTAMP); ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW(); ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP; ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP; ${alterTableSQL} ${commentSQL}`;\n\n// Column list for INSERT (sin original_id)\nconst allColumns = ['code', ...targetColumns, 'attributes', 'sys_migrated_at', 'sys_batch_id', 'created_at'];\n\nconst updateSet = ['code = EXCLUDED.code', 'attributes = EXCLUDED.attributes', 'updated_at = NOW()'];\ntargetColumns.forEach(f => updateSet.push(f + ' = EXCLUDED.' + f));\n\n// FILTRO: Eliminar filas que no tienen código válido (Google Sheets)\nconst items = allItems.filter(item => {\n  const row = item.json;\n  const rowIndex = buildRowIndex(row);\n  const codigo = getFirstValue(row, rowIndex, ['Código *', 'Código', 'codigo', 'code', 'Id']);\n\n  if (!codigo) return false;\n  const codigoStr = String(codigo).trim();\n  if (!codigoStr) return false;\n  if (codigoStr.includes('=')) return false;  // Rosa = Obligatorio\n  if (codigoStr.includes('Cambie')) return false;\n  if (codigoStr.includes('Color')) return false;\n  if (codigoStr.includes('Ponga')) return false;\n\n  return true;\n});\n\nconsole.log('📊 Items leídos:', allItems.length);\nconsole.log('✅ Items válidos:', items.length);\nconsole.log('🗑️ Filtrados:', allItems.length - items.length);\n\nif (!Array.isArray(items) || items.length === 0) {\n  const sampleItem = allItems[0] ? allItems[0].json || {} : {};\n\n  return [{\n    json: {\n      total_records: 0,\n      has_valid_rows: false,\n      message: 'No valid rows after filtering',\n      items_read: allItems.length,\n      sample_keys: Object.keys(sampleItem),\n      sample_row: sampleItem,\n      sample_row_index: buildRowIndex(sampleItem),\n      _create_table: createTableSQL,\n      _sql_columns: allColumns.join(', '),\n      _sql_update_set: updateSet.join(', ')\n    }\n  }];\n}\n\nconst escVal = (v) => {\n  if (v === null || v === undefined) return 'NULL';\n  if (typeof v === 'boolean') return v;\n  if (typeof v === 'number') return v;\n  return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n};\n\nconst allValuesTuples = items.map((item) => {\n  const data = item.json;\n  const rowIndex = buildRowIndex(data);\n  \n  // Usar código directamente del Excel\n  const codigo = getFirstValue(data, rowIndex, ['Código *', 'Código', 'codigo', 'code', 'Id']);\n  const code = String(codigo).trim();\n\n  const targetValues = targetColumns.map(destCol => {\n    const sources = colToSources[destCol];\n    let finalVal = null;\n\n    for (const srcKey of sources) {\n      const realSrcField = srcKey.includes(':') ? srcKey.split(':')[0] : srcKey;\n      let val = getValue(data, rowIndex, realSrcField);\n\n      if (val !== null && val !== undefined) {\n        if (relationships[srcKey]) {\n          const relPrefix = relationships[srcKey];\n          finalVal = `${relPrefix}_${String(val).padStart(6, '0')}`;\n        }\n        else if (valueMappings[srcKey] && valueMappings[srcKey][val]) {\n           finalVal = valueMappings[srcKey][val];\n        }\n        else {\n          finalVal = val;\n        }\n        break;\n      }\n    }\n    return escVal(finalVal);\n  });\n\n  const attributes = {\n    original_record: data,\n    extracted_at: new Date().toISOString(),\n    source_table: initVars.sheet_name || 'Google Sheet',\n    source_database: 'Google Drive XLSX'\n  };\n\n  const vals = [\n    \"'\" + code + \"'\",\n    ...targetValues,\n    \"'\" + JSON.stringify(attributes).replace(/'/g, \"''\") + \"'::jsonb\",\n    'NOW()',\n    \"'\" + batchId + \"'\",\n    'NOW()'\n  ];\n\n  return '(' + vals.join(', ') + ')';\n});\n\nconst batches = [];\nfor (let i = 0; i < allValuesTuples.length; i += BATCH_SIZE) {\n  batches.push(allValuesTuples.slice(i, i + BATCH_SIZE));\n}\n\nconst results = batches.map((batchTuples, batchIndex) => {\n  const valuesSQL = batchTuples.join(', ');\n\n  return {\n    batch_index: batchIndex,\n    batch_count: batches.length,\n    records_in_batch: batchTuples.length,\n    total_records: items.length,\n    has_valid_rows: true,\n    _sql_columns: allColumns.join(', '),\n    _sql_values: valuesSQL,\n    _sql_update_set: updateSet.join(', '),\n    _create_table: createTableSQL\n  };\n});\n\nreturn results.map((result) => ({ json: result }));"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -211,6 +217,31 @@
       ],
       "id": "prepare-001",
       "name": "Prepare Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "condition-1",
+              "operator": {
+                "name": "gt",
+                "type": "number"
+              },
+              "value": 0,
+              "leftValue": "{{ $json.total_records }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1500,
+        0
+      ],
+      "id": "has-prepared-rows-001",
+      "name": "Has Prepared Rows?"
     },
     {
       "parameters": {
@@ -551,7 +582,25 @@
       "main": [
         [
           {
+            "node": "Has Prepared Rows?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Prepared Rows?": {
+      "main": [
+        [
+          {
             "node": "Upsert Data (with Retry)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "The Golden Rule (Reconciliation)",
             "type": "main",
             "index": 0
           }
@@ -571,7 +620,7 @@
           {
             "node": "Log Error",
             "type": "main",
-            "index": 1
+            "index": 0
           }
         ]
       ]
