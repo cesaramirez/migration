@@ -1,4 +1,5 @@
 {
+  "name": "Migrate All SRS Tables (Master Orchestrator)",
   "nodes": [
     {
       "parameters": {},
@@ -828,7 +829,7 @@
       "parameters": {
         "content": "## 📁 Expedientes\nCatálogos y tablas relacionadas a expedientes y formularios.",
         "height": 300,
-        "width": 3300,
+        "width": 4600,
         "color": 6
       },
       "type": "n8n-nodes-base.stickyNote",
@@ -1034,12 +1035,44 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_bodega_producto',\n  table_destination: 'srs_bodega_producto',\n  code_prefix: 'BODPROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'fecha_registro', 'id_alim_producto', 'id_alim_bodega'],\n  promoted_fields: [\n    'fecha_registro',\n    'fecha_traslado',\n    'id_alim_producto',\n    'id_alim_bodega'\n  ],\n  field_types: {\n    'fecha_registro': 'DATE',\n    'fecha_traslado': 'DATE'\n  },\n  field_mappings: {\n    'id_alim_producto': 'producto_code',\n    'id_alim_bodega': 'bodega_code'\n  },\n  relationships: {\n    'id_alim_producto': 'PROD',\n    'id_alim_bodega': 'BOD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Ubicación de productos en bodegas'\n};"
+        "jsCode": "return {\n  table_source: 'alim_envase_producto',\n  table_destination: 'srs_envase_producto',\n  code_prefix: 'ENVPROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_alim_producto', 'estado_envase_producto'],\n  promoted_fields: [\n    'id_alim_producto',\n    'estado_envase_producto'\n  ],\n  field_types: {},\n  value_mappings: {\n    'estado_envase_producto': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Almacena la información de los envases de los productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         13808,
+        2848
+      ],
+      "id": "envprod-config-001",
+      "name": "Config: srs_envase_producto"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        14064,
+        2848
+      ],
+      "id": "envprod-migrate-001",
+      "name": "Migrate: srs_envase_producto",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_bodega_producto',\n  table_destination: 'srs_bodega_producto',\n  code_prefix: 'BODPROD',\n  use_db_prefix: true,\n  id_field: 'id_alim_bodega_producto',\n  required_fields: ['id_alim_bodega_producto', 'fecha_registro', 'id_alim_producto', 'id_alim_bodega'],\n  promoted_fields: [\n    'fecha_registro',\n    'fecha_traslado',\n    'id_alim_producto',\n    'id_alim_bodega'\n  ],\n  field_types: {\n    'fecha_registro': 'DATE',\n    'fecha_traslado': 'DATE'\n  },\n  field_mappings: {\n    'id_alim_producto': 'producto_code',\n    'id_alim_bodega': 'bodega_code'\n  },\n  relationships: {\n    'id_alim_producto': 'PROD',\n    'id_alim_bodega': 'BOD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Ubicación de productos en bodegas'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        14320,
         2848
       ],
       "id": "fdab1e40-2f3c-40a3-88c4-e7ec8f1cd305",
@@ -1057,7 +1090,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        14048,
+        14576,
         2848
       ],
       "id": "7e9ba2a2-24f6-4d1b-abc8-011e5f5158b8",
@@ -1071,7 +1104,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        14304,
+        14832,
         2848
       ],
       "id": "7d5f8da4-b545-4f35-90d0-70e671db1fe3",
@@ -1089,11 +1122,75 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        14560,
+        15088,
         2848
       ],
       "id": "f67c57b2-8320-4158-80cb-fbeee056307e",
       "name": "Migrate: srs_material_envase_producto",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_empresa_persona_aux_funcion_producto',\n  table_destination: 'srs_empresa_persona_aux_funcion_producto',\n  code_prefix: 'EPAFP',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_ctl_funcion_empresa_persona', 'id_alim_producto', 'id_alim_empresa_persona_aux'],\n  promoted_fields: [\n    'id_ctl_funcion_empresa_persona',\n    'id_alim_producto',\n    'id_alim_empresa_persona_aux'\n  ],\n  field_types: {},\n  value_mappings: {},\n  field_mappings: {\n    'id_ctl_funcion_empresa_persona': 'funcion_empresa_persona_code',\n    'id_alim_producto': 'producto_code',\n    'id_alim_empresa_persona_aux': 'empresa_persona_aux_code'\n  },\n  relationships: {\n    'id_ctl_funcion_empresa_persona': 'FUNC',\n    'id_alim_producto': 'PROD',\n    'id_alim_empresa_persona_aux': 'EPAUX'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Funciones que tiene una empresa o persona natural sobre un determinado producto (Fabricante, Distribuidor, Envasador, Importador, Propietario RS)'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        15344,
+        2848
+      ],
+      "id": "epafp-config-001",
+      "name": "Config: srs_empresa_persona_aux_funcion_producto"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        15600,
+        2848
+      ],
+      "id": "epafp-migrate-001",
+      "name": "Migrate: srs_empresa_persona_aux_funcion_producto",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_producto_sub_grupo_alimenticio',\n  table_destination: 'srs_producto_sub_grupo_alimenticio',\n  code_prefix: 'PRODSGA',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_alim_sub_grupo_alimenticio', 'id_alim_prod'],\n  promoted_fields: [\n    'id_alim_sub_grupo_alimenticio',\n    'id_alim_prod'\n  ],\n  field_types: {},\n  value_mappings: {},\n  field_mappings: {\n    'id_alim_sub_grupo_alimenticio': 'sub_grupo_alimenticio_code',\n    'id_alim_prod': 'producto_code'\n  },\n  relationships: {\n    'id_alim_sub_grupo_alimenticio': 'SUBGA',\n    'id_alim_prod': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Almacena los diferentes subgrupos alimenticios a los que puede pertenecer un producto'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        15856,
+        2848
+      ],
+      "id": "prodsga-config-001",
+      "name": "Config: srs_producto_sub_grupo_alimenticio"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        16112,
+        2848
+      ],
+      "id": "prodsga-migrate-001",
+      "name": "Migrate: srs_producto_sub_grupo_alimenticio",
       "onError": "continueRegularOutput"
     }
   ],
@@ -1723,6 +1820,28 @@
       "main": [
         [
           {
+            "node": "Config: srs_envase_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_envase_producto": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_envase_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_envase_producto": {
+      "main": [
+        [
+          {
             "node": "Config: srs_bodega_producto",
             "type": "main",
             "index": 0
@@ -1764,6 +1883,50 @@
       ]
     },
     "Migrate: srs_material_envase_producto": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_empresa_persona_aux_funcion_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_empresa_persona_aux_funcion_producto": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_empresa_persona_aux_funcion_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_empresa_persona_aux_funcion_producto": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_producto_sub_grupo_alimenticio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_producto_sub_grupo_alimenticio": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_producto_sub_grupo_alimenticio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_producto_sub_grupo_alimenticio": {
       "main": [
         [
           {
