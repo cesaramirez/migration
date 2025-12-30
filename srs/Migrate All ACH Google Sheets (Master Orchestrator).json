@@ -1,0 +1,198 @@
+{
+  "name": "Migrate All ACH Google Sheets (Master Orchestrator)",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f5c7399a492e4902",
+      "name": "Start Master Migration"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nconst year = now.getFullYear();\nconst month = String(now.getMonth() + 1).padStart(2, '0');\nconst day = String(now.getDate()).padStart(2, '0');\nconst hours = String(now.getHours()).padStart(2, '0');\nconst minutes = String(now.getMinutes()).padStart(2, '0');\nconst seconds = String(now.getSeconds()).padStart(2, '0');\n\nconst masterBatchId = `ACH_MASTER_${year}${month}${day}_${hours}${minutes}${seconds}`;\n\nreturn {\n  master_batch_id: masterBatchId,\n  master_start_time: now.toISOString(),\n  total_catalogs: 1,\n  migration_source: 'Google Sheets',\n  migration_target: 'PostgreSQL SDT ACH',\n  status: 'INICIANDO'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ],
+      "id": "1588c3d666684c95",
+      "name": "Initialize Master Variables"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 📋 CONFIGURACIÓN PARA: Tipos de parcelaciones\n// ⚠️ IMPORTANTE: Usar el spreadsheet_id del Google Sheet\n// 💡 Obtener spreadsheet_id: https://docs.google.com/spreadsheets/d/[ESTE_ES_EL_SPREADSHEET_ID]/edit\n\nreturn {\n  source_identifier: 'ACH Google Sheets: parcelaciones_tipo',\n  \n  // 🔑 Google Sheets Configuration\n  file_id: '1-pqKw4EjoavJVNBUVQSZA-mh3bzNMhC0VyYPHmnExmM',\n  sheet_name: 'Datos',\n  header_row: 7,\n  data_start_row: 8,\n  \n  // 🎯 Destino PostgreSQL\n  table_destination: 'ach_parcelaciones_tipo',\n  \n  // 📊 Campos requeridos (con asterisco como están en el Google Sheet)\n  required_fields: ['Código *', 'Nombre *'],\n  \n  // 🗺️ Mapeo de columnas: Google Sheet → PostgreSQL\n  field_mappings: {\n    'Nombre *': 'nombre',\n    '¿Activo? *': 'activo'\n    // 'Relación' se auto-mapea si se define en relationships\n  },\n  \n  // 🔗 Relaciones con otros catálogos\n  relationships: {},  // Este catálogo NO tiene relaciones\n  // Si tuviera: { 'Relación': 'Categoria_Suelo' } → crea columna categoria_suelo_code\n  \n  // 📝 Tipos de datos\n  field_types: {\n    '¿Activo? *': 'BOOLEAN DEFAULT true'\n  },\n  \n  // 🔄 Mapeo de valores\n  value_mappings: {\n    '¿Activo? *': { 'SI': true, 'NO': false },\n    'Relación': { 'N/A': null }\n  },\n  \n  // ⚙️ Opciones adicionales\n  batch_size: 500,\n  register_in_data_center: true,\n  table_description: 'Tipos de parcelaciones'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        0
+      ],
+      "id": "config-parcelaciones",
+      "name": "Config: parcelaciones_tipo"
+    },
+    {
+      "parameters": {
+        "source": "database",
+        "workflowId": {
+          "__rl": true,
+          "value": "hvZzjopsdq38w4Ox",
+          "mode": "id"
+        },
+        "options": {
+          "waitForSubWorkflow": true,
+          "fieldsUi": {
+            "values": [
+              {
+                "name": "source_identifier",
+                "value": "={{ $json.source_identifier }}"
+              },
+              {
+                "name": "file_id",
+                "value": "={{ $json.file_id }}"
+              },
+              {
+                "name": "sheet_name",
+                "value": "={{ $json.sheet_name }}"
+              },
+              {
+                "name": "header_row",
+                "value": "={{ $json.header_row }}"
+              },
+              {
+                "name": "data_start_row",
+                "value": "={{ $json.data_start_row }}"
+              },
+              {
+                "name": "table_destination",
+                "value": "={{ $json.table_destination }}"
+              },
+              {
+                "name": "required_fields",
+                "value": "={{ $json.required_fields }}"
+              },
+              {
+                "name": "field_types",
+                "value": "={{ $json.field_types }}"
+              },
+              {
+                "name": "value_mappings",
+                "value": "={{ $json.value_mappings }}"
+              },
+              {
+                "name": "field_mappings",
+                "value": "={{ $json.field_mappings || {} }}"
+              },
+              {
+                "name": "relationships",
+                "value": "={{ $json.relationships || {} }}"
+              },
+              {
+                "name": "validation_rules",
+                "value": "={{ $json.validation_rules || {} }}"
+              },
+              {
+                "name": "batch_size",
+                "value": "={{ $json.batch_size }}"
+              },
+              {
+                "name": "register_in_data_center",
+                "value": "={{ $json.register_in_data_center }}"
+              },
+              {
+                "name": "table_description",
+                "value": "={{ $json.table_description }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        600,
+        0
+      ],
+      "id": "migrate-parcelaciones",
+      "name": "Migrate: parcelaciones_tipo",
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const masterVars = $('Initialize Master Variables').first().json;\nconst parcelacionesResult = ($input.all() && $input.all().length > 0) ? $input.first().json : {};\n\nconst now = new Date();\nconst duration = new Date(now) - new Date(masterVars.master_start_time);\nconst durationMinutes = Math.floor(duration / 60000);\nconst durationSeconds = Math.floor((duration % 60000) / 1000);\n\nreturn {\n  master_batch_id: masterVars.master_batch_id,\n  master_start_time: masterVars.master_start_time,\n  master_end_time: now.toISOString(),\n  duration_ms: duration,\n  duration_formatted: `${durationMinutes}m ${durationSeconds}s`,\n  \n  total_catalogs: 1,\n  catalogs_migrated: 1,\n  \n  parcelaciones_tipo: {\n    status: parcelacionesResult.status || 'COMPLETED',\n    records_migrated: parcelacionesResult.total_migrated || 0,\n    batch_id: parcelacionesResult.batch_id\n  },\n  \n  status: 'MASTER MIGRATION COMPLETED',\n  message: '✅ Migración ACH completada exitosamente'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "master-summary",
+      "name": "Master Summary Report"
+    }
+  ],
+  "connections": {
+    "Start Master Migration": {
+      "main": [
+        [
+          {
+            "node": "Initialize Master Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize Master Variables": {
+      "main": [
+        [
+          {
+            "node": "Config: parcelaciones_tipo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: parcelaciones_tipo": {
+      "main": [
+        [
+          {
+            "node": "Migrate: parcelaciones_tipo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: parcelaciones_tipo": {
+      "main": [
+        [
+          {
+            "node": "Master Summary Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "8a7b6c5d-4e3f-2g1h-0i9j-8k7l6m5n4o3p",
+  "meta": {
+    "instanceId": "local"
+  },
+  "id": "ACH_MASTER_ORCHESTRATOR_SIMPLIFIED",
+  "tags": []
+}

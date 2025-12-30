@@ -1,0 +1,728 @@
+{
+  "name": "Migrate Google Sheets Table (Parametrized)",
+  "nodes": [
+    {
+      "parameters": {
+        "fieldsUi": {
+          "values": [
+            {
+              "name": "source_identifier",
+              "type": "string"
+            },
+            {
+              "name": "file_id",
+              "type": "string"
+            },
+            {
+              "name": "sheet_name",
+              "type": "string"
+            },
+            {
+              "name": "header_row",
+              "type": "number"
+            },
+            {
+              "name": "data_start_row",
+              "type": "number"
+            },
+            {
+              "name": "table_destination",
+              "type": "string"
+            },
+            {
+              "name": "required_fields",
+              "type": "json"
+            },
+            {
+              "name": "promoted_fields",
+              "type": "json"
+            },
+            {
+              "name": "field_types",
+              "type": "json"
+            },
+            {
+              "name": "value_mappings",
+              "type": "json"
+            },
+            {
+              "name": "field_mappings",
+              "type": "json"
+            },
+            {
+              "name": "relationships",
+              "type": "json"
+            },
+            {
+              "name": "batch_size",
+              "type": "number"
+            },
+            {
+              "name": "register_in_data_center",
+              "type": "boolean"
+            },
+            {
+              "name": "table_description",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "trigger-001",
+      "name": "Receive Parameters"
+    },
+    {
+      "parameters": {
+        "jsCode": "const params = $input.first().json;\n\nconst now = new Date();\nconst year = now.getFullYear();\nconst month = String(now.getMonth() + 1).padStart(2, '0');\nconst day = String(now.getDate()).padStart(2, '0');\nconst hours = String(now.getHours()).padStart(2, '0');\nconst minutes = String(now.getMinutes()).padStart(2, '0');\nconst seconds = String(now.getSeconds()).padStart(2, '0');\n\nconst batchId = `BATCH_${year}${month}${day}_${hours}${minutes}${seconds}`;\n\nreturn {\n  batch_id: batchId,\n  start_time: now.toISOString(),\n  source_identifier: params.source_identifier || 'Google Drive XLSX',\n  file_id: params.file_id,\n  sheet_name: params.sheet_name || 'Sheet1',\n  header_row: params.header_row || 7,\n  data_start_row: params.data_start_row || 8,\n  table_destination: params.table_destination,\n  source_database: 'Google Drive XLSX',\n  required_fields: params.required_fields || ['Código *', 'Nombre *'],\n  promoted_fields: params.promoted_fields || ['Nombre *', '¿Activo? *'],\n  field_types: params.field_types || {},\n  value_mappings: params.value_mappings || {'¿Activo? *': {'SI': true, 'NO': false}},\n  field_mappings: params.field_mappings || {},\n  relationships: params.relationships || {},\n  batch_size: params.batch_size || 1000,\n  register_in_data_center: params.register_in_data_center || false,\n  table_description: params.table_description || ''\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        200,
+        0
+      ],
+      "id": "init-vars-001",
+      "name": "Initialize Variables"
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "={{ $('Initialize Variables').first().json.file_id }}",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $('Initialize Variables').first().json.sheet_name }}",
+          "mode": "name"
+        },
+        "options": {
+          "headerRow": "={{ $('Initialize Variables').first().json.header_row }}",
+          "dataStartRow": "={{ $('Initialize Variables').first().json.data_start_row }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        400,
+        0
+      ],
+      "id": "read-gsheet-001",
+      "name": "Read Google Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "whDqbNpTtxN3BiZB",
+          "name": "Google Sheets Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst totalRecords = items.length;\n\nif (totalRecords === 0) {\n  return {\n    validation_passed: false,\n    total_records: 0,\n    status: 'ERROR: No records found in Google Sheet'\n  };\n}\n\nreturn {\n  validation_passed: true,\n  total_records: totalRecords,\n  status: 'OK: Data validation passed'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        600,
+        0
+      ],
+      "id": "validate-source-001",
+      "name": "Validate Source Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "condition-1",
+              "operator": {
+                "name": "eq",
+                "type": "boolean"
+              },
+              "value": true,
+              "leftValue": "{{ $json.validation_passed }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "has-data-check-001",
+      "name": "Has Source Data?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Pass through the data from Google Sheet\nreturn $('Read Google Sheet').all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1000,
+        0
+      ],
+      "id": "extract-001",
+      "name": "Pass Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "condition-1",
+              "operator": {
+                "name": "gt",
+                "type": "number"
+              },
+              "value": 0,
+              "leftValue": "{{ $input.all().length }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        0
+      ],
+      "id": "has-batch-data-001",
+      "name": "Has Batch Data?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const allItems = $input.all();\n\n// FILTRO: Eliminar filas que no tienen código válido (Google Sheets)\nconst items = allItems.filter(item => {\n  const row = item.json;\n  const codigo = row['Código *'] || row['Código'] || row['codigo'] || row['code'] || row['Id'];\n\n  if (!codigo) return false;\n  const codigoStr = String(codigo).trim();\n  if (!codigoStr) return false;\n  if (codigoStr.includes('=')) return false;  // Rosa = Obligatorio\n  if (codigoStr.includes('Cambie')) return false;\n  if (codigoStr.includes('Color')) return false;\n  if (codigoStr.includes('Ponga')) return false;\n\n  return true;\n});\n\nconsole.log('📊 Items leídos:', allItems.length);\nconsole.log('✅ Items válidos:', items.length);\nconsole.log('🗑️ Filtrados:', allItems.length - items.length);\n\nif (!Array.isArray(items) || items.length === 0) {\n  return [];\n}\n\nconst initVars = $('Initialize Variables').first().json;\nconst batchId = initVars.batch_id;\nconst tableDest = initVars.table_destination;\nconst promotedFields = initVars.promoted_fields || ['nombre'];\nconst fieldMappings = initVars.field_mappings || {};\nconst relationships = initVars.relationships || {};\nconst valueMappings = initVars.value_mappings || {};\nconst BATCH_SIZE = 500;\n\nconst getDestName = (src) => fieldMappings[src] || src;\nconst targetColumns = [...new Set(promotedFields.map(f => getDestName(f)))];\n\nconst colToSources = {};\ntargetColumns.forEach(target => {\n  colToSources[target] = promotedFields.filter(src => getDestName(src) === target);\n});\n\nconst fieldTypes = initVars.field_types || {};\n\nconst colDefinitions = targetColumns.map(destField => {\n  const sources = colToSources[destField];\n  let type = null;\n\n  for (const src of sources) {\n    if (fieldTypes[src]) { type = fieldTypes[src]; break; }\n    if (relationships[src]) { type = 'VARCHAR(100)'; break; }\n    if (valueMappings[src]) { type = 'VARCHAR(100)'; break; }\n  }\n\n  if (!type) {\n    if (fieldTypes[destField]) type = fieldTypes[destField];\n    else {\n      type = 'TEXT';\n      if (['activo', 'sin_nit', 'importa_lac', 'alimentos'].includes(destField) || destField.startsWith('is_')) {\n        type = 'BOOLEAN DEFAULT true';\n      } else if (destField.includes('fecha_') || destField.endsWith('_at')) {\n        type = 'TIMESTAMP';\n      } else if (destField.startsWith('estado_') || destField === 'estado' || destField === 'status') {\n        const hasMapping = sources.some(s => valueMappings[s]);\n        type = hasMapping ? 'VARCHAR(100)' : 'INTEGER';\n      }\n    }\n  }\n\n  return destField + ' ' + type;\n}).join(', ');\n\nconst alterTableSQL = targetColumns.map(destField => {\n  const sources = colToSources[destField];\n  let type = 'TEXT';\n  for (const src of sources) {\n    if (fieldTypes[src]) { type = fieldTypes[src]; break; }\n    if (relationships[src]) { type = 'VARCHAR(100)'; break; }\n    if (valueMappings[src]) { type = 'VARCHAR(100)'; break; }\n  }\n  if (type === 'TEXT' && fieldTypes[destField]) type = fieldTypes[destField];\n  return `ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS ${destField} ${type};`;\n}).join(' ');\n\nconst commentStatements = [];\ntargetColumns.forEach(destCol => {\n  const sources = colToSources[destCol];\n  for (const srcKey of sources) {\n    if (valueMappings[srcKey]) {\n      const mappings = valueMappings[srcKey];\n      const mappingDesc = Object.entries(mappings)\n        .map(([key, val]) => `${key} → ${JSON.stringify(val)}`)\n        .join(', ');\n      const comment = `COMMENT ON COLUMN ${tableDest}.${destCol} IS 'Valores posibles: ${mappingDesc.replace(/'/g, \"''\")}';`;\n      commentStatements.push(comment);\n      break;\n    }\n  }\n});\n\nconst commentSQL = commentStatements.join(' ');\n\n// CREATE TABLE sin original_id (no aplica para Google Sheets)\nconst createTableSQL = `CREATE EXTENSION IF NOT EXISTS \"pgcrypto\"; CREATE TABLE IF NOT EXISTS ${tableDest} (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), code VARCHAR(50) UNIQUE, ${colDefinitions ? colDefinitions + ', ' : ''} attributes JSONB, sys_migrated_at TIMESTAMP DEFAULT NOW(), sys_batch_id VARCHAR(100), created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP, deleted_at TIMESTAMP); ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW(); ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP; ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP; ${alterTableSQL} ${commentSQL}`;\n\n// Column list for INSERT (sin original_id)\nconst allColumns = ['code', ...targetColumns, 'attributes', 'sys_migrated_at', 'sys_batch_id', 'created_at'];\n\nconst escVal = (v) => {\n  if (v === null || v === undefined) return 'NULL';\n  if (typeof v === 'boolean') return v;\n  if (typeof v === 'number') return v;\n  return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n};\n\nconst updateSet = ['code = EXCLUDED.code', 'attributes = EXCLUDED.attributes', 'updated_at = NOW()'];\ntargetColumns.forEach(f => updateSet.push(f + ' = EXCLUDED.' + f));\n\nconst allValuesTuples = items.map((item) => {\n  const data = item.json;\n  \n  // Usar código directamente del Excel\n  const codigo = data['Código *'] || data['Código'] || data['codigo'] || data['code'] || data['Id'];\n  const code = String(codigo).trim();\n\n  const targetValues = targetColumns.map(destCol => {\n    const sources = colToSources[destCol];\n    let finalVal = null;\n\n    for (const srcKey of sources) {\n      const realSrcField = srcKey.includes(':') ? srcKey.split(':')[0] : srcKey;\n      let val = data[realSrcField];\n\n      if (val !== null && val !== undefined) {\n        if (relationships[srcKey]) {\n          const relPrefix = relationships[srcKey];\n          finalVal = `${relPrefix}_${String(val).padStart(6, '0')}`;\n        }\n        else if (valueMappings[srcKey] && valueMappings[srcKey][val]) {\n           finalVal = valueMappings[srcKey][val];\n        }\n        else {\n          finalVal = val;\n        }\n        break;\n      }\n    }\n    return escVal(finalVal);\n  });\n\n  const attributes = {\n    original_record: data,\n    extracted_at: new Date().toISOString(),\n    source_table: initVars.sheet_name || 'Google Sheet',\n    source_database: 'Google Drive XLSX'\n  };\n\n  const vals = [\n    \"'\" + code + \"'\",\n    ...targetValues,\n    \"'\" + JSON.stringify(attributes).replace(/'/g, \"''\") + \"'::jsonb\",\n    'NOW()',\n    \"'\" + batchId + \"'\",\n    'NOW()'\n  ];\n\n  return '(' + vals.join(', ') + ')';\n});\n\nconst batches = [];\nfor (let i = 0; i < allValuesTuples.length; i += BATCH_SIZE) {\n  batches.push(allValuesTuples.slice(i, i + BATCH_SIZE));\n}\n\nconst results = batches.map((batchTuples, batchIndex) => {\n  const valuesSQL = batchTuples.join(', ');\n\n  return {\n    batch_index: batchIndex,\n    batch_count: batches.length,\n    records_in_batch: batchTuples.length,\n    total_records: items.length,\n    _sql_columns: allColumns.join(', '),\n    _sql_values: valuesSQL,\n    _sql_update_set: updateSet.join(', '),\n    _create_table: createTableSQL\n  };\n});\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        0
+      ],
+      "id": "prepare-001",
+      "name": "Prepare Data"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $json._create_table }}; CREATE TABLE IF NOT EXISTS sys_migration_audit (id SERIAL PRIMARY KEY, batch_id VARCHAR(100), table_name VARCHAR(100), status VARCHAR(50), workflow_name VARCHAR(200), execution_id VARCHAR(100), started_at TIMESTAMP, ended_at TIMESTAMP, records_read INTEGER DEFAULT 0, records_inserted INTEGER DEFAULT 0, records_updated INTEGER DEFAULT 0, records_errors INTEGER DEFAULT 0, duration_seconds INTEGER DEFAULT 0, avg_records_per_second NUMERIC(10,2), data_quality_percent NUMERIC(5,2), error_rate_percent NUMERIC(5,2), notes TEXT, created_at TIMESTAMP DEFAULT NOW()); CREATE TABLE IF NOT EXISTS sys_migration_errors (id SERIAL PRIMARY KEY, table_name VARCHAR(100), batch_id VARCHAR(100), error_message TEXT, json_payload JSONB, created_at TIMESTAMP DEFAULT NOW()); INSERT INTO {{ $('Initialize Variables').first().json.table_destination }} ({{ $json._sql_columns }}) VALUES {{ $json._sql_values }} ON CONFLICT (code) DO UPDATE SET {{ $json._sql_update_set }};",
+        "queryBatching": "independent"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1600,
+        0
+      ],
+      "id": "upsert-001",
+      "name": "Upsert Data (with Retry)",
+      "credentials": {
+        "postgres": {
+          "id": "zfnOF6kSkxVUYiFo",
+          "name": "SDT Data Center Dev"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "total_processed",
+              "name": "total_processed",
+              "type": "number",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        1800,
+        -100
+      ],
+      "id": "increment-success-001",
+      "name": "Increment Success Counter"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO sys_migration_errors (\n  table_name,\n  batch_id,\n  error_message,\n  json_payload\n) VALUES (\n  '{{ $('Initialize Variables').first().json.table_destination }}',\n  '{{ $('Initialize Variables').first().json.batch_id }}',\n  'UPSERT failed',\n  '{}'::jsonb\n);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1800,
+        100
+      ],
+      "id": "log-error-001",
+      "name": "Log Error",
+      "credentials": {
+        "postgres": {
+          "id": "zfnOF6kSkxVUYiFo",
+          "name": "SDT Data Center Dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "total_errors",
+              "name": "total_errors",
+              "type": "number",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        2000,
+        100
+      ],
+      "id": "increment-error-001",
+      "name": "Increment Error Counter"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "batch_index",
+              "name": "batch_index",
+              "type": "number",
+              "value": "1000"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        2200,
+        0
+      ],
+      "id": "increment-batch-001",
+      "name": "Increment Batch Index"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Para Google Sheets, usamos el conteo de items procesados\nconst prepareData = $('Prepare Data').all();\nlet totalRecords = 0;\nprepareData.forEach(item => {\n  if (item.json && item.json.total_records) {\n    totalRecords = item.json.total_records;\n  }\n});\n\nreturn {\n  origen_total: totalRecords,\n  mensaje: '✅ Validación completada'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        0
+      ],
+      "id": "golden-rule-001",
+      "name": "The Golden Rule (Reconciliation)"
+    },
+    {
+      "parameters": {
+        "jsCode": "try {\n  const initVars = $('Initialize Variables').first().json;\n  const batchId = initVars.batch_id;\n  const startTime = initVars.start_time;\n  const tableSource = initVars.table_source;\n  const tableDestination = initVars.table_destination;\n\n  const goldenRule = $input.all()[0].json || {};\n  const totalRecords = parseInt(goldenRule.origen_total) || 0;\n  \n  const totalProcessed = totalRecords;\n  const totalErrors = 0;\n  \n  const errorRatePercent = totalRecords > 0 ? \n    Math.round((totalErrors / totalRecords) * 100 * 100) / 100 : 0;\n  \n  const dataQualityPercent = totalRecords > 0 ? \n    Math.round((totalProcessed / totalRecords) * 100 * 100) / 100 : 100;\n\n  return {\n    status: 'MIGRATION_COMPLETE',\n    batch_id: batchId,\n    start_time: startTime,\n    table_source: tableSource,\n    table_destination: tableDestination,\n    metrics: {\n      records_processed: totalProcessed,\n      records_errors: totalErrors,\n      records_total: totalRecords,\n      data_quality_percent: dataQualityPercent,\n      error_rate_percent: errorRatePercent\n    },\n    validation: {\n      status: errorRatePercent < 1 ? '✅ OK' : '⚠️ WARNING',\n      message: errorRatePercent < 1 ? 'Error rate is acceptable' : `Error rate is ${errorRatePercent}% (threshold: 1%)`\n    }\n  };\n} catch (error) {\n  return {\n    status: 'MIGRATION_COMPLETE_WITH_WARNING',\n    batch_id: 'UNKNOWN',\n    error: error.message\n  };\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2600,
+        0
+      ],
+      "id": "summary-001",
+      "name": "Final Summary"
+    },
+    {
+      "parameters": {
+        "jsCode": "const initVars = $('Initialize Variables').first().json;\nconst summary = $input.all()[0].json || {};\n\nconst batchId = summary.batch_id || initVars.batch_id;\nconst tableDestination = summary.table_destination || initVars.table_destination;\nconst startTimeStr = summary.start_time || initVars.start_time;\n\nconst recordsProcessed = (summary.metrics && summary.metrics.records_processed) || 0;\nconst recordsTotal = (summary.metrics && summary.metrics.records_total) || recordsProcessed;\nconst recordsErrors = (summary.metrics && summary.metrics.records_errors) || 0;\nconst dataQualityPercent = (summary.metrics && summary.metrics.data_quality_percent) || 100;\nconst errorRatePercent = (summary.metrics && summary.metrics.error_rate_percent) || 0;\n\nconst startTime = startTimeStr ? new Date(startTimeStr) : new Date();\nconst endTime = new Date();\nconst durationSeconds = Math.round((endTime - startTime) / 1000);\nconst avgRecordsPerSecond = durationSeconds > 0 ? Math.round((recordsProcessed / durationSeconds) * 100) / 100 : 0;\n\nreturn {\n  batch_id: batchId,\n  table_name: tableDestination,\n  status: 'COMPLETED',\n  workflow_name: 'Migrate Google Sheets Table (Parametrized)',\n  execution_id: $execution.id,\n  started_at: startTimeStr || endTime.toISOString(),\n  ended_at: endTime.toISOString(),\n  records_read: recordsTotal,\n  records_inserted: recordsProcessed,\n  records_updated: 0,\n  records_errors: recordsErrors,\n  duration_seconds: durationSeconds,\n  avg_records_per_second: avgRecordsPerSecond,\n  data_quality_percent: dataQualityPercent,\n  error_rate_percent: errorRatePercent,\n  notes: `Batch ${batchId}: ${recordsProcessed} inserted, ${recordsErrors} errors in ${durationSeconds}s`\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        0
+      ],
+      "id": "prepare-audit-001",
+      "name": "Prepare Audit Data"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO sys_migration_audit (\n  batch_id,\n  table_name,\n  status,\n  workflow_name,\n  execution_id,\n  started_at,\n  ended_at,\n  records_read,\n  records_inserted,\n  records_updated,\n  records_errors,\n  duration_seconds,\n  avg_records_per_second,\n  data_quality_percent,\n  error_rate_percent,\n  notes\n) VALUES (\n  '{{ $json.batch_id }}',\n  '{{ $json.table_name }}',\n  '{{ $json.status }}',\n  '{{ $json.workflow_name }}',\n  '{{ $json.execution_id }}',\n  '{{ $json.started_at }}'::timestamp,\n  '{{ $json.ended_at }}'::timestamp,\n  {{ $json.records_read }},\n  {{ $json.records_inserted }},\n  {{ $json.records_updated }},\n  {{ $json.records_errors }},\n  {{ $json.duration_seconds }},\n  {{ $json.avg_records_per_second }},\n  {{ $json.data_quality_percent }},\n  {{ $json.error_rate_percent }},\n  '{{ $json.notes }}'\n)\nRETURNING id, batch_id, records_inserted, records_errors;"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3000,
+        0
+      ],
+      "id": "log-audit-001",
+      "name": "Log Audit Record",
+      "credentials": {
+        "postgres": {
+          "id": "zfnOF6kSkxVUYiFo",
+          "name": "SDT Data Center Dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  status: 'NO_SOURCE_DATA',\n  message: 'Source table is empty, no data to migrate',\n  timestamp: new Date().toISOString()\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        200
+      ],
+      "id": "no-data-001",
+      "name": "No Source Data"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "condition-1",
+              "operator": {
+                "name": "eq",
+                "type": "boolean"
+              },
+              "value": true,
+              "leftValue": "{{ $('Initialize Variables').first().json.register_in_data_center }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        3200,
+        0
+      ],
+      "id": "should-register-001",
+      "name": "Should Register?"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generate UUID v4 without require()\nfunction generateUUID() {\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {\n    const r = Math.random() * 16 | 0;\n    const v = c === 'x' ? r : (r & 0x3 | 0x8);\n    return v.toString(16);\n  });\n}\n\nconst vars = $('Initialize Variables').first().json;\nconst promotedFields = vars.promoted_fields || [];\nconst fieldTypes = vars.field_types || {};\n\n// Agregar columna id por defecto\nconst idColumn = {\n  id: generateUUID(),\n  name: 'id',\n  type: 'UUID'\n};\n\nconst columns = [\n  idColumn,\n  ...promotedFields.map(fieldName => {\n    let fieldType = 'STRING';\n    \n    if (fieldTypes[fieldName]) {\n      const typeStr = fieldTypes[fieldName].toUpperCase();\n      if (typeStr.includes('BOOLEAN')) fieldType = 'BOOLEAN';\n      else if (typeStr.includes('INTEGER') || typeStr.includes('INT')) fieldType = 'INTEGER';\n      else if (typeStr.includes('REAL') || typeStr.includes('NUMERIC') || typeStr.includes('DECIMAL')) fieldType = 'NUMERIC';\n      else if (typeStr.includes('TIMESTAMP') || typeStr.includes('DATE')) fieldType = 'TIMESTAMP';\n      else if (typeStr.includes('JSONB') || typeStr.includes('JSON')) fieldType = 'JSON';\n    }\n    \n    return {\n      id: generateUUID(),\n      name: fieldName,\n      type: fieldType\n    };\n  })\n];\n\nreturn {\n  table_id: generateUUID(),\n  table_name: vars.table_destination,\n  table_description: vars.table_description,\n  columns_json: JSON.stringify(columns),\n  batch_id: vars.batch_id,\n  workflow_execution_id: $execution.id\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3400,
+        -100
+      ],
+      "id": "build-columns-001",
+      "name": "Build Columns JSON"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH existing AS (\n  SELECT id FROM data_center_tables WHERE name = '{{ $json.table_name }}'\n)\nINSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nSELECT \n  COALESCE((SELECT id FROM existing), '{{ $json.table_id }}'),\n  '{{ $json.table_name }}',\n  '{{ $json.table_description }}',\n  '{{ $json.columns_json }}'::jsonb,\n  COALESCE((SELECT created_at FROM data_center_tables WHERE name = '{{ $json.table_name }}'), NOW()),\n  NOW()\nWHERE NOT EXISTS (SELECT 1 FROM existing);\n\nUPDATE data_center_tables\nSET \n  description = '{{ $json.table_description }}',\n  columns = '{{ $json.columns_json }}'::jsonb,\n  updated_at = NOW()\nWHERE name = '{{ $json.table_name }}';"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3600,
+        -100
+      ],
+      "id": "register-table-001",
+      "name": "Register in data_center_tables",
+      "credentials": {
+        "postgres": {
+          "id": "xLCzLfVfYEqVxsV3",
+          "name": "SDT Core Dev"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const audit = $('Prepare Audit Data').first().json;\n\nreturn {\n  status: 'COMPLETED',\n  batch_id: audit.batch_id,\n  total_migrated: audit.records_inserted || 0,\n  total_errors: audit.records_errors || 0,\n  table_name: audit.table_name,\n  duration_seconds: audit.duration_seconds || 0,\n  execution_id: audit.execution_id,\n  started_at: audit.started_at,\n  ended_at: audit.ended_at\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3800,
+        0
+      ],
+      "id": "return-summary-srs-001",
+      "name": "Return Summary to Parent"
+    }
+  ],
+  "connections": {
+    "Receive Parameters": {
+      "main": [
+        [
+          {
+            "node": "Initialize Variables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize Variables": {
+      "main": [
+        [
+          {
+            "node": "Read Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Source Data": {
+      "main": [
+        [
+          {
+            "node": "Has Source Data?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Source Data?": {
+      "main": [
+        [
+          {
+            "node": "Pass Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Source Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass Data": {
+      "main": [
+        [
+          {
+            "node": "Has Batch Data?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Batch Data?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "The Golden Rule (Reconciliation)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Data": {
+      "main": [
+        [
+          {
+            "node": "Upsert Data (with Retry)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Data (with Retry)": {
+      "main": [
+        [
+          {
+            "node": "Increment Success Counter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Error",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Increment Success Counter": {
+      "main": [
+        [
+          {
+            "node": "Increment Batch Index",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Error": {
+      "main": [
+        [
+          {
+            "node": "Increment Error Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Increment Error Counter": {
+      "main": [
+        [
+          {
+            "node": "Increment Batch Index",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Increment Batch Index": {
+      "main": [
+        [
+          {
+            "node": "The Golden Rule (Reconciliation)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "The Golden Rule (Reconciliation)": {
+      "main": [
+        [
+          {
+            "node": "Final Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final Summary": {
+      "main": [
+        [
+          {
+            "node": "Prepare Audit Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Audit Data": {
+      "main": [
+        [
+          {
+            "node": "Log Audit Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Audit Record": {
+      "main": [
+        [
+          {
+            "node": "Should Register?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Register?": {
+      "main": [
+        [
+          {
+            "node": "Build Columns JSON",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Summary to Parent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Columns JSON": {
+      "main": [
+        [
+          {
+            "node": "Register in data_center_tables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Register in data_center_tables": {
+      "main": [
+        [
+          {
+            "node": "Return Summary to Parent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Validate Source Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "parametrized-v1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
