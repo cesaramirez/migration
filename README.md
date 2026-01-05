@@ -221,6 +221,75 @@ Workflow reutilizable que recibe configuración como parámetros y ejecuta la l�
 5. Inserta datos en batches
 6. Registra auditoría
 
+### **Objeto `attributes` (JSONB)**
+
+Cada registro migrado incluye una columna `attributes` de tipo JSONB que consolida toda la metadata de migración y auditoría:
+
+#### **Estructura para SRS Tables (6 campos):**
+```json
+{
+  "original_record": { ... },          // Registro completo del sistema origen
+  "original_id": "alim_empresa:123",   // Formato: tabla_origen:id_original
+  "sys_batch_id": "BATCH_20260105...", // ID del lote de migración
+  "extracted_at": "2026-01-05T12:30:00.000Z",
+  "source_table": "alim_empresa",
+  "source_database": "SISAM"
+}
+```
+
+#### **Estructura para Google Sheets (5 campos):**
+```json
+{
+  "original_record": { ... },          // Registro completo del archivo origen
+  "sys_batch_id": "BATCH_20260105...", // ID del lote de migración
+  "extracted_at": "2026-01-05T12:30:00.000Z",
+  "source_table": "Hoja1",
+  "source_database": "Google Drive XLSX"
+}
+```
+
+#### **Consultas SQL con `attributes`:**
+
+```sql
+-- 1. Consultar metadata de migración
+SELECT
+  code,
+  attributes->>'original_id' as original_id,
+  attributes->>'sys_batch_id' as batch_id,
+  attributes->>'source_table' as tabla_origen
+FROM srs_material
+LIMIT 5;
+
+-- 2. Filtrar por batch específico
+SELECT code, nombre
+FROM srs_material
+WHERE attributes->>'sys_batch_id' = 'BATCH_20260105_122900';
+
+-- 3. Auditoría: Ver todos los batches
+SELECT
+  attributes->>'sys_batch_id' as batch_id,
+  COUNT(*) as total_registros,
+  MIN(attributes->>'extracted_at') as primera_extraccion
+FROM srs_material
+GROUP BY attributes->>'sys_batch_id'
+ORDER BY primera_extraccion DESC;
+
+-- 4. Acceder a campos no promovidos del registro original
+SELECT
+  code,
+  nombre,
+  attributes->'original_record'->>'campo_no_promovido' as campo_extra
+FROM srs_material
+WHERE attributes->'original_record'->>'campo_no_promovido' IS NOT NULL;
+```
+
+**Beneficios:**
+- ✅ Consolidación de metadata en un solo lugar
+- ✅ Redundancia intencional (campos también existen como columnas para performance)
+- ✅ Trazabilidad completa del origen y proceso de migración
+- ✅ Acceso a campos no promovidos del registro original
+- ✅ Consultas flexibles usando operadores JSONB (`->>` y `->`)
+
 ---
 
 ## 🚀 Inicio Rápido
@@ -518,5 +587,5 @@ Este proyecto es interno del equipo Elaniin. Para extender la migración o corre
 
 ---
 
-*Última actualización: 2026-01-05*
+*Última actualización: 2026-01-05 - Agregado objeto `attributes` con metadata de migración*
 *Generado por Antigravity AI Assistant*
