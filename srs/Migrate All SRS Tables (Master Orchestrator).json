@@ -155,7 +155,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_tipo_tramitador',\n  table_destination: 'srs_tipo_tramitador',\n  code_prefix: 'TRAM',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tipos de tramitadores autorizados en el sistema'\n};"
+        "jsCode": "return {\n  table_source: 'ENUM_STATIC',\n  table_destination: 'srs_tipo_tramitador',\n  code_prefix: 'TRAM',\n  use_db_prefix: false,\n  id_field: 'id',\n  required_fields: ['nombre'],\n  promoted_fields: ['nombre', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tipos de tramitadores autorizados en el sistema',\n  static_values: [\n    { id: 1, nombre: 'INTERNO', codigo: 'TRAM-INT' },\n    { id: 2, nombre: 'EXTERNO', codigo: 'TRAM-EXT' },\n    { id: 3, nombre: 'MIXTO', codigo: 'TRAM-MIX' }\n  ]\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -765,7 +765,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_tipo_bodega',\n  table_destination: 'srs_tipo_bodega',\n  code_prefix: 'TBOD',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tipos de bodegas y almacenes'\n};"
+        "jsCode": "return {\n  table_source: 'ENUM_STATIC',\n  table_destination: 'srs_tipo_bodega',\n  code_prefix: 'TBOD',\n  use_db_prefix: false,\n  id_field: 'id',\n  required_fields: ['nombre'],\n  promoted_fields: ['nombre', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tipos de bodegas y almacenes',\n  static_values: [\n    { id: 1, nombre: 'PRINCIPAL', codigo: 'TBOD-PRI' },\n    { id: 2, nombre: 'SECUNDARIA', codigo: 'TBOD-SEC' },\n    { id: 3, nombre: 'TEMPORAL', codigo: 'TBOD-TMP' }\n  ]\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
