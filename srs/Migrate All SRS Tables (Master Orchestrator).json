@@ -14,21 +14,6 @@
     },
     {
       "parameters": {
-        "path": "migrate-all-srs",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 1.1,
-      "position": [
-        11296,
-        1392
-      ],
-      "id": "13b51ef2-588a-4243-8be2-07ef0bb8140a",
-      "name": "Webhook Trigger (for MCP)",
-      "webhookId": "4a50378b-343a-40f6-8018-56f801797703"
-    },
-    {
-      "parameters": {
         "jsCode": "const now = new Date();\nconst masterBatchId = 'MASTER_' + now.toISOString().replace(/[:.]/g, '').replace(/-/g, '').substring(0, 15);\n\nreturn {\n  master_batch_id: masterBatchId,\n  master_start_time: now.toISOString(),\n  total_tables: 29,\n  workflow_id: $execution.id\n};"
       },
       "type": "n8n-nodes-base.code",
@@ -912,8 +897,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        11568,
-        2848
+        15808,
+        1248
       ],
       "id": "aaa00000-0000-0000-0000-000000000001",
       "name": "Config: srs_tipo_producto"
@@ -930,8 +915,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        11808,
-        2848
+        16064,
+        1248
       ],
       "id": "bbb00000-0000-0000-0000-000000000001",
       "name": "Migrate: srs_tipo_producto",
@@ -1238,11 +1223,6 @@
         ]
       ]
     },
-    "Webhook Trigger (for MCP)": {
-      "main": [
-        []
-      ]
-    },
     "Initialize Master Variables": {
       "main": [
         [
@@ -1379,7 +1359,7 @@
       "main": [
         [
           {
-            "node": "Config: srs_funcion",
+            "node": "Config: srs_tipo_producto",
             "type": "main",
             "index": 0
           }
@@ -1984,7 +1964,7 @@
       "main": [
         [
           {
-            "node": "Config: srs_estado_producto",
+            "node": "Config: srs_funcion",
             "type": "main",
             "index": 0
           }
