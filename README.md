@@ -25,13 +25,14 @@ Este repositorio contiene workflows de n8n que automatizan la migración de dato
 
 - ✅ **Migración desde PostgreSQL** (tablas `alim_*` → `srs_*`)
 - ✅ **Migración desde Google Sheets** (catálogos ACH → `ach_*`)
+- ✅ **Catálogos estáticos (ENUM_STATIC)** - Sin dependencia de DB origen
 - ✅ Generación automática de códigos únicos
 - ✅ Mapeo de valores y transformaciones
 - ✅ Gestión de relaciones entre tablas
 - ✅ UPSERT automático (actualización de registros existentes)
 - ✅ Auditoría completa de migraciones
-- ✅ Batch processing para grandes volúmenes
-- ✅ Comentarios SQL con valores ENUM
+- ✅ **Batch sizing dinámico** - Auto-ajuste según volumen
+- ✅ Comentarios SQL con valores ENUM y documentación
 
 ---
 
@@ -44,9 +45,7 @@ Este repositorio contiene workflows de n8n que automatizan la migración de dato
 │   ├── Migrate SRS Table (Parametrized).json
 │   ├── Migrate All ACH Google Sheets (Master Orchestrator).json
 │   └── Migrate Google Sheets Table (Parametrized).json
-├── scripts/
-│   └── update_ach_file_ids.py
-├── GUIA_CONFIGURACION_ACH_GOOGLE_SHEETS.md
+├── Definiciones Técnicas Migración de Datos y Lógica.pdf
 └── README.md (este archivo)
 ```
 
@@ -111,6 +110,59 @@ return {
   batch_size: 500
 };
 ```
+
+#### **Modo ENUM_STATIC (Catálogos con Valores Fijos):**
+
+Para tablas de catálogo con valores estáticos conocidos (ENUMs, lookups), usa `ENUM_STATIC` en lugar de una tabla fuente:
+
+**Ventajas:**
+- ✅ No requiere conexión a base de datos origen
+- ✅ Valores versionados en Git
+- ✅ Migraciones más rápidas
+- ✅ Ideal para catálogos pequeños y estables
+
+**Ejemplo:**
+
+```javascript
+return {
+  table_source: 'ENUM_STATIC',  // Modo estático
+  table_destination: 'srs_tipo_producto',
+  code_prefix: 'TP',
+  use_db_prefix: false,
+  id_field: 'id',
+
+  required_fields: ['nombre'],
+  promoted_fields: ['nombre', 'codigo'],
+
+  static_values: [
+    { id: 1, nombre: 'NACIONAL', codigo: 'TP-NAC' },
+    { id: 2, nombre: 'IMPORTADO_UNION_ADUANERA', codigo: 'TP-IUA' },
+    { id: 3, nombre: 'IMPORTADO_OTROS_PAISES', codigo: 'TP-IOP' }
+  ],
+
+  register_in_data_center: true,
+  table_description: 'Tipos de producto según origen'
+};
+```
+
+**Tablas que usan ENUM_STATIC:**
+- `srs_tipo_producto` - Origen del producto (3 valores)
+- `srs_tipo_bodega` - Tipos de bodegas (3 valores)
+- `srs_tipo_tramitador` - Tipos de tramitadores (3 valores)
+
+#### **Batch Sizing Dinámico:**
+
+El sistema ajusta automáticamente el tamaño de los batches según el volumen de datos:
+
+| Registros | Batch Size | Beneficio |
+|-----------|------------|-----------|
+| < 100 | Sin batching (1 batch) | Máxima velocidad para catálogos pequeños |
+| 100-499 | 250 registros/batch | Balance velocidad-memoria |
+| 500-999 | 500 registros/batch | Óptimo para tablas medianas |
+| 1K-4,999 | 1000 registros/batch | Procesamiento eficiente |
+| ≥ 5K | Hasta 2000 registros/batch | Respeta `batch_size` configurado |
+
+**Resultado:** ~30-40% más rápido para tablas pequeñas, uso óptimo de memoria para tablas grandes.
 
 ---
 
