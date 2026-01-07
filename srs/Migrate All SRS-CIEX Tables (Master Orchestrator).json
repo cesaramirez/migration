@@ -1,0 +1,403 @@
+{
+  "name": "Migrate All SRS-CIEX Tables (Master Orchestrator)",
+  "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -560,
+          496
+        ],
+        "id": "72013e35-c9d5-4baa-b5c3-5646652e7ff4",
+        "name": "Start Master Migration"
+      },
+      {
+        "parameters": {
+          "jsCode": "const now = new Date();\nconst masterBatchId = 'MASTER_CIEX_' + now.toISOString().replace(/[:.]/g, '').replace(/-/g, '').substring(0, 15);\n\nreturn {\n  master_batch_id: masterBatchId,\n  master_start_time: now.toISOString(),\n  total_tables: 5,\n  workflow_id: $execution.id\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -304,
+          496
+        ],
+        "id": "7cfd7be8-6678-4ad9-b551-729a8dc04972",
+        "name": "Initialize Master Variables"
+      },
+      {
+        "parameters": {
+          "jsCode": "return {\n  table_source: 'ctl_codigo_producto_especial',\n  table_destination: 'srs_codigo_producto_especial',\n  code_prefix: 'CODESPEC',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: [\n    'nombre',\n    'codigo'\n  ],\n  field_types: {\n    'nombre': 'VARCHAR(200)',\n    'codigo': 'VARCHAR(5)'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Catalogo de los codigos que existen para los productos especiales de importacion'\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -48,
+          496
+        ],
+        "id": "76be98bc-6be3-4540-af4c-b028f9602da6",
+        "name": "Config: srs_codigo_producto_especial"
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "L5EXIfRXTrEXMkFz",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.1,
+        "position": [
+          192,
+          496
+        ],
+        "id": "b7bd1329-86b3-4498-8b3a-e017d8fe2e1b",
+        "name": "Migrate: srs_codigo_producto_especial",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "return {\n  table_source: 'alim_solicitud_importacion_bcr',\n  table_destination: 'srs_solicitud_importacion_bcr',\n  code_prefix: 'SOLIMP',\n  use_db_prefix: true,\n  required_fields: ['id', 'fecha_registro_bcr'],\n  promoted_fields: [\n    'fecha_registro_bcr',\n    'numero_solicitud',\n    'tipo_solicitud',\n    'nombre_importador',\n    'nit_importador'\n  ],\n  field_types: {\n    'fecha_registro_bcr': 'DATE',\n    'numero_solicitud': 'VARCHAR(30)',\n    'tipo_solicitud': 'VARCHAR(50)',\n    'nombre_importador': 'VARCHAR(156)',\n    'nit_importador': 'VARCHAR(20)'\n  },\n  value_mappings: {\n    'tipo_solicitud': {\n      1: 'AUTORIZACION_CON_REGISTRO',\n      2: 'AUTORIZACION_ESPECIAL'\n    }\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tabla donde se almacena la informacion general y que no ha de modificarse de las solicitudes de importacion'\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -48,
+          1088
+        ],
+        "id": "e93df0f1-09be-41d2-9dd1-8ff781dd6b2b",
+        "name": "Config: srs_solicitud_importacion_bcr"
+      },
+      {
+        "parameters": {
+          "content": "## 📚 Catálogos CIEX\nCatálogos y tablas de referencia del módulo CIEX que deben migrarse primero.",
+          "height": 300,
+          "width": 664
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -144,
+          416
+        ],
+        "id": "7be9c68b-c081-4d02-9c74-b9c1dd6d0125",
+        "name": "Note: Catálogos CIEX"
+      },
+      {
+        "parameters": {
+          "content": "## 📋 Expedientes CIEX\nSolicitudes de Importación BCR y tablas relacionadas del módulo CIEX.",
+          "height": 440,
+          "width": 2680,
+          "color": 5
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -160,
+          944
+        ],
+        "id": "077e5066-7f00-48cc-a878-0fb46c1266b1",
+        "name": "Note: Expedientes CIEX"
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "L5EXIfRXTrEXMkFz",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.1,
+        "position": [
+          192,
+          1088
+        ],
+        "id": "b272b555-53c9-4664-ac38-6b7cb7101241",
+        "name": "Migrate: srs_solicitud_importacion_bcr",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "return {\n  table_source: 'alim_solicitud_importacion_minsal',\n  table_destination: 'srs_solicitud_importacion_minsal',\n  code_prefix: 'SOLIMPMINSAL',\n  use_db_prefix: true,\n  required_fields: ['id', 'estado_solicitud', 'fecha_registro_minsal', 'id_alim_solicitud_importacion_bcr', 'id_ctl_pais'],\n  promoted_fields: [\n    'estado_solicitud',\n    'justificacion_resolucion',\n    'fecha_registro_minsal',\n    'fecha_resolucion_minsal',\n    'estado_externo',\n    'fecha_estado_externo',\n    'id_alim_solicitud_importacion_bcr',\n    'id_ctl_pais',\n    'nombre_tramitador',\n    'tipo_documento_tramitador',\n    'numero_documento_tramitador',\n    'id_alim_empresa_persona_aux',\n    'numero_solicitud_minsal',\n    'id_ctl_departamento',\n    'id_ctl_municipio',\n    'direccion_importador'\n  ],\n  field_types: {\n    'estado_solicitud': 'VARCHAR(50)',\n    'justificacion_resolucion': 'VARCHAR(750)',\n    'fecha_registro_minsal': 'DATE',\n    'fecha_resolucion_minsal': 'DATE',\n    'estado_externo': 'VARCHAR(50)',\n    'fecha_estado_externo': 'DATE',\n    'nombre_tramitador': 'VARCHAR(100)',\n    'tipo_documento_tramitador': 'VARCHAR(50)',\n    'numero_documento_tramitador': 'VARCHAR(14)',\n    'numero_solicitud_minsal': 'VARCHAR(30)',\n    'direccion_importador': 'VARCHAR(500)'\n  },\n  value_mappings: {\n    'estado_solicitud': {\n      1: 'INICIADA',\n      2: 'APROBADA',\n      3: 'RECHAZADA',\n      4: 'CANCELADA',\n      5: 'EN_PROCESO'\n    },\n    'estado_externo': {\n      'LA': 'LIQUIDADO_APROBADO',\n      'LD': 'LIQUIDADO_DENEGADO',\n      'ER': 'ESPERA_RESPUESTA',\n      'SE': 'SIN_ESTADO'\n    }\n  },\n  field_mappings: {\n    'id_alim_solicitud_importacion_bcr': 'solicitud_importacion_bcr_code',\n    'id_ctl_pais': 'pais_code',\n    'id_ctl_departamento': 'departamento_code',\n    'id_ctl_municipio': 'municipio_code',\n    'id_alim_empresa_persona_aux': 'empresa_persona_aux_code'\n  },\n  relationships: {\n    'id_alim_solicitud_importacion_bcr': 'SOLIMP',\n    'id_ctl_pais': 'PAIS',\n    'id_ctl_departamento': 'DEP',\n    'id_ctl_municipio': 'MUNI',\n    'id_alim_empresa_persona_aux': 'EPAUX'\n  },\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tabla donde se almacena la informacion especifica que concierne al minsal y que puede cambiar de las solicitudes de importacion'\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          448,
+          1088
+        ],
+        "id": "f1b4bfef-3c0d-4165-98a2-d1b4c77ddaf6",
+        "name": "Config: srs_solicitud_importacion_minsal"
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "L5EXIfRXTrEXMkFz",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.1,
+        "position": [
+          704,
+          1088
+        ],
+        "id": "50d1df2a-e8ff-48a2-9cb3-55bc69968853",
+        "name": "Migrate: srs_solicitud_importacion_minsal",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "return {\n  table_source: 'alim_detalle_solicitud_prod_esp',\n  table_destination: 'srs_detalle_solicitud_prod_esp',\n  code_prefix: 'DETPRODESP',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre_producto', 'marca_producto', 'cantidad_producto', 'costo_producto_importado', 'id_ctl_codigo_producto_especial', 'id_ctl_pais', 'id_ctl_unidad_medida', 'id_alim_solicitud_importacion_minsal'],\n  promoted_fields: [\n    'nombre_producto',\n    'marca_producto',\n    'cantidad_producto',\n    'costo_producto_importado',\n    'id_ctl_codigo_producto_especial',\n    'id_ctl_pais',\n    'id_ctl_unidad_medida',\n    'id_alim_solicitud_importacion_minsal',\n    'lotes',\n    'fecha_caducidad'\n  ],\n  field_types: {\n    'nombre_producto': 'VARCHAR(750)',\n    'marca_producto': 'VARCHAR(500)',\n    'cantidad_producto': 'REAL',\n    'costo_producto_importado': 'DOUBLE PRECISION',\n    'lotes': 'VARCHAR(200)',\n    'fecha_caducidad': 'DATE'\n  },\n  field_mappings: {\n    'id_ctl_codigo_producto_especial': 'codigo_producto_especial_code',\n    'id_ctl_pais': 'pais_code',\n    'id_ctl_unidad_medida': 'unidad_medida_code',\n    'id_alim_solicitud_importacion_minsal': 'solicitud_importacion_minsal_code'\n  },\n  relationships: {\n    'id_ctl_codigo_producto_especial': 'CODESPEC',\n    'id_ctl_pais': 'PAIS',\n    'id_ctl_unidad_medida': 'UNIDAD',\n    'id_alim_solicitud_importacion_minsal': 'SOLIMPMINSAL'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Esta tabla posee el detalle de una solicitud de importacion para productos especiales que no se tienen registrados'\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          960,
+          1088
+        ],
+        "id": "c42e5e01-0da6-4602-95f4-09d2572fc5fd",
+        "name": "Config: srs_detalle_solicitud_prod_esp"
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "L5EXIfRXTrEXMkFz",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.1,
+        "position": [
+          1216,
+          1088
+        ],
+        "id": "1275d488-b3e5-4797-94a4-9261136b6c57",
+        "name": "Migrate: srs_detalle_solicitud_prod_esp",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "return {\n  table_source: 'alim_detalle_solicitud_prod_reg',\n  table_destination: 'srs_detalle_solicitud_prod_reg',\n  code_prefix: 'DETPRODREG',\n  use_db_prefix: true,\n  required_fields: ['id', 'cantidad_producto', 'costo_producto', 'id_ctl_unidad_medida', 'id_alim_producto', 'id_alim_solicitud_importacion_minsal'],\n  promoted_fields: [\n    'cantidad_producto',\n    'costo_producto',\n    'id_ctl_unidad_medida',\n    'id_alim_producto',\n    'id_alim_solicitud_importacion_minsal',\n    'lotes',\n    'fecha_caducidad'\n  ],\n  field_types: {\n    'cantidad_producto': 'DOUBLE PRECISION',\n    'costo_producto': 'DOUBLE PRECISION',\n    'lotes': 'VARCHAR(200)',\n    'fecha_caducidad': 'DATE'\n  },\n  field_mappings: {\n    'id_ctl_unidad_medida': 'unidad_medida_code',\n    'id_alim_producto': 'producto_code',\n    'id_alim_solicitud_importacion_minsal': 'solicitud_importacion_minsal_code'\n  },\n  relationships: {\n    'id_ctl_unidad_medida': 'UNIDAD',\n    'id_alim_producto': 'PROD',\n    'id_alim_solicitud_importacion_minsal': 'SOLIMPMINSAL'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Esta tabla contiene el detalle de las solicitudes de importacion de los productos registrados'\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1472,
+          1088
+        ],
+        "id": "c8d5447e-43df-46c2-8b24-f2bb26000a23",
+        "name": "Config: srs_detalle_solicitud_prod_reg"
+      },
+      {
+        "parameters": {
+          "workflowId": {
+            "__rl": true,
+            "value": "L5EXIfRXTrEXMkFz",
+            "mode": "id"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1.1,
+        "position": [
+          1728,
+          1088
+        ],
+        "id": "5d9c2bc3-4733-42e2-8788-d8eae54f8ca6",
+        "name": "Migrate: srs_detalle_solicitud_prod_reg",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT COUNT(*) as total_tables, SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) as tables_completed, SUM(CASE WHEN status = 'FAILED' THEN 1 ELSE 0 END) as tables_failed, SUM(records_inserted) as total_records_migrated, SUM(records_errors) as total_errors FROM sys_migration_audit WHERE workflow_name = 'Migrate SRS Table (Parametrized)' AND created_at >= NOW() - INTERVAL '1 hour'",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          1984,
+          1088
+        ],
+        "id": "c6390748-16f5-41dc-be30-5d3362cd5dbe",
+        "name": "Query Audit Summary",
+        "credentials": {
+          "postgres": {
+            "id": "zfnOF6kSkxVUYiFo",
+            "name": "SDT Data Center Dev"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const masterVars = $('Initialize Master Variables').first().json;\nconst auditSummary = $input.first().json;\n\nconst endTime = new Date();\nconst startTime = new Date(masterVars.master_start_time);\nconst totalDuration = Math.round((endTime - startTime) / 1000);\n\nreturn {\n  status: '✅ MIGRATION COMPLETE',\n  master_batch_id: masterVars.master_batch_id,\n  execution_id: masterVars.workflow_id,\n  duration_seconds: totalDuration,\n  duration_human: `${Math.floor(totalDuration / 60)}m ${totalDuration % 60}s`,\n  total_tables: auditSummary.total_tables || 0,\n  tables_completed: auditSummary.tables_completed || 0,\n  tables_failed: auditSummary.tables_failed || 0,\n  total_records_migrated: auditSummary.total_records_migrated || 0,\n  total_errors: auditSummary.total_errors || 0,\n  completed_at: endTime.toISOString()\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2240,
+          1088
+        ],
+        "id": "3f7fdae0-aed3-4c81-947c-33f8446cb746",
+        "name": "Generate Final Report"
+      }
+    ],
+    "connections": {
+      "Start Master Migration": {
+        "main": [
+          [
+            {
+              "node": "Initialize Master Variables",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Initialize Master Variables": {
+        "main": [
+          [
+            {
+              "node": "Config: srs_codigo_producto_especial",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Config: srs_codigo_producto_especial": {
+        "main": [
+          [
+            {
+              "node": "Migrate: srs_codigo_producto_especial",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Migrate: srs_codigo_producto_especial": {
+        "main": [
+          [
+            {
+              "node": "Config: srs_solicitud_importacion_bcr",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Config: srs_solicitud_importacion_bcr": {
+        "main": [
+          [
+            {
+              "node": "Migrate: srs_solicitud_importacion_bcr",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Migrate: srs_solicitud_importacion_bcr": {
+        "main": [
+          [
+            {
+              "node": "Config: srs_solicitud_importacion_minsal",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Config: srs_solicitud_importacion_minsal": {
+        "main": [
+          [
+            {
+              "node": "Migrate: srs_solicitud_importacion_minsal",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Migrate: srs_solicitud_importacion_minsal": {
+        "main": [
+          [
+            {
+              "node": "Config: srs_detalle_solicitud_prod_esp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Config: srs_detalle_solicitud_prod_esp": {
+        "main": [
+          [
+            {
+              "node": "Migrate: srs_detalle_solicitud_prod_esp",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Migrate: srs_detalle_solicitud_prod_esp": {
+        "main": [
+          [
+            {
+              "node": "Config: srs_detalle_solicitud_prod_reg",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Config: srs_detalle_solicitud_prod_reg": {
+        "main": [
+          [
+            {
+              "node": "Migrate: srs_detalle_solicitud_prod_reg",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Migrate: srs_detalle_solicitud_prod_reg": {
+        "main": [
+          [
+            {
+              "node": "Query Audit Summary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Query Audit Summary": {
+        "main": [
+          [
+            {
+              "node": "Generate Final Report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "pinData": {},
+    "meta": {
+      "instanceId": "99a10a2e4d1c6e0339f8404860de7592311f0cf1b86a83dc405fe9cd64c583eb"
+    }
+  }

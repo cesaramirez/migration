@@ -6,34 +6,34 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        11296,
-        1248
+        0,
+        1000
       ],
       "id": "d4d3c4a1-60e2-4387-8c6b-2b3488ac2b9e",
       "name": "Start Master Migration"
     },
     {
       "parameters": {
-        "jsCode": "const now = new Date();\nconst masterBatchId = 'MASTER_' + now.toISOString().replace(/[:.]/g, '').replace(/-/g, '').substring(0, 15);\n\nreturn {\n  master_batch_id: masterBatchId,\n  master_start_time: now.toISOString(),\n  total_tables: 29,\n  workflow_id: $execution.id\n};"
+        "jsCode": "const now = new Date();\nconst masterBatchId = 'MASTER_' + now.toISOString().replace(/[:.]/g, '').replace(/-/g, '').substring(0, 15);\n\nreturn {\n  master_batch_id: masterBatchId,\n  master_start_time: now.toISOString(),\n  total_tables: 30,\n  workflow_id: $execution.id\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        11552,
-        1248
+        256,
+        1000
       ],
       "id": "470e04ac-3df7-4545-991b-1348a40fb2ce",
       "name": "Initialize Master Variables"
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_material',\n  table_destination: 'srs_material',\n  code_prefix: 'MAT',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Cat\u00e1logo de materiales para envases de productos'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_material',\n  table_destination: 'srs_material',\n  code_prefix: 'MAT',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Catálogo de materiales para envases de productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        11808,
-        1248
+        512,
+        1000
       ],
       "id": "8bb0a1a3-ccf7-4325-a658-31ae21ddd543",
       "name": "Config: srs_material"
@@ -50,8 +50,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        12048,
-        1248
+        768,
+        1000
       ],
       "id": "3fd7cc97-7149-4981-930c-8bb712c9e96c",
       "name": "Migrate: srs_material",
@@ -64,8 +64,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        12304,
-        1248
+        1024,
+        1000
       ],
       "id": "a5b76379-a13c-4f7d-9c9c-1f97e2145ff1",
       "name": "Config: srs_tipo_riesgo"
@@ -82,8 +82,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        12560,
-        1248
+        1280,
+        1000
       ],
       "id": "aaa29446-71ad-4dbd-b69f-01dc5f894e04",
       "name": "Migrate: srs_tipo_riesgo",
@@ -91,13 +91,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_clasificacion_grupo_alimenticio',\n  table_destination: 'srs_clasificacion_grupo_alimenticio',\n  code_prefix: 'CLASIF',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Clasificaci\u00f3n de grupos alimenticios'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_clasificacion_grupo_alimenticio',\n  table_destination: 'srs_clasificacion_grupo_alimenticio',\n  code_prefix: 'CLASIF',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Clasificación de grupos alimenticios'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        12800,
-        1248
+        1536,
+        1000
       ],
       "id": "9e9b06b2-f074-4ae7-a76e-998bdf5d97ef",
       "name": "Config: srs_clasificacion"
@@ -114,8 +114,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        13056,
-        1248
+        1792,
+        1000
       ],
       "id": "f8bc5b46-c7e6-4383-adb3-b40cca924d89",
       "name": "Migrate: srs_clasificacion",
@@ -123,13 +123,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_sub_grupo_alimenticio',\n  table_destination: 'srs_sub_grupo_alimenticio',\n  code_prefix: 'SUBGA',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre', 'id_ctl_clasificacion_grupo_alimenticio'],\n  promoted_fields: [\n    'nombre',\n    'id_ctl_clasificacion_grupo_alimenticio',\n    'id_ctl_tipo_riesgo',\n    'nombre_completo',\n    'precio_analisis',\n    'precio_registro',\n    'estado'\n  ],\n  field_types: {\n    'precio_analisis': 'REAL',\n    'precio_registro': 'REAL',\n    'estado': 'BOOLEAN'\n  },\n  field_mappings: {\n    'id_ctl_clasificacion_grupo_alimenticio': 'clasificacion_grupo_alimenticio_code',\n    'id_ctl_tipo_riesgo': 'tipo_riesgo_code'\n  },\n  relationships: {\n    'id_ctl_clasificacion_grupo_alimenticio': 'CLASIF',\n    'id_ctl_tipo_riesgo': 'RIESGO'\n  },\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Subgrupos de clasificaci\u00f3n de alimentos'\n};"
+        "jsCode": "return {\n  table_source: 'alim_sub_grupo_alimenticio',\n  table_destination: 'srs_sub_grupo_alimenticio',\n  code_prefix: 'SUBGA',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre', 'id_ctl_clasificacion_grupo_alimenticio'],\n  promoted_fields: [\n    'nombre',\n    'id_ctl_clasificacion_grupo_alimenticio',\n    'id_ctl_tipo_riesgo',\n    'nombre_completo',\n    'precio_analisis',\n    'precio_registro',\n    'estado'\n  ],\n  field_types: {\n    'precio_analisis': 'REAL',\n    'precio_registro': 'REAL',\n    'estado': 'BOOLEAN'\n  },\n  field_mappings: {\n    'id_ctl_clasificacion_grupo_alimenticio': 'clasificacion_grupo_alimenticio_code',\n    'id_ctl_tipo_riesgo': 'tipo_riesgo_code'\n  },\n  relationships: {\n    'id_ctl_clasificacion_grupo_alimenticio': 'CLASIF',\n    'id_ctl_tipo_riesgo': 'RIESGO'\n  },\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Subgrupos de clasificación de alimentos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        13296,
-        1248
+        2048,
+        1000
       ],
       "id": "c17b9179-c47e-444e-ae2a-ec7f52e32036",
       "name": "Config: srs_sub_grupo_alimenticio"
@@ -146,8 +146,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        13552,
-        1248
+        2304,
+        1000
       ],
       "id": "ce455c08-63fa-47c6-bee8-acb453b0c3b0",
       "name": "Migrate: srs_sub_grupo_alimenticio",
@@ -160,8 +160,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        14800,
-        1248
+        3584,
+        1000
       ],
       "id": "4763f22f-d2a4-49a4-a8d4-9eb6874d6293",
       "name": "Config: srs_tipo_tramitador"
@@ -178,8 +178,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        15056,
-        1248
+        3840,
+        1000
       ],
       "id": "8cb4fd3e-02bb-4de2-a570-dc9e65b8f0d9",
       "name": "Migrate: srs_tipo_tramitador",
@@ -187,13 +187,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_estado_proceso',\n  table_destination: 'srs_estado_proceso',\n  code_prefix: 'ESTADO',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Estados posibles de un proceso de gesti\u00f3n'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_estado_proceso',\n  table_destination: 'srs_estado_proceso',\n  code_prefix: 'ESTADO',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Estados posibles de un proceso de gestión'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        15296,
-        1248
+        4096,
+        1000
       ],
       "id": "74107da2-91f1-47a6-aebc-d762881e1a37",
       "name": "Config: srs_estado_proceso"
@@ -210,8 +210,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        15552,
-        1248
+        4352,
+        1000
       ],
       "id": "b4b4f030-2503-48b2-960e-d079f98f3e2f",
       "name": "Migrate: srs_estado_proceso",
@@ -219,13 +219,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_marca',\n  table_destination: 'srs_marcas',\n  code_prefix: 'MARCA',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Cat\u00e1logo de marcas comerciales registradas'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_marca',\n  table_destination: 'srs_marcas',\n  code_prefix: 'MARCA',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Catálogo de marcas comerciales registradas'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        13808,
-        1248
+        2560,
+        1000
       ],
       "id": "6c7170ae-59c1-41c0-a7d2-3e47038e7c93",
       "name": "Config: srs_marcas"
@@ -242,8 +242,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        14048,
-        1248
+        2816,
+        1000
       ],
       "id": "32d5b37e-a7a3-4e59-9b49-3be3ed6d1334",
       "name": "Migrate: srs_marcas",
@@ -251,13 +251,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_unidad_medida',\n  table_destination: 'srs_unidad_medida',\n  code_prefix: 'UNIDAD',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'simbolo', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Unidades de medida est\u00e1ndar para productos'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_unidad_medida',\n  table_destination: 'srs_unidad_medida',\n  code_prefix: 'UNIDAD',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'simbolo', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Unidades de medida estándar para productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        14304,
-        1248
+        3072,
+        1000
       ],
       "id": "810be873-ee71-4ba7-9caf-38791c432d8e",
       "name": "Config: srs_unidad_medida"
@@ -274,8 +274,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        14560,
-        1248
+        3328,
+        1000
       ],
       "id": "db69482c-f8c3-4c61-b6e2-f2f9d0d0d85b",
       "name": "Migrate: srs_unidad_medida",
@@ -283,13 +283,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_funcion_empresa_persona',\n  table_destination: 'srs_funcion_empresa_persona',\n  code_prefix: 'FUNC',\n  use_db_prefix: true,\n  required_fields: ['id', 'funcion'],\n  promoted_fields: ['funcion', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Funciones que puede desempe\u00f1ar una persona en una empresa'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_funcion_empresa_persona',\n  table_destination: 'srs_funcion_empresa_persona',\n  code_prefix: 'FUNC',\n  use_db_prefix: true,\n  required_fields: ['id', 'funcion'],\n  promoted_fields: ['funcion', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Funciones que puede desempeñar una persona en una empresa'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        11808,
-        1648
+        0,
+        1600
       ],
       "id": "cd6cb4a0-174c-4bf1-b64a-b04003a917bc",
       "name": "Config: srs_funcion"
@@ -306,8 +306,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        12048,
-        1648
+        256,
+        1600
       ],
       "id": "2fd5edcc-c67d-41c0-a554-17c1ac5d8b47",
       "name": "Migrate: srs_funcion",
@@ -320,8 +320,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        12800,
-        1648
+        1024,
+        1600
       ],
       "id": "1a3c4485-9a59-4565-8a5a-8cdd0140d5e4",
       "name": "Config: srs_giro_empresa"
@@ -338,8 +338,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        13056,
-        1648
+        1280,
+        1600
       ],
       "id": "4c7f309b-e4d8-4a00-af01-d8ea17f35a5d",
       "name": "Migrate: srs_giro_empresa",
@@ -347,13 +347,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_tamanio_empresa',\n  table_destination: 'srs_tamanio_empresa',\n  code_prefix: 'TAM',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Categor\u00edas de tama\u00f1o de empresas'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_tamanio_empresa',\n  table_destination: 'srs_tamanio_empresa',\n  code_prefix: 'TAM',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Categorías de tamaño de empresas'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        12304,
-        1648
+        512,
+        1600
       ],
       "id": "d5f370fa-9090-4bcc-a5f8-07862233539d",
       "name": "Config: srs_tamanio_empresa"
@@ -370,8 +370,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        12560,
-        1648
+        768,
+        1600
       ],
       "id": "ef328bc9-1ec8-4ef8-9099-b7314de20d55",
       "name": "Migrate: srs_tamanio_empresa",
@@ -384,8 +384,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        13296,
-        1648
+        1536,
+        1600
       ],
       "id": "af4ecd69-6b19-49eb-8b74-1a07e449b80d",
       "name": "Config: srs_empresa"
@@ -402,8 +402,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        13552,
-        1648
+        1792,
+        1600
       ],
       "id": "0eb822c8-f168-4c40-9eb3-3ceb1aa08686",
       "name": "Migrate: srs_empresa",
@@ -416,8 +416,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        13808,
-        1648
+        2048,
+        1600
       ],
       "id": "3d6b238c-4c29-4d10-8859-b910b719b1e6",
       "name": "Config: srs_persona"
@@ -434,8 +434,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        14048,
-        1648
+        2304,
+        1600
       ],
       "id": "6d429ea3-96ed-43f7-91c5-3e1dcee96da9",
       "name": "Migrate: srs_persona",
@@ -443,13 +443,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_empresa_persona_tramitador',\n  table_destination: 'srs_empresa_persona_tramitador',\n  code_prefix: 'EMPTRAM',\n  use_db_prefix: false,\n  required_fields: ['id', 'id_alim_empresa', 'id_alim_persona_tramitador'],\n  promoted_fields: [\n    'fecha_estado',\n    'estado_empresa_tramitador',\n    'ruta_archivo_poder',\n    'id_alim_empresa',\n    'id_alim_persona',\n    'id_alim_empresa:unif',\n    'id_alim_persona:unif',\n    'tipo_registro',\n    'id_alim_persona_tramitador',\n    'id_ctl_tipo_tramitador',\n    'id_ctl_estado_proceso',\n    'fecha_emision_credencial',\n    'fecha_vencimiento_credencial'\n  ],\n  field_types: {\n    'fecha_estado': 'TIMESTAMP',\n    'fecha_emision_credencial': 'DATE',\n    'fecha_vencimiento_credencial': 'DATE'\n  },\n  value_mappings: {\n    'estado_empresa_tramitador': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_registro': {\n      1: 'SISTEMA',\n      2: 'MANUAL'\n    }\n  },\n  field_mappings: {\n    'id_alim_empresa': 'empresa_code',\n    'id_alim_persona': 'persona_representada_code',\n    'id_alim_empresa:unif': 'entidad_representada_code',\n    'id_alim_persona:unif': 'entidad_representada_code',\n    'id_alim_persona_tramitador': 'persona_tramitador_code',\n    'id_ctl_tipo_tramitador': 'tipo_tramitador_code',\n    'id_ctl_estado_proceso': 'estado_proceso_code'\n  },\n  relationships: {\n    'id_alim_empresa': 'EMP',\n    'id_alim_persona': 'PER',\n    'id_alim_empresa:unif': 'ENT-EMP',\n    'id_alim_persona:unif': 'ENT-PER',\n    'id_alim_persona_tramitador': 'PER',\n    'id_ctl_tipo_tramitador': 'TRAM',\n    'id_ctl_estado_proceso': 'ESTADO'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Relaci\u00f3n entre empresas, personas y tramitadores'\n};"
+        "jsCode": "return {\n  table_source: 'alim_empresa_persona_tramitador',\n  table_destination: 'srs_empresa_persona_tramitador',\n  code_prefix: 'EMPTRAM',\n  use_db_prefix: false,\n  required_fields: ['id', 'id_alim_empresa', 'id_alim_persona_tramitador'],\n  promoted_fields: [\n    'fecha_estado',\n    'estado_empresa_tramitador',\n    'ruta_archivo_poder',\n    'id_alim_empresa',\n    'id_alim_persona',\n    'id_alim_empresa:unif',\n    'id_alim_persona:unif',\n    'tipo_registro',\n    'id_alim_persona_tramitador',\n    'id_ctl_tipo_tramitador',\n    'id_ctl_estado_proceso',\n    'fecha_emision_credencial',\n    'fecha_vencimiento_credencial'\n  ],\n  field_types: {\n    'fecha_estado': 'TIMESTAMP',\n    'fecha_emision_credencial': 'DATE',\n    'fecha_vencimiento_credencial': 'DATE'\n  },\n  value_mappings: {\n    'estado_empresa_tramitador': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_registro': {\n      1: 'SISTEMA',\n      2: 'MANUAL'\n    }\n  },\n  field_mappings: {\n    'id_alim_empresa': 'empresa_code',\n    'id_alim_persona': 'persona_representada_code',\n    'id_alim_empresa:unif': 'entidad_representada_code',\n    'id_alim_persona:unif': 'entidad_representada_code',\n    'id_alim_persona_tramitador': 'persona_tramitador_code',\n    'id_ctl_tipo_tramitador': 'tipo_tramitador_code',\n    'id_ctl_estado_proceso': 'estado_proceso_code'\n  },\n  relationships: {\n    'id_alim_empresa': 'EMP',\n    'id_alim_persona': 'PER',\n    'id_alim_empresa:unif': 'ENT-EMP',\n    'id_alim_persona:unif': 'ENT-PER',\n    'id_alim_persona_tramitador': 'PER',\n    'id_ctl_tipo_tramitador': 'TRAM',\n    'id_ctl_estado_proceso': 'ESTADO'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Relación entre empresas, personas y tramitadores'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        14304,
-        1648
+        3072,
+        1600
       ],
       "id": "09ad90e6-83f4-46fb-81c3-c96caec004c9",
       "name": "Config: srs_empresa_persona_tramitador"
@@ -466,8 +466,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        14560,
-        1648
+        3328,
+        1600
       ],
       "id": "25d0b3d2-c86a-4b7c-9241-3811f6b1eff1",
       "name": "Migrate: srs_empresa_persona_tramitador",
@@ -475,15 +475,47 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_pais',\n  table_destination: 'srs_pais',\n  code_prefix: 'PAIS',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'dominio2', 'dominio3', 'isonumero', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {\n    'dominio2': 'iso_alpha2',\n    'dominio3': 'iso_alpha3',\n    'isonumero': 'iso_numeric'\n  },\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Cat\u00e1logo de pa\u00edses y territorios'\n};"
+        "jsCode": "return {\n  table_source: 'alim_empresa_persona_aux',\n  table_destination: 'srs_empresa_persona_aux',\n  code_prefix: 'EPAUX',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre', 'es_empresa', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre',\n    'nit',\n    'correo_electronico',\n    'direccion',\n    'es_empresa',\n    'id_empresa_persona',\n    'id_ctl_pais',\n    'migrado'\n  ],\n  field_types: {\n    'es_empresa': 'BOOLEAN DEFAULT false',\n    'nit': 'VARCHAR(14)',\n    'correo_electronico': 'VARCHAR(50)',\n    'direccion': 'VARCHAR(150)',\n    'nombre': 'VARCHAR(200)',\n    'migrado': 'INTEGER'\n  },\n  field_mappings: {\n    'id_ctl_pais': 'pais_code'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Tabla auxiliar donde se guardaran todas las empresas y personas naturales ya sea con registro completo o registrados al momento de realizar una solicitud de registro sanitario'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3584,
+        1600
+      ],
+      "id": "epaux-config-001",
+      "name": "Config: srs_empresa_persona_aux"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        3840,
+        1600
+      ],
+      "id": "epaux-migrate-001",
+      "name": "Migrate: srs_empresa_persona_aux",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'ctl_pais',\n  table_destination: 'srs_pais',\n  code_prefix: 'PAIS',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'dominio2', 'dominio3', 'isonumero', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {\n    'dominio2': 'iso_alpha2',\n    'dominio3': 'iso_alpha3',\n    'isonumero': 'iso_numeric'\n  },\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Catálogo de países y territorios'\n};"
       },
       "id": "816c7836-7027-4f7a-81b8-e4a145536535",
       "name": "Config: srs_pais",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        11808,
-        2048
+        0,
+        2200
       ]
     },
     {
@@ -498,8 +530,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        12048,
-        2048
+        256,
+        2200
       ],
       "id": "16bec45f-8651-4537-99dc-c535de6f2e82",
       "name": "Migrate: srs_pais",
@@ -512,8 +544,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        12304,
-        2048
+        512,
+        2200
       ],
       "id": "953a81ba-2ebf-456f-adec-c751a4d0e46a",
       "name": "Config: srs_certificado_libre_venta"
@@ -530,8 +562,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        12560,
-        2048
+        768,
+        2200
       ],
       "id": "8bbaca21-2191-40cf-b92f-859698095ae1",
       "name": "Migrate: srs_certificado_libre_venta",
@@ -544,8 +576,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        12800,
-        2048
+        1024,
+        2200
       ],
       "id": "be5d8f96-be1c-4d94-bbd7-0d5371504880",
       "name": "Config: srs_departamento"
@@ -562,8 +594,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        13056,
-        2048
+        1280,
+        2200
       ],
       "id": "1700191c-e084-4540-98ab-84e59884818f",
       "name": "Migrate: srs_departamento",
@@ -576,8 +608,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        13296,
-        2048
+        1536,
+        2200
       ],
       "id": "3266dcb0-b2fa-4e8d-8b8a-f376ed2064cf",
       "name": "Config: srs_municipio"
@@ -594,8 +626,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        13552,
-        2048
+        1792,
+        2200
       ],
       "id": "409516cb-50aa-4546-b8dd-b0e6ca4bfc99",
       "name": "Migrate: srs_municipio",
@@ -603,29 +635,29 @@
     },
     {
       "parameters": {
-        "content": "## \ud83e\uddea LAB: Unificaci\u00f3n de Entidades (Experimento)\n\nAqu\u00ed probamos el concepto de 'Flat Model' uniendo Personas y Empresas en una sola tabla de destino.",
+        "content": "## 🧪 LAB: Unificación de Entidades (Experimento)\n\nAquí probamos el concepto de 'Flat Model' uniendo Personas y Empresas en una sola tabla de destino.",
         "height": 380,
-        "width": 1800,
+        "width": 2000,
         "color": 4
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        12208,
-        3200
+        -200,
+        3800
       ],
       "id": "e128f233-3c3a-4904-8fad-0ed8b3b8e7d9",
       "name": "Note: Unification Lab"
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_empresa',\n  table_destination: 'srs_entidad_experiment',\n  code_prefix: 'ENT-EMP',\n  use_db_prefix: false,\n  promoted_fields: [\n    'dui',\n    'nit',\n    'razon_social',\n    'nombre_comercial',\n    'iva',\n    'correo_electronico',\n    'direccion',\n    'estado_empresa',\n    'id_ctl_pais',\n    'id_ctl_municipio',\n    'importa_lac'\n  ],\n  field_mappings: {\n    'razon_social': 'nombre',\n    'nombre_comercial': 'nombre_secundario',\n    'correo_electronico': 'correo',\n    'estado_empresa': 'estado',\n    'id_ctl_pais': 'pais_code',\n    'id_ctl_municipio': 'municipio_code'\n  },\n  value_mappings: {\n    'estado_empresa': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_types: {\n    'importa_lac': 'BOOLEAN DEFAULT false'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS',\n    'id_ctl_municipio': 'MUNI'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Tabla experimental de unificaci\u00f3n de entidades'\n};"
+        "jsCode": "return {\n  table_source: 'alim_empresa',\n  table_destination: 'srs_entidad_experiment',\n  code_prefix: 'ENT-EMP',\n  use_db_prefix: false,\n  promoted_fields: [\n    'dui',\n    'nit',\n    'razon_social',\n    'nombre_comercial',\n    'iva',\n    'correo_electronico',\n    'direccion',\n    'estado_empresa',\n    'id_ctl_pais',\n    'id_ctl_municipio',\n    'importa_lac'\n  ],\n  field_mappings: {\n    'razon_social': 'nombre',\n    'nombre_comercial': 'nombre_secundario',\n    'correo_electronico': 'correo',\n    'estado_empresa': 'estado',\n    'id_ctl_pais': 'pais_code',\n    'id_ctl_municipio': 'municipio_code'\n  },\n  value_mappings: {\n    'estado_empresa': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_types: {\n    'importa_lac': 'BOOLEAN DEFAULT false'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS',\n    'id_ctl_municipio': 'MUNI'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Tabla experimental de unificación de entidades'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        12304,
-        3344
+        0,
+        4000
       ],
       "id": "3ae33f86-acb2-4818-9bcf-ad19c444d484",
       "name": "Exp: Config Unificada Empresa"
@@ -642,8 +674,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        12560,
-        3344
+        256,
+        4000
       ],
       "id": "cd1f4b01-45a2-4249-9e87-9eddab8ff1d0",
       "name": "Exp: Migrate Unificada Empresa",
@@ -651,13 +683,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_persona',\n  table_destination: 'srs_entidad_experiment',\n  code_prefix: 'ENT-PER',\n  use_db_prefix: false,\n  promoted_fields: [\n    'dui',\n    'nit',\n    'nombre',\n    'apellido',\n    'iva',\n    'correo_electronico',\n    'direccion',\n    'estado_persona',\n    'id_ctl_pais',\n    'id_ctl_municipio',\n    'importa_lac'\n  ],\n  field_mappings: {\n    'nombre': 'nombre',\n    'apellido': 'nombre_secundario',\n    'correo_electronico': 'correo',\n    'estado_persona': 'estado',\n    'id_ctl_pais': 'pais_code',\n    'id_ctl_municipio': 'municipio_code'\n  },\n  value_mappings: {\n    'estado_persona': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_types: {\n    'importa_lac': 'BOOLEAN DEFAULT false'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS',\n    'id_ctl_municipio': 'MUNI'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Tabla experimental de unificaci\u00f3n de entidades'\n};"
+        "jsCode": "return {\n  table_source: 'alim_persona',\n  table_destination: 'srs_entidad_experiment',\n  code_prefix: 'ENT-PER',\n  use_db_prefix: false,\n  promoted_fields: [\n    'dui',\n    'nit',\n    'nombre',\n    'apellido',\n    'iva',\n    'correo_electronico',\n    'direccion',\n    'estado_persona',\n    'id_ctl_pais',\n    'id_ctl_municipio',\n    'importa_lac'\n  ],\n  field_mappings: {\n    'nombre': 'nombre',\n    'apellido': 'nombre_secundario',\n    'correo_electronico': 'correo',\n    'estado_persona': 'estado',\n    'id_ctl_pais': 'pais_code',\n    'id_ctl_municipio': 'municipio_code'\n  },\n  value_mappings: {\n    'estado_persona': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_types: {\n    'importa_lac': 'BOOLEAN DEFAULT false'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS',\n    'id_ctl_municipio': 'MUNI'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Tabla experimental de unificación de entidades'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        12800,
-        3344
+        512,
+        4000
       ],
       "id": "77bf46a7-8dac-401a-89b1-86eeb516b988",
       "name": "Exp: Config Unificada Persona"
@@ -674,8 +706,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        13056,
-        3344
+        768,
+        4000
       ],
       "id": "aa49f948-a360-4bc7-bf94-19ec24f7c109",
       "name": "Exp: Migrate Unificada Persona",
@@ -690,8 +722,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        13552,
-        3344
+        1024,
+        4000
       ],
       "id": "87013cc6-6358-4849-acba-e2e0022eeef7",
       "name": "Query Audit Summary",
@@ -704,29 +736,29 @@
     },
     {
       "parameters": {
-        "jsCode": "const masterVars = $('Initialize Master Variables').first().json;\nconst auditSummary = $input.first().json;\n\nconst endTime = new Date();\nconst startTime = new Date(masterVars.master_start_time);\nconst totalDuration = Math.round((endTime - startTime) / 1000);\n\nreturn {\n  status: '\u2705 MIGRATION COMPLETE',\n  master_batch_id: masterVars.master_batch_id,\n  execution_id: masterVars.workflow_id,\n  duration_seconds: totalDuration,\n  duration_human: `${Math.floor(totalDuration / 60)}m ${totalDuration % 60}s`,\n  total_tables: auditSummary.total_tables || 0,\n  tables_completed: auditSummary.tables_completed || 0,\n  tables_failed: auditSummary.tables_failed || 0,\n  total_records_migrated: auditSummary.total_records_migrated || 0,\n  total_errors: auditSummary.total_errors || 0,\n  completed_at: endTime.toISOString()\n};"
+        "jsCode": "const masterVars = $('Initialize Master Variables').first().json;\nconst auditSummary = $input.first().json;\n\nconst endTime = new Date();\nconst startTime = new Date(masterVars.master_start_time);\nconst totalDuration = Math.round((endTime - startTime) / 1000);\n\nreturn {\n  status: '✅ MIGRATION COMPLETE',\n  master_batch_id: masterVars.master_batch_id,\n  execution_id: masterVars.workflow_id,\n  duration_seconds: totalDuration,\n  duration_human: `${Math.floor(totalDuration / 60)}m ${totalDuration % 60}s`,\n  total_tables: auditSummary.total_tables || 0,\n  tables_completed: auditSummary.tables_completed || 0,\n  tables_failed: auditSummary.tables_failed || 0,\n  total_records_migrated: auditSummary.total_records_migrated || 0,\n  total_errors: auditSummary.total_errors || 0,\n  completed_at: endTime.toISOString()\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        13808,
-        3344
+        1280,
+        4000
       ],
       "id": "e358161b-d996-4bc2-87db-e74f06596e68",
       "name": "Generate Final Report"
     },
     {
       "parameters": {
-        "content": "## \ud83d\udce6 Gesti\u00f3n de Bodegas\nTipos de bodega y almacenes detallados.",
+        "content": "## 📦 Gestión de Bodegas\nTipos de bodega y almacenes detallados.",
         "height": 300,
-        "width": 1800,
+        "width": 2000,
         "color": 5
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        11696,
-        2400
+        -200,
+        2600
       ],
       "id": "f1353ce8-b2ef-4010-8c9c-39dd13414656",
       "name": "Note: Bodega Catalogs"
@@ -738,8 +770,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        12304,
-        2448
+        512,
+        2800
       ],
       "id": "a20fb163-704c-4576-a178-08c5c1032ca1",
       "name": "Config: srs_bodega"
@@ -756,8 +788,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        12560,
-        2448
+        768,
+        2800
       ],
       "id": "7cec5904-ae60-42a6-83af-3de10b755bab",
       "name": "Migrate: srs_bodega",
@@ -770,8 +802,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        11808,
-        2448
+        0,
+        2800
       ],
       "id": "0e664044-2977-49b4-bf65-255aad0ce19c",
       "name": "Config: srs_tipo_bodega"
@@ -788,8 +820,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        12048,
-        2448
+        256,
+        2800
       ],
       "id": "75b6c7cc-6fe5-462f-bb58-bf2c8550f6f7",
       "name": "Migrate: srs_tipo_bodega",
@@ -797,76 +829,76 @@
     },
     {
       "parameters": {
-        "content": "## \ud83e\uddea Cat\u00e1logos Base (SRS)\nMateriales, riesgos, clasificaciones, marcas, unidades de medida, tipos de tramitador y estados de proceso.",
+        "content": "## 🧪 Catálogos Base (SRS)\nMateriales, riesgos, clasificaciones, marcas, unidades de medida, tipos de tramitador y estados de proceso.",
         "height": 300,
-        "width": 4400
+        "width": 6000
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        11696,
-        1088
+        -200,
+        800
       ],
       "id": "004c0acf-84bf-45a4-8b78-404fc07fd205",
       "name": "Note: Base Catalogs"
     },
     {
       "parameters": {
-        "content": "## \ud83d\udcc1 Expedientes\nCat\u00e1logos y tablas relacionadas a expedientes y formularios.",
+        "content": "## 📁 Expedientes\nCatálogos y tablas relacionadas a expedientes y formularios.",
         "height": 300,
-        "width": 4600,
+        "width": 5500,
         "color": 6
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        11696,
-        2800
+        -200,
+        3200
       ],
       "id": "ae5d225b-090e-48da-a13e-cac566f74fa0",
       "name": "Note: Expedientes"
     },
     {
       "parameters": {
-        "content": "## \ud83c\udfe2 Cat\u00e1logos de Empresa & Entidades\nEnfoque en Funciones, Empresas, Personas y sus V\u00ednculos.",
+        "content": "## 🏢 Catálogos de Empresa & Entidades\nEnfoque en Funciones, Empresas, Personas y sus Vínculos.",
         "height": 300,
-        "width": 3400,
+        "width": 4000,
         "color": 2
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        11696,
-        1488
+        -200,
+        1400
       ],
       "id": "2d07e34a-b5c8-4aaa-857e-1d5bf1cc6c9c",
       "name": "Note: Empresa Catalogs"
     },
     {
       "parameters": {
-        "content": "## \ud83c\udf0d Informaci\u00f3n Geogr\u00e1fica\nPa\u00edses, departamentos y municipios vinculados.",
+        "content": "## 🌍 Información Geográfica\nPaíses, departamentos y municipios vinculados.",
         "height": 300,
-        "width": 2400,
+        "width": 2500,
         "color": 3
       },
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
       "position": [
-        11696,
-        1888
+        -200,
+        2000
       ],
       "id": "28779454-2443-48e4-a2da-655ae3043fe5",
       "name": "Note: Geo Info"
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_empresa_persona_bodega',\n  table_destination: 'srs_empresa_persona_bodega',\n  code_prefix: 'EPBOD',\n  use_db_prefix: true,\n  required_fields: ['id', 'relacion_bodega_empresa_persona', 'id_alim_bodega', 'tipo_empresa_bodega', 'id_ctl_estado_proceso'],\n  promoted_fields: [\n    'relacion_bodega_empresa_persona',\n    'ruta_archivo_constancia_arrendamiento',\n    'estado_empresa_persona_bodega',\n    'id_alim_bodega',\n    'tipo_empresa_bodega',\n    'id_alim_empresa',\n    'id_ctl_estado_proceso',\n    'id_alim_persona',\n    'id_ctl_modulo',\n    'registrado'\n  ],\n  field_types: {\n    'registrado': 'BOOLEAN DEFAULT false',\n    'ruta_archivo_constancia_arrendamiento': 'VARCHAR(250)'\n  },\n  value_mappings: {\n    'relacion_bodega_empresa_persona': {\n      1: 'PROPIA',\n      2: 'ALQUILADA',\n      3: 'PRESTADA'\n    },\n    'estado_empresa_persona_bodega': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_empresa_bodega': {\n      1: 'EMPRESA DUENA',\n      2: 'EMPRESA NO DUENA'\n    }\n  },\n  field_mappings: {\n    'relacion_bodega_empresa_persona': 'relacion_tipo',\n    'estado_empresa_persona_bodega': 'estado',\n    'tipo_empresa_bodega': 'tipo_registro_propiedad',\n    'id_alim_bodega': 'bodega_code',\n    'id_alim_empresa': 'empresa_code',\n    'id_alim_persona': 'persona_code',\n    'id_ctl_estado_proceso': 'estado_proceso_code',\n    'id_ctl_modulo': 'modulo_code'\n  },\n  relationships: {\n    'id_alim_bodega': 'BOD',\n    'id_alim_empresa': 'EMP',\n    'id_alim_persona': 'PER',\n    'id_ctl_estado_proceso': 'ESTADO',\n    'id_ctl_modulo': 'MODULO'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Relaci\u00f3n entre empresas, personas y bodegas'\n};"
+        "jsCode": "return {\n  table_source: 'alim_empresa_persona_bodega',\n  table_destination: 'srs_empresa_persona_bodega',\n  code_prefix: 'EPBOD',\n  use_db_prefix: true,\n  required_fields: ['id', 'relacion_bodega_empresa_persona', 'id_alim_bodega', 'tipo_empresa_bodega', 'id_ctl_estado_proceso'],\n  promoted_fields: [\n    'relacion_bodega_empresa_persona',\n    'ruta_archivo_constancia_arrendamiento',\n    'estado_empresa_persona_bodega',\n    'id_alim_bodega',\n    'tipo_empresa_bodega',\n    'id_alim_empresa',\n    'id_ctl_estado_proceso',\n    'id_alim_persona',\n    'id_ctl_modulo',\n    'registrado'\n  ],\n  field_types: {\n    'registrado': 'BOOLEAN DEFAULT false',\n    'ruta_archivo_constancia_arrendamiento': 'VARCHAR(250)'\n  },\n  value_mappings: {\n    'relacion_bodega_empresa_persona': {\n      1: 'PROPIA',\n      2: 'ALQUILADA',\n      3: 'PRESTADA'\n    },\n    'estado_empresa_persona_bodega': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_empresa_bodega': {\n      1: 'EMPRESA DUENA',\n      2: 'EMPRESA NO DUENA'\n    }\n  },\n  field_mappings: {\n    'relacion_bodega_empresa_persona': 'relacion_tipo',\n    'estado_empresa_persona_bodega': 'estado',\n    'tipo_empresa_bodega': 'tipo_registro_propiedad',\n    'id_alim_bodega': 'bodega_code',\n    'id_alim_empresa': 'empresa_code',\n    'id_alim_persona': 'persona_code',\n    'id_ctl_estado_proceso': 'estado_proceso_code',\n    'id_ctl_modulo': 'modulo_code'\n  },\n  relationships: {\n    'id_alim_bodega': 'BOD',\n    'id_alim_empresa': 'EMP',\n    'id_alim_persona': 'PER',\n    'id_ctl_estado_proceso': 'ESTADO',\n    'id_ctl_modulo': 'MODULO'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Relación entre empresas, personas y bodegas'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        12800,
-        2448
+        1024,
+        2800
       ],
       "id": "203b43ef-2a5a-44eb-bfef-c2d9265c6bf1",
       "name": "Config: srs_empresa_persona_bodega"
@@ -883,8 +915,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        13056,
-        2448
+        1280,
+        2800
       ],
       "id": "f689b0e8-a706-4ddf-ad9c-3621af60877e",
       "name": "Migrate: srs_empresa_persona_bodega",
@@ -892,13 +924,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ENUM_STATIC',\n  table_destination: 'srs_tipo_producto',\n  code_prefix: 'TP',\n  use_db_prefix: false,\n  id_field: 'id',\n  required_fields: ['nombre'],\n  promoted_fields: ['nombre', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tipos de producto seg\u00fan origen: NACIONAL | IMPORTADO_UNION_ADUANERA | IMPORTADO_OTROS_PAISES',\n  static_values: [\n    { id: 1, nombre: 'NACIONAL', codigo: 'TP-NAC' },\n    { id: 2, nombre: 'IMPORTADO_UNION_ADUANERA', codigo: 'TP-IUA' },\n    { id: 3, nombre: 'IMPORTADO_OTROS_PAISES', codigo: 'TP-IOP' }\n  ]\n};"
+        "jsCode": "return {\n  table_source: 'ENUM_STATIC',\n  table_destination: 'srs_tipo_producto',\n  code_prefix: 'TP',\n  use_db_prefix: false,\n  id_field: 'id',\n  required_fields: ['nombre'],\n  promoted_fields: ['nombre', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tipos de producto según origen: NACIONAL | IMPORTADO_UNION_ADUANERA | IMPORTADO_OTROS_PAISES',\n  static_values: [\n    { id: 1, nombre: 'NACIONAL', codigo: 'TP-NAC' },\n    { id: 2, nombre: 'IMPORTADO_UNION_ADUANERA', codigo: 'TP-IUA' },\n    { id: 3, nombre: 'IMPORTADO_OTROS_PAISES', codigo: 'TP-IOP' }\n  ]\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        15808,
-        1248
+        4608,
+        1000
       ],
       "id": "aaa00000-0000-0000-0000-000000000001",
       "name": "Config: srs_tipo_producto"
@@ -915,8 +947,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        16064,
-        1248
+        4864,
+        1000
       ],
       "id": "bbb00000-0000-0000-0000-000000000001",
       "name": "Migrate: srs_tipo_producto",
@@ -929,8 +961,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        12048,
-        2848
+        5120,
+        1000
       ],
       "id": "610ae2fa-007c-4989-8d63-28bc52e76668",
       "name": "Config: srs_estado_producto"
@@ -947,8 +979,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        12288,
-        2848
+        5376,
+        1000
       ],
       "id": "fbdce782-b188-4fc5-8c81-712c81c407ea",
       "name": "Migrate: srs_estado_producto",
@@ -956,13 +988,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_producto',\n  table_destination: 'srs_producto',\n  code_prefix: 'PROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre', 'tipo_producto', 'estado_registro', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre',\n    'tipo_producto',\n    'num_partida_arancelaria',\n    'ruta_archivo_ingredientes',\n    'fecha_emision_registro',\n    'fecha_vigencia_registro',\n    'num_autorizacion_reconocimiento',\n    'num_registro_sanitario',\n    'num_certificacion',\n    'estado_registro',\n    'id_ctl_estado_producto',\n    'id_ctl_pais',\n    'id_sub_grupo_alimenticio',\n    'detalle_reconocimiento',\n    'marca_temp',\n    'id_rm',\n    'ruta_archivo_vineta_reconocimiento',\n    'tipo_de_laboratorio',\n    'registro_centroamericano',\n    'pais_centroamericano_de_registro',\n    'fecha_vigencia_registro_segun_resolucion',\n    'ruta_resolucion_registro_centroamericano',\n    'ruta_declaracion_jurada'\n  ],\n  field_types: {\n    'num_partida_arancelaria': 'CHAR(14)',\n    'ruta_archivo_ingredientes': 'VARCHAR(250)',\n    'fecha_emision_registro': 'DATE',\n    'fecha_vigencia_registro': 'DATE',\n    'num_registro_sanitario': 'VARCHAR(15)',\n    'detalle_reconocimiento': 'JSONB',\n    'ruta_archivo_vineta_reconocimiento': 'VARCHAR(300)',\n    'tipo_de_laboratorio': 'INTEGER',\n    'registro_centroamericano': 'VARCHAR(20)',\n    'fecha_vigencia_registro_segun_resolucion': 'DATE',\n    'ruta_resolucion_registro_centroamericano': 'VARCHAR(255)',\n    'ruta_declaracion_jurada': 'VARCHAR(255)'\n  },\n  value_mappings: {\n    'estado_registro': {\n      1: 'ACTIVO',\n      2: 'BORRADO_LOGICO'\n    },\n    'tipo_producto': {\n      1: 'NACIONAL',\n      2: 'IMPORTADO_UNION_ADUANERA',\n      3: 'IMPORTADO_OTROS_PAISES'\n    }\n  },\n  field_mappings: {\n    'tipo_producto': 'tipo_producto_code',\n    'id_ctl_estado_producto': 'estado_producto_code',\n    'id_ctl_pais': 'pais_code',\n    'id_sub_grupo_alimenticio': 'sub_grupo_alimenticio_code',\n    'pais_centroamericano_de_registro': 'pais_centroamericano_code'\n  },\n  relationships: {\n    'tipo_producto': 'TP',\n    'id_ctl_estado_producto': 'ESTPROD',\n    'id_ctl_pais': 'PAIS',\n    'id_sub_grupo_alimenticio': 'SUBGA',\n    'pais_centroamericano_de_registro': 'PAIS'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Cat\u00e1logo detallado de productos'\n};"
+        "jsCode": "return {\n  table_source: 'alim_producto',\n  table_destination: 'srs_producto',\n  code_prefix: 'PROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre', 'tipo_producto', 'estado_registro', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre',\n    'tipo_producto',\n    'num_partida_arancelaria',\n    'ruta_archivo_ingredientes',\n    'fecha_emision_registro',\n    'fecha_vigencia_registro',\n    'num_autorizacion_reconocimiento',\n    'num_registro_sanitario',\n    'num_certificacion',\n    'estado_registro',\n    'id_ctl_estado_producto',\n    'id_ctl_pais',\n    'id_sub_grupo_alimenticio',\n    'detalle_reconocimiento',\n    'marca_temp',\n    'id_rm',\n    'ruta_archivo_vineta_reconocimiento',\n    'tipo_de_laboratorio',\n    'registro_centroamericano',\n    'pais_centroamericano_de_registro',\n    'fecha_vigencia_registro_segun_resolucion',\n    'ruta_resolucion_registro_centroamericano',\n    'ruta_declaracion_jurada'\n  ],\n  field_types: {\n    'num_partida_arancelaria': 'CHAR(14)',\n    'ruta_archivo_ingredientes': 'VARCHAR(250)',\n    'fecha_emision_registro': 'DATE',\n    'fecha_vigencia_registro': 'DATE',\n    'num_registro_sanitario': 'VARCHAR(15)',\n    'detalle_reconocimiento': 'JSONB',\n    'ruta_archivo_vineta_reconocimiento': 'VARCHAR(300)',\n    'tipo_de_laboratorio': 'INTEGER',\n    'registro_centroamericano': 'VARCHAR(20)',\n    'fecha_vigencia_registro_segun_resolucion': 'DATE',\n    'ruta_resolucion_registro_centroamericano': 'VARCHAR(255)',\n    'ruta_declaracion_jurada': 'VARCHAR(255)'\n  },\n  value_mappings: {\n    'estado_registro': {\n      1: 'ACTIVO',\n      2: 'BORRADO_LOGICO'\n    },\n    'tipo_producto': {\n      1: 'NACIONAL',\n      2: 'IMPORTADO_UNION_ADUANERA',\n      3: 'IMPORTADO_OTROS_PAISES'\n    }\n  },\n  field_mappings: {\n    'tipo_producto': 'tipo_producto_code',\n    'id_ctl_estado_producto': 'estado_producto_code',\n    'id_ctl_pais': 'pais_code',\n    'id_sub_grupo_alimenticio': 'sub_grupo_alimenticio_code',\n    'pais_centroamericano_de_registro': 'pais_centroamericano_code'\n  },\n  relationships: {\n    'tipo_producto': 'TP',\n    'id_ctl_estado_producto': 'ESTPROD',\n    'id_ctl_pais': 'PAIS',\n    'id_sub_grupo_alimenticio': 'SUBGA',\n    'pais_centroamericano_de_registro': 'PAIS'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Catálogo detallado de productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        12528,
-        2848
+        0,
+        3400
       ],
       "id": "4538b789-ecde-45a2-a13f-9691e77394a0",
       "name": "Config: srs_producto"
@@ -979,8 +1011,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        12768,
-        2848
+        256,
+        3400
       ],
       "id": "e3014f18-5ff5-40b4-bcb1-759ea416bff8",
       "name": "Migrate: srs_producto",
@@ -988,13 +1020,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_marca_producto',\n  table_destination: 'srs_marca_producto',\n  code_prefix: 'MARCPROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_ctl_marca', 'id_alim_producto'],\n  promoted_fields: [\n    'estado_marca_producto',\n    'id_ctl_marca',\n    'id_alim_producto'\n  ],\n  field_types: {},\n  value_mappings: {\n    'estado_marca_producto': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_ctl_marca': 'marca_code',\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_ctl_marca': 'MARCA',\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Asociaci\u00f3n entre marcas y productos'\n};"
+        "jsCode": "return {\n  table_source: 'alim_marca_producto',\n  table_destination: 'srs_marca_producto',\n  code_prefix: 'MARCPROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_ctl_marca', 'id_alim_producto'],\n  promoted_fields: [\n    'estado_marca_producto',\n    'id_ctl_marca',\n    'id_alim_producto'\n  ],\n  field_types: {},\n  value_mappings: {\n    'estado_marca_producto': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_ctl_marca': 'marca_code',\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_ctl_marca': 'MARCA',\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Asociación entre marcas y productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        13024,
-        2848
+        512,
+        3400
       ],
       "id": "652676ca-d31f-41ad-8fa4-84c8b6b49610",
       "name": "Config: srs_marca_producto"
@@ -1011,8 +1043,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        13280,
-        2848
+        768,
+        3400
       ],
       "id": "d377e86e-8fe3-4293-92bd-1fa8095751ae",
       "name": "Migrate: srs_marca_producto",
@@ -1020,13 +1052,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_producto_certificado_libre_venta',\n  table_destination: 'srs_producto_certificado_libre_venta',\n  code_prefix: 'PRODCLV',\n  use_db_prefix: true,\n  required_fields: ['id', 'fecha_vigencia', 'nombre_prod_segun_clv', 'id_alim_certificado_libre_venta', 'id_ctl_estado_proceso', 'id_alim_producto'],\n  promoted_fields: [\n    'fecha_vigencia',\n    'nombre_prod_segun_clv',\n    'id_alim_certificado_libre_venta',\n    'id_ctl_estado_proceso',\n    'id_alim_producto'\n  ],\n  field_types: {\n    'fecha_vigencia': 'DATE',\n    'nombre_prod_segun_clv': 'VARCHAR(600)'\n  },\n  field_mappings: {\n    'id_alim_certificado_libre_venta': 'certificado_libre_venta_code',\n    'id_ctl_estado_proceso': 'estado_proceso_code',\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_alim_certificado_libre_venta': 'CLV',\n    'id_ctl_estado_proceso': 'ESTADO',\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Relaci\u00f3n entre productos y certificados'\n};"
+        "jsCode": "return {\n  table_source: 'alim_producto_certificado_libre_venta',\n  table_destination: 'srs_producto_certificado_libre_venta',\n  code_prefix: 'PRODCLV',\n  use_db_prefix: true,\n  required_fields: ['id', 'fecha_vigencia', 'nombre_prod_segun_clv', 'id_alim_certificado_libre_venta', 'id_ctl_estado_proceso', 'id_alim_producto'],\n  promoted_fields: [\n    'fecha_vigencia',\n    'nombre_prod_segun_clv',\n    'id_alim_certificado_libre_venta',\n    'id_ctl_estado_proceso',\n    'id_alim_producto'\n  ],\n  field_types: {\n    'fecha_vigencia': 'DATE',\n    'nombre_prod_segun_clv': 'VARCHAR(600)'\n  },\n  field_mappings: {\n    'id_alim_certificado_libre_venta': 'certificado_libre_venta_code',\n    'id_ctl_estado_proceso': 'estado_proceso_code',\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_alim_certificado_libre_venta': 'CLV',\n    'id_ctl_estado_proceso': 'ESTADO',\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Relación entre productos y certificados'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        13520,
-        2848
+        1024,
+        3400
       ],
       "id": "62d91a3e-7ccc-4c92-9aec-c99a7849213f",
       "name": "Config: srs_producto_certificado_libre_venta"
@@ -1043,8 +1075,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        13776,
-        2848
+        1280,
+        3400
       ],
       "id": "afc9ba61-ce7d-414e-8389-d738301aefe7",
       "name": "Migrate: srs_producto_certificado_libre_venta",
@@ -1052,13 +1084,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_envase_producto',\n  table_destination: 'srs_envase_producto',\n  code_prefix: 'ENVPROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_alim_producto', 'estado_envase_producto'],\n  promoted_fields: [\n    'id_alim_producto',\n    'estado_envase_producto'\n  ],\n  field_types: {},\n  value_mappings: {\n    'estado_envase_producto': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Almacena la informaci\u00f3n de los envases de los productos'\n};"
+        "jsCode": "return {\n  table_source: 'alim_envase_producto',\n  table_destination: 'srs_envase_producto',\n  code_prefix: 'ENVPROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_alim_producto', 'estado_envase_producto'],\n  promoted_fields: [\n    'id_alim_producto',\n    'estado_envase_producto'\n  ],\n  field_types: {},\n  value_mappings: {\n    'estado_envase_producto': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Almacena la información de los envases de los productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        14032,
-        2848
+        1536,
+        3400
       ],
       "id": "envprod-config-001",
       "name": "Config: srs_envase_producto"
@@ -1075,8 +1107,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        14288,
-        2848
+        1792,
+        3400
       ],
       "id": "envprod-migrate-001",
       "name": "Migrate: srs_envase_producto",
@@ -1084,13 +1116,13 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_bodega_producto',\n  table_destination: 'srs_bodega_producto',\n  code_prefix: 'BODPROD',\n  use_db_prefix: true,\n  id_field: 'id_alim_bodega_producto',\n  required_fields: ['id_alim_bodega_producto', 'fecha_registro', 'id_alim_producto', 'id_alim_bodega'],\n  promoted_fields: [\n    'fecha_registro',\n    'fecha_traslado',\n    'id_alim_producto',\n    'id_alim_bodega'\n  ],\n  field_types: {\n    'fecha_registro': 'DATE',\n    'fecha_traslado': 'DATE'\n  },\n  field_mappings: {\n    'id_alim_producto': 'producto_code',\n    'id_alim_bodega': 'bodega_code'\n  },\n  relationships: {\n    'id_alim_producto': 'PROD',\n    'id_alim_bodega': 'BOD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Ubicaci\u00f3n de productos en bodegas'\n};"
+        "jsCode": "return {\n  table_source: 'alim_bodega_producto',\n  table_destination: 'srs_bodega_producto',\n  code_prefix: 'BODPROD',\n  use_db_prefix: true,\n  id_field: 'id_alim_bodega_producto',\n  required_fields: ['id_alim_bodega_producto', 'fecha_registro', 'id_alim_producto', 'id_alim_bodega'],\n  promoted_fields: [\n    'fecha_registro',\n    'fecha_traslado',\n    'id_alim_producto',\n    'id_alim_bodega'\n  ],\n  field_types: {\n    'fecha_registro': 'DATE',\n    'fecha_traslado': 'DATE'\n  },\n  field_mappings: {\n    'id_alim_producto': 'producto_code',\n    'id_alim_bodega': 'bodega_code'\n  },\n  relationships: {\n    'id_alim_producto': 'PROD',\n    'id_alim_bodega': 'BOD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Ubicación de productos en bodegas'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        14544,
-        2848
+        2048,
+        3400
       ],
       "id": "fdab1e40-2f3c-40a3-88c4-e7ec8f1cd305",
       "name": "Config: srs_bodega_producto"
@@ -1107,8 +1139,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        14800,
-        2848
+        2304,
+        3400
       ],
       "id": "7e9ba2a2-24f6-4d1b-abc8-011e5f5158b8",
       "name": "Migrate: srs_bodega_producto",
@@ -1121,8 +1153,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        15056,
-        2848
+        2560,
+        3400
       ],
       "id": "7d5f8da4-b545-4f35-90d0-70e671db1fe3",
       "name": "Config: srs_material_envase_producto"
@@ -1139,8 +1171,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        15312,
-        2848
+        2816,
+        3400
       ],
       "id": "f67c57b2-8320-4158-80cb-fbeee056307e",
       "name": "Migrate: srs_material_envase_producto",
@@ -1153,8 +1185,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        15568,
-        2848
+        4096,
+        3400
       ],
       "id": "epafp-config-001",
       "name": "Config: srs_empresa_persona_aux_funcion_producto"
@@ -1171,8 +1203,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        15824,
-        2848
+        4352,
+        3400
       ],
       "id": "epafp-migrate-001",
       "name": "Migrate: srs_empresa_persona_aux_funcion_producto",
@@ -1185,8 +1217,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        16080,
-        2848
+        4608,
+        3400
       ],
       "id": "prodsga-config-001",
       "name": "Config: srs_producto_sub_grupo_alimenticio"
@@ -1203,8 +1235,8 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        16336,
-        2848
+        4864,
+        3400
       ],
       "id": "prodsga-migrate-001",
       "name": "Migrate: srs_producto_sub_grupo_alimenticio",
@@ -1337,7 +1369,7 @@
       "main": [
         [
           {
-            "node": "Config: srs_estado_proceso",
+            "node": "Config: srs_funcion",
             "type": "main",
             "index": 0
           }
@@ -1532,6 +1564,28 @@
       ]
     },
     "Migrate: srs_empresa_persona_tramitador": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_empresa_persona_aux",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_empresa_persona_aux": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_empresa_persona_aux",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_empresa_persona_aux": {
       "main": [
         [
           {
@@ -1744,7 +1798,7 @@
       "main": [
         [
           {
-            "node": "Config: srs_tipo_producto",
+            "node": "Config: srs_producto",
             "type": "main",
             "index": 0
           }
@@ -1766,7 +1820,7 @@
       "main": [
         [
           {
-            "node": "Config: srs_producto",
+            "node": "Config: srs_funcion",
             "type": "main",
             "index": 0
           }
@@ -1964,7 +2018,7 @@
       "main": [
         [
           {
-            "node": "Config: srs_funcion",
+            "node": "Config: srs_estado_producto",
             "type": "main",
             "index": 0
           }
