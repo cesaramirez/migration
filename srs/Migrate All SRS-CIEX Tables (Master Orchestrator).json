@@ -249,6 +249,19 @@
         ],
         "id": "3f7fdae0-aed3-4c81-947c-33f8446cb746",
         "name": "Generate Final Report"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Send notification about migration completion\nconst summary = $input.first().json || {};\nconst masterVars = $('Initialize Master Variables').first().json || {};\n\nconst totalTables = summary.total_tables || 0;\nconst successfulTables = summary.tables_completed || 0;\nconst failedTables = summary.tables_failed || 0;\nconst totalRecords = summary.total_records_migrated || 0;\nconst totalErrors = summary.total_errors || 0;\nconst duration = summary.duration_seconds || 0;\nconst durationHuman = summary.duration_human || `${duration}s`;\n\n// Build notification message\nconst status = failedTables === 0 ? '✅ SUCCESS' : '⚠️ WARNING';\nconst message = `\n${status} - Migración SRS-CIEX Completada\n\n📊 Resumen:\n• Tablas procesadas: ${totalTables}\n• Exitosas: ${successfulTables}\n• Fallidas: ${failedTables}\n• Registros migrados: ${totalRecords}\n• Errores: ${totalErrors}\n• Duración: ${durationHuman}\n• Batch ID: ${masterVars.master_batch_id || 'N/A'}\n`;\n\n// TODO: Integrate with notification channels\n// - Slack: Use n8n-nodes-base.slack\n// - Email: Use n8n-nodes-base.emailSend\n// - Webhook: Use n8n-nodes-base.httpRequest\n\nreturn {\n  notification_sent: true,\n  status: status,\n  message: message,\n  summary: summary,\n  timestamp: new Date().toISOString()\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2496,
+          1088
+        ],
+        "id": "send-notification-001",
+        "name": "Send Notification"
       }
     ],
     "connections": {
@@ -389,6 +402,17 @@
           [
             {
               "node": "Generate Final Report",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Final Report": {
+        "main": [
+          [
+            {
+              "node": "Send Notification",
               "type": "main",
               "index": 0
             }

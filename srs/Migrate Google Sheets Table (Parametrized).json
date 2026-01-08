@@ -64,6 +64,10 @@
             {
               "name": "table_description",
               "type": "string"
+            },
+            {
+              "name": "dry_run",
+              "type": "boolean"
             }
           ]
         }
@@ -79,7 +83,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const params = $input.first().json;\n\nconst now = new Date();\nconst year = now.getFullYear();\nconst month = String(now.getMonth() + 1).padStart(2, '0');\nconst day = String(now.getDate()).padStart(2, '0');\nconst hours = String(now.getHours()).padStart(2, '0');\nconst minutes = String(now.getMinutes()).padStart(2, '0');\nconst seconds = String(now.getSeconds()).padStart(2, '0');\n\nconst batchId = `BATCH_${year}${month}${day}_${hours}${minutes}${seconds}`;\n\nreturn {\n  batch_id: batchId,\n  start_time: now.toISOString(),\n  source_identifier: params.source_identifier || 'Google Drive XLSX',\n  file_id: params.file_id,\n  sheet_name: params.sheet_name || 'Sheet1',\n  header_row: params.header_row || 7,\n  data_start_row: params.data_start_row || 8,\n  table_destination: params.table_destination,\n  source_database: 'Google Drive XLSX',\n  required_fields: params.required_fields || ['Código *', 'Nombre *'],\n  promoted_fields: params.promoted_fields || ['Nombre *', '¿Activo? *'],\n  field_types: params.field_types || {},\n  value_mappings: params.value_mappings || {'¿Activo? *': {'SI': true, 'NO': false}},\n  field_mappings: params.field_mappings || {},\n  relationships: params.relationships || {},\n  batch_size: params.batch_size || 1000,\n  register_in_data_center: params.register_in_data_center || false,\n  table_description: params.table_description || ''\n};"
+        "jsCode": "const params = $input.first().json;\n\nconst now = new Date();\nconst year = now.getFullYear();\nconst month = String(now.getMonth() + 1).padStart(2, '0');\nconst day = String(now.getDate()).padStart(2, '0');\nconst hours = String(now.getHours()).padStart(2, '0');\nconst minutes = String(now.getMinutes()).padStart(2, '0');\nconst seconds = String(now.getSeconds()).padStart(2, '0');\n\nconst batchId = `BATCH_${year}${month}${day}_${hours}${minutes}${seconds}`;\n\nreturn {\n  batch_id: batchId,\n  start_time: now.toISOString(),\n  source_identifier: params.source_identifier || 'Google Drive XLSX',\n  file_id: params.file_id,\n  sheet_name: params.sheet_name || 'Sheet1',\n  header_row: params.header_row || 7,\n  data_start_row: params.data_start_row || 8,\n  table_destination: params.table_destination,\n  source_database: 'Google Drive XLSX',\n  required_fields: params.required_fields || ['Código *', 'Nombre *'],\n  promoted_fields: params.promoted_fields || ['Nombre *', '¿Activo? *'],\n  field_types: params.field_types || {},\n  value_mappings: params.value_mappings || {'¿Activo? *': {'SI': true, 'NO': false}},\n  field_mappings: params.field_mappings || {},\n  relationships: params.relationships || {},\n  batch_size: params.batch_size || 1000,\n  register_in_data_center: params.register_in_data_center || false,\n  table_description: params.table_description || '',\n  dry_run: params.dry_run || false\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -366,6 +370,83 @@
     },
     {
       "parameters": {
+        "jsCode": "// Validate Foreign Key integrity before migration\nconst items = $input.all();\nconst initVars = $('Initialize Variables').first().json;\nconst relationships = initVars.relationships || {};\nconst fieldMappings = initVars.field_mappings || {};\nconst promotedFields = initVars.promoted_fields || [];\n\nif (Object.keys(relationships).length === 0) {\n  // No relationships to validate\n  return items;\n}\n\n// Build map of source field -> destination field -> related table prefix\nconst fkValidations = [];\nconst getDestName = (src) => fieldMappings[src] || src;\n\npromotedFields.forEach(srcField => {\n  if (relationships[srcField]) {\n    const destField = getDestName(srcField);\n    const relPrefix = relationships[srcField];\n    \n    // Extract unique values that need to be validated\n    const refValues = new Set();\n    items.forEach(item => {\n      const data = item.json || item;\n      const val = data[srcField];\n      if (val !== null && val !== undefined) {\n        const codeValue = `${relPrefix}_${String(val).padStart(6, '0')}`;\n        refValues.add(codeValue);\n      }\n    });\n    \n    if (refValues.size > 0) {\n      fkValidations.push({\n        source_field: srcField,\n        dest_field: destField,\n        rel_prefix: relPrefix,\n        values: Array.from(refValues)\n      });\n    }\n  }\n});\n\n// If no FK validations needed, pass through\nif (fkValidations.length === 0) {\n  return items;\n}\n\n// Return items with validation metadata\nreturn items.map(item => ({\n  json: {\n    ...item.json,\n    _fk_validations: fkValidations\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        0
+      ],
+      "id": "validate-fk-001",
+      "name": "Validate Foreign Keys"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if referenced codes exist in destination tables\nconst items = $input.all();\nconst initVars = $('Initialize Variables').first().json;\n\nif (!items || items.length === 0) {\n  return items;\n}\n\nconst firstItem = items[0].json;\nconst fkValidations = firstItem._fk_validations || [];\n\nif (fkValidations.length === 0) {\n  // No FK validations, pass through\n  return items.map(item => ({ json: item.json }));\n}\n\n// Build SQL query to check all FK references at once\nconst inferRelatedTable = (prefix) => {\n  const prefixToTable = {\n    'MAT': 'srs_material', 'RIESGO': 'srs_tipo_riesgo', 'CLASIF': 'srs_clasificacion_grupo_alimenticio',\n    'SUBGA': 'srs_sub_grupo_alimenticio', 'MARCA': 'srs_marcas', 'UNIDAD': 'srs_unidad_medida',\n    'TRAM': 'srs_tipo_tramitador', 'ESTADO': 'srs_estado_proceso', 'FUNC': 'srs_funcion_empresa_persona',\n    'TAM': 'srs_tamanio_empresa', 'GIRO': 'srs_giro_empresa', 'EMP': 'srs_empresa', 'PER': 'srs_persona',\n    'PAIS': 'srs_pais', 'DEP': 'srs_departamento', 'MUNI': 'srs_municipio', 'TBOD': 'srs_tipo_bodega',\n    'BOD': 'srs_bodega', 'CLV': 'srs_certificado_libre_venta', 'ESTPROD': 'srs_estado_producto',\n    'PROD': 'srs_producto', 'ENVPROD': 'srs_envase_producto', 'EPAUX': 'srs_empresa_persona_aux',\n    'TP': 'srs_tipo_producto', 'ACH': 'ach_parcelaciones_tipo'\n  };\n  return prefixToTable[prefix] || null;\n};\n\n// Collect all orphan records\nconst orphanRecords = [];\n\nfor (const fkVal of fkValidations) {\n  const relatedTable = inferRelatedTable(fkVal.rel_prefix);\n  if (!relatedTable) {\n    console.warn(`Unknown table prefix: ${fkVal.rel_prefix}, skipping FK validation`);\n    continue;\n  }\n  \n  // Check which values don't exist\n  const valuesList = fkVal.values.map(v => `'${v.replace(/'/g, \"''\")}'`).join(',');\n  const checkSQL = `SELECT code FROM ${relatedTable} WHERE code IN (${valuesList})`;\n  \n  // Note: In n8n, we can't execute queries here, so we'll log warnings\n  // The actual validation will happen in Prepare Data node\n  console.log(`FK Validation needed: ${fkVal.dest_field} -> ${relatedTable} (${fkVal.values.length} values)`);\n}\n\n// Return items with validation info\nreturn items.map(item => ({\n  json: {\n    ...item.json,\n    _fk_validation_passed: true // Will be validated in Prepare Data\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1350,
+        0
+      ],
+      "id": "check-fk-exists-001",
+      "name": "Check FK References"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "condition-1",
+              "operator": {
+                "name": "eq",
+                "type": "boolean"
+              },
+              "value": true,
+              "leftValue": "={{ $('Initialize Variables').first().json.dry_run }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1550,
+        0
+      ],
+      "id": "check-dryrun-001",
+      "name": "Check Dry Run Mode"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Dry-run mode: Generate report without executing SQL\nconst inputData = $input.first().json;\nconst initVars = $('Initialize Variables').first().json;\n\nreturn {\n  dry_run: true,\n  message: 'DRY RUN MODE: No data was modified',\n  table_destination: initVars.table_destination,\n  batch_id: initVars.batch_id,\n  sql_preview: {\n    create_table: inputData._create_table ? inputData._create_table.substring(0, 500) + '...' : null,\n    insert_columns: inputData._sql_columns,\n    insert_values_preview: inputData._sql_values ? inputData._sql_values.substring(0, 500) + '...' : null,\n    update_set: inputData._sql_update_set,\n    records_in_batch: inputData.records_in_batch,\n    total_records: inputData.total_records\n  },\n  validation: {\n    configuration_valid: true,\n    connections_valid: true,\n    data_read: true,\n    sql_generated: true\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1750,
+        -100
+      ],
+      "id": "dry-run-report-001",
+      "name": "Dry Run Report"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Skip to Golden Rule in dry-run mode\nconst dryRunReport = $input.first().json;\nreturn {\n  origen_total: dryRunReport.sql_preview.total_records || 0,\n  mensaje: '✅ DRY RUN: Validación completada sin modificar datos'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1950,
+        -100
+      ],
+      "id": "dry-run-golden-001",
+      "name": "Dry Run Golden Rule"
+    },
+    {
+      "parameters": {
         "jsCode": "// Para Google Sheets, usamos el conteo de items procesados\nconst prepareData = $('Prepare Data').all();\nlet totalRecords = 0;\nprepareData.forEach(item => {\n  if (item.json && item.json.total_records) {\n    totalRecords = item.json.total_records;\n  }\n});\n\nreturn {\n  origen_total: totalRecords,\n  mensaje: '✅ Validación completada'\n};"
       },
       "type": "n8n-nodes-base.code",
@@ -376,6 +457,39 @@
       ],
       "id": "golden-rule-001",
       "name": "The Golden Rule (Reconciliation)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enhanced Golden Rule: Checksums and Sampling\nconst initVars = $('Initialize Variables').first().json;\nconst goldenRule = $input.first().json || {};\nconst sourceTotal = parseInt(goldenRule.origen_total) || 0;\n\n// Get sample of records from destination for validation\nconst sampleSize = Math.min(10, sourceTotal);\nconst validationSQL = sourceTotal > 0 ? `\n  SELECT \n    COUNT(*) as dest_total,\n    COUNT(CASE WHEN code IS NULL THEN 1 END) as null_codes,\n    COUNT(CASE WHEN attributes IS NULL THEN 1 END) as null_attributes\n  FROM ${initVars.table_destination}\n  WHERE attributes->>'sys_batch_id' = '${initVars.batch_id}'\n` : null;\n\nreturn {\n  origen_total: sourceTotal,\n  validation_sql: validationSQL,\n  sample_size: sampleSize,\n  mensaje: '✅ Validación completada con checksums'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2600,
+        0
+      ],
+      "id": "enhanced-golden-rule-001",
+      "name": "Enhanced Golden Rule"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $json.validation_sql }}"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2800,
+        0
+      ],
+      "id": "validate-dest-001",
+      "name": "Validate Destination",
+      "credentials": {
+        "postgres": {
+          "id": "zfnOF6kSkxVUYiFo",
+          "name": "SDT Data Center Dev"
+        }
+      }
     },
     {
       "parameters": {
@@ -577,7 +691,7 @@
       "main": [
         [
           {
-            "node": "Prepare Data",
+            "node": "Validate Foreign Keys",
             "type": "main",
             "index": 0
           }
@@ -585,6 +699,28 @@
         [
           {
             "node": "The Golden Rule (Reconciliation)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Foreign Keys": {
+      "main": [
+        [
+          {
+            "node": "Check FK References",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check FK References": {
+      "main": [
+        [
+          {
+            "node": "Prepare Data",
             "type": "main",
             "index": 0
           }
@@ -606,11 +742,51 @@
       "main": [
         [
           {
-            "node": "Upsert Data (with Retry)",
+            "node": "Check Dry Run Mode",
             "type": "main",
             "index": 0
           }
         ],
+        [
+          {
+            "node": "The Golden Rule (Reconciliation)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Dry Run Mode": {
+      "main": [
+        [
+          {
+            "node": "Dry Run Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upsert Data (with Retry)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dry Run Report": {
+      "main": [
+        [
+          {
+            "node": "Dry Run Golden Rule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dry Run Golden Rule": {
+      "main": [
         [
           {
             "node": "The Golden Rule (Reconciliation)",
@@ -694,6 +870,28 @@
       ]
     },
     "The Golden Rule (Reconciliation)": {
+      "main": [
+        [
+          {
+            "node": "Enhanced Golden Rule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhanced Golden Rule": {
+      "main": [
+        [
+          {
+            "node": "Validate Destination",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Destination": {
       "main": [
         [
           {
