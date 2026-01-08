@@ -749,6 +749,59 @@
     },
     {
       "parameters": {
+        "jsCode": "const report = $input.first().json;\nconst errorRate = report.total_records_migrated > 0 ? \n  (report.total_errors / report.total_records_migrated) * 100 : 0;\n\n// Build notification message\nconst notification = {\n  title: 'Migration Summary',\n  status: report.status,\n  master_batch_id: report.master_batch_id,\n  execution_id: report.execution_id,\n  duration: report.duration_human,\n  summary: {\n    total_tables: report.total_tables,\n    tables_completed: report.tables_completed,\n    tables_failed: report.tables_failed,\n    total_records_migrated: report.total_records_migrated,\n    total_errors: report.total_errors,\n    error_rate_percent: Math.round(errorRate * 100) / 100\n  },\n  completed_at: report.completed_at,\n  alert_level: errorRate > 1 ? 'WARNING' : report.tables_failed > 0 ? 'INFO' : 'SUCCESS',\n  message: `Migration completed: ${report.tables_completed}/${report.total_tables} tables, ${report.total_records_migrated} records migrated, ${report.total_errors} errors (${Math.round(errorRate * 100) / 100}% error rate) in ${report.duration_human}`\n};\n\n// Log to console for visibility\nconsole.log('📊 Migration Notification:', JSON.stringify(notification, null, 2));\n\nreturn notification;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1536,
+        4000
+      ],
+      "id": "notification-001",
+      "name": "Prepare Notification"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.alert_level }}",
+              "rightValue": "WARNING",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        4000
+      ],
+      "id": "check-alert-001",
+      "name": "Check Alert Level"
+    },
+    {
+      "parameters": {
+        "jsCode": "// This node can be configured to send webhook to Slack, email, etc.\n// For now, it logs the notification\nconst notification = $input.first().json;\n\nconsole.log('🚨 ALERT: High error rate detected!');\nconsole.log('Error Rate:', notification.summary.error_rate_percent + '%');\nconsole.log('Total Errors:', notification.summary.total_errors);\n\n// Return notification for potential webhook integration\nreturn {\n  webhook_url: 'https://hooks.slack.com/services/YOUR/WEBHOOK/URL', // Configure as needed\n  payload: {\n    text: `🚨 Migration Alert: ${notification.message}`,\n    attachments: [{\n      color: 'warning',\n      fields: [\n        { title: 'Error Rate', value: notification.summary.error_rate_percent + '%', short: true },\n        { title: 'Total Errors', value: notification.summary.total_errors.toString(), short: true },\n        { title: 'Tables Failed', value: notification.summary.tables_failed.toString(), short: true },\n        { title: 'Master Batch ID', value: notification.master_batch_id, short: true }\n      ]\n    }]\n  },\n  notification: notification\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2048,
+        4000
+      ],
+      "id": "send-alert-001",
+      "name": "Send Alert (Webhook Ready)"
+    },
+    {
+      "parameters": {
         "content": "## 📦 Gestión de Bodegas\nTipos de bodega y almacenes detallados.",
         "height": 300,
         "width": 2000,
@@ -1737,6 +1790,40 @@
             "index": 0
           }
         ]
+      ]
+    },
+    "Generate Final Report": {
+      "main": [
+        [
+          {
+            "node": "Prepare Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Notification": {
+      "main": [
+        [
+          {
+            "node": "Check Alert Level",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Alert Level": {
+      "main": [
+        [
+          {
+            "node": "Send Alert (Webhook Ready)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
       ]
     },
     "Config: srs_bodega": {

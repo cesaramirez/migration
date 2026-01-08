@@ -599,6 +599,82 @@ WHERE table_name LIKE 'srs_%' OR table_name LIKE 'ach_%';
 
 ---
 
+## 🚀 Mejoras Implementadas
+
+### Fase 1 - Quick Wins (Completadas)
+
+#### 1. Captura Detallada de Errores
+- Los errores ahora capturan:
+  - Nombre del error y mensaje completo
+  - Stack trace completo
+  - Registro completo que falló
+  - Información del batch que falló
+  - Metadata de ejecución
+
+**Archivos modificados:**
+- `srs/Migrate SRS Table (Parametrized).json`
+- `srs/Migrate Google Sheets Table (Parametrized).json`
+
+#### 2. Índices Automáticos
+- Se crean índices automáticamente en campos de relación (FK)
+- Mejora el rendimiento de JOINs entre tablas
+- Formato: `idx_{table_destination}_{field_name}`
+
+#### 3. Sistema de Notificaciones
+- Notificaciones al final del Master Orchestrator
+- Alertas cuando `error_rate > 1%`
+- Preparado para integración con webhooks (Slack, email, etc.)
+
+### Fase 2 - Core Improvements (Completadas)
+
+#### 4. Validación de Integridad Referencial
+- Validación pre-migración de Foreign Keys
+- Detecta registros huérfanos antes de migrar
+- Logs de advertencia para referencias faltantes
+
+#### 5. Golden Rule Mejorada
+- Validación post-migración con checksums
+- Muestreo aleatorio de registros
+- Detección de valores NULL inesperados
+- Comparación de conteos origen vs destino
+
+#### 6. Modo Dry-Run
+- Nuevo parámetro `dry_run: true`
+- Valida configuración sin ejecutar SQL
+- Genera reporte de lo que haría
+- Útil para debugging y validación
+
+**Uso:**
+```javascript
+return {
+  // ... otros parámetros
+  dry_run: true  // Activa modo dry-run
+};
+```
+
+### Fase 3 - Advanced (Parcialmente Implementadas)
+
+#### 7. Paralelización de Tablas Independientes
+**Nota:** La paralelización requiere reestructuración del Master Orchestrator. Para implementarla:
+
+1. Identificar tablas sin dependencias (catálogos base)
+2. Usar nodo "Split In Batches" de n8n
+3. Ejecutar tablas independientes en paralelo
+4. Merge resultados antes de tablas con dependencias
+
+**Tablas paralelizables:** `srs_material`, `srs_tipo_riesgo`, `srs_marcas`, `srs_pais`
+
+#### 8. Migración Incremental (Delta/CDC)
+**Pendiente:** Requiere:
+- Columna `updated_at` en tablas origen
+- Guardar timestamp de última migración exitosa
+- Modificar query de extracción para filtrar por fecha
+
+#### 9. Generador Automático de Configuración
+**Pendiente:** Script Python para generar Config nodes automáticamente desde esquema de tabla origen.
+
+---
+
 ## ✅ Checklist de Configuración
 
 ### **SRS (PostgreSQL):**
