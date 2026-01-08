@@ -774,7 +774,10 @@
               }
             }
           ],
-          "combinator": "and"
+          "combinator": "and",
+          "options": {
+            "caseSensitive": false
+          }
         },
         "options": {}
       },
