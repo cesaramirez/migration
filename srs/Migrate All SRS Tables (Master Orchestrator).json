@@ -980,7 +980,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ENUM_STATIC',\n  table_destination: 'srs_tipo_producto',\n  code_prefix: 'TP',\n  use_db_prefix: false,\n  id_field: 'id',\n  required_fields: ['nombre'],\n  promoted_fields: ['nombre', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tipos de producto según origen: NACIONAL | IMPORTADO_UNION_ADUANERA | IMPORTADO_OTROS_PAISES',\n  static_values: [\n    { id: 1, nombre: 'NACIONAL', codigo: 'TP-NAC' },\n    { id: 2, nombre: 'IMPORTADO_UNION_ADUANERA', codigo: 'TP-IUA' },\n    { id: 3, nombre: 'IMPORTADO_OTROS_PAISES', codigo: 'TP-IOP' }\n  ]\n};"
+        "jsCode": "return {\n  table_source: 'ENUM_STATIC',\n  table_destination: 'srs_tipo_producto',\n  code_prefix: 'TP',\n  use_db_prefix: true,\n  id_field: 'id',\n  required_fields: ['nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tipos de producto según origen: NACIONAL | IMPORTADO_UNION_ADUANERA | IMPORTADO_OTROS_PAISES',\n  static_values: [\n    { id: 1, nombre: 'NACIONAL' },\n    { id: 2, nombre: 'IMPORTADO_UNION_ADUANERA' },\n    { id: 3, nombre: 'IMPORTADO_OTROS_PAISES' }\n  ]\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1425,7 +1425,7 @@
       "main": [
         [
           {
-            "node": "Config: srs_funcion",
+            "node": "Config: srs_estado_proceso",
             "type": "main",
             "index": 0
           }
