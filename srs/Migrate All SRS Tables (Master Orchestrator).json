@@ -27,7 +27,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_material',\n  table_destination: 'srs_material',\n  code_prefix: 'MAT',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Catálogo de materiales para envases de productos'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_material',\n  table_destination: 'srs_material',\n  code_prefix: 'MAT',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Catálogo de materiales para envases de productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -59,7 +59,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_tipo_riesgo',\n  table_destination: 'srs_tipo_riesgo',\n  code_prefix: 'RIESGO',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tipos de riesgos sanitarios asociados a productos'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_tipo_riesgo',\n  table_destination: 'srs_tipo_riesgo',\n  code_prefix: 'RIESGO',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tipos de riesgos sanitarios asociados a productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -91,7 +91,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_clasificacion_grupo_alimenticio',\n  table_destination: 'srs_clasificacion_grupo_alimenticio',\n  code_prefix: 'CLASIF',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Clasificación de grupos alimenticios'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_clasificacion_grupo_alimenticio',\n  table_destination: 'srs_clasificacion_grupo_alimenticio',\n  code_prefix: 'CLASIF',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Clasificación de grupos alimenticios'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -123,7 +123,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_sub_grupo_alimenticio',\n  table_destination: 'srs_sub_grupo_alimenticio',\n  code_prefix: 'SUBGA',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre', 'id_ctl_clasificacion_grupo_alimenticio'],\n  promoted_fields: [\n    'nombre',\n    'id_ctl_clasificacion_grupo_alimenticio',\n    'id_ctl_tipo_riesgo',\n    'nombre_completo',\n    'precio_analisis',\n    'precio_registro',\n    'estado'\n  ],\n  field_types: {\n    'precio_analisis': 'REAL',\n    'precio_registro': 'REAL',\n    'estado': 'BOOLEAN'\n  },\n  field_mappings: {\n    'id_ctl_clasificacion_grupo_alimenticio': 'clasificacion_grupo_alimenticio_code',\n    'id_ctl_tipo_riesgo': 'tipo_riesgo_code'\n  },\n  relationships: {\n    'id_ctl_clasificacion_grupo_alimenticio': 'CLASIF',\n    'id_ctl_tipo_riesgo': 'RIESGO'\n  },\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Subgrupos de clasificación de alimentos'\n};"
+        "jsCode": "return {\n  table_source: 'alim_sub_grupo_alimenticio',\n  table_destination: 'srs_sub_grupo_alimenticio',\n  code_prefix: 'SUBGA',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre', 'id_ctl_clasificacion_grupo_alimenticio'],\n  promoted_fields: [\n    'nombre',\n    'id_ctl_clasificacion_grupo_alimenticio',\n    'id_ctl_tipo_riesgo',\n    'nombre_completo',\n    'precio_analisis',\n    'precio_registro',\n    'estado'\n  ],\n  field_types: {\n    'precio_analisis': 'REAL',\n    'precio_registro': 'REAL',\n    'estado': 'BOOLEAN'\n  },\n  field_mappings: {\n    'id_ctl_clasificacion_grupo_alimenticio': 'clasificacion_grupo_alimenticio_code',\n    'id_ctl_tipo_riesgo': 'tipo_riesgo_code'\n  },\n  relationships: {\n    'id_ctl_clasificacion_grupo_alimenticio': 'CLASIF',\n    'id_ctl_tipo_riesgo': 'RIESGO'\n  },\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Subgrupos de clasificación de alimentos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -187,7 +187,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_estado_proceso',\n  table_destination: 'srs_estado_proceso',\n  code_prefix: 'ESTADO',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Estados posibles de un proceso de gestión'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_estado_proceso',\n  table_destination: 'srs_estado_proceso',\n  code_prefix: 'ESTADO',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Estados posibles de un proceso de gestión'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -219,7 +219,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_marca',\n  table_destination: 'srs_marcas',\n  code_prefix: 'MARCA',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Catálogo de marcas comerciales registradas'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_marca',\n  table_destination: 'srs_marcas',\n  code_prefix: 'MARCA',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Catálogo de marcas comerciales registradas'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -251,7 +251,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_unidad_medida',\n  table_destination: 'srs_unidad_medida',\n  code_prefix: 'UNIDAD',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'simbolo', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Unidades de medida estándar para productos'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_unidad_medida',\n  table_destination: 'srs_unidad_medida',\n  code_prefix: 'UNIDAD',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'simbolo', 'activo'],\n  field_types: {\n    'activo': 'BOOLEAN DEFAULT true'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Unidades de medida estándar para productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -283,7 +283,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_funcion_empresa_persona',\n  table_destination: 'srs_funcion_empresa_persona',\n  code_prefix: 'FUNC',\n  use_db_prefix: true,\n  required_fields: ['id', 'funcion'],\n  promoted_fields: ['funcion', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Funciones que puede desempeñar una persona en una empresa'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_funcion_empresa_persona',\n  table_destination: 'srs_funcion_empresa_persona',\n  code_prefix: 'FUNC',\n  use_db_prefix: false,\n  required_fields: ['id', 'funcion'],\n  promoted_fields: ['funcion', 'codigo'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Funciones que puede desempeñar una persona en una empresa'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -315,7 +315,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_giro_empresa',\n  table_destination: 'srs_giro_empresa',\n  code_prefix: 'GIRO',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'alimentos', 'codigo_giro'],\n  field_types: {\n    'alimentos': 'BOOLEAN DEFAULT false'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Giros o sectores de actividad de empresas'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_giro_empresa',\n  table_destination: 'srs_giro_empresa',\n  code_prefix: 'GIRO',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre', 'alimentos', 'codigo_giro'],\n  field_types: {\n    'alimentos': 'BOOLEAN DEFAULT false'\n  },\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Giros o sectores de actividad de empresas'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -347,7 +347,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_tamanio_empresa',\n  table_destination: 'srs_tamanio_empresa',\n  code_prefix: 'TAM',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Categorías de tamaño de empresas'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_tamanio_empresa',\n  table_destination: 'srs_tamanio_empresa',\n  code_prefix: 'TAM',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Categorías de tamaño de empresas'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -379,7 +379,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_empresa',\n  table_destination: 'srs_empresa',\n  code_prefix: 'EMP',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre_comercial', 'razon_social', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre_comercial', \n    'razon_social', \n    'direccion', \n    'correo_electronico', \n    'nit', \n    'iva', \n    'estado_empresa',\n    'id_ctl_tamanio_empresa',\n    'id_ctl_giro_empresa',\n    'id_ctl_municipio',\n    'id_ctl_pais',\n    'sin_nit',\n    'importa_lac',\n    'fecha_registro'\n  ],\n  field_types: {\n    'sin_nit': 'BOOLEAN DEFAULT false',\n    'importa_lac': 'BOOLEAN DEFAULT false',\n    'fecha_registro': 'TIMESTAMP'\n  },\n  value_mappings: {\n    'estado_empresa': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_ctl_tamanio_empresa': 'tamanio_empresa_code',\n    'id_ctl_giro_empresa': 'giro_empresa_code',\n    'id_ctl_municipio': 'municipio_code',\n    'id_ctl_pais': 'pais_code'\n  },\n  relationships: {\n    'id_ctl_tamanio_empresa': 'TAM',\n    'id_ctl_giro_empresa': 'GIRO',\n    'id_ctl_municipio': 'MUNI',\n    'id_ctl_pais': 'PAIS'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Datos maestros de empresas registradas'\n};"
+        "jsCode": "return {\n  table_source: 'alim_empresa',\n  table_destination: 'srs_empresa',\n  code_prefix: 'EMP',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre_comercial', 'razon_social', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre_comercial', \n    'razon_social', \n    'direccion', \n    'correo_electronico', \n    'nit', \n    'iva', \n    'estado_empresa',\n    'id_ctl_tamanio_empresa',\n    'id_ctl_giro_empresa',\n    'id_ctl_municipio',\n    'id_ctl_pais',\n    'sin_nit',\n    'importa_lac',\n    'fecha_registro'\n  ],\n  field_types: {\n    'sin_nit': 'BOOLEAN DEFAULT false',\n    'importa_lac': 'BOOLEAN DEFAULT false',\n    'fecha_registro': 'TIMESTAMP'\n  },\n  value_mappings: {\n    'estado_empresa': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_ctl_tamanio_empresa': 'tamanio_empresa_code',\n    'id_ctl_giro_empresa': 'giro_empresa_code',\n    'id_ctl_municipio': 'municipio_code',\n    'id_ctl_pais': 'pais_code'\n  },\n  relationships: {\n    'id_ctl_tamanio_empresa': 'TAM',\n    'id_ctl_giro_empresa': 'GIRO',\n    'id_ctl_municipio': 'MUNI',\n    'id_ctl_pais': 'PAIS'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Datos maestros de empresas registradas'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -411,7 +411,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_persona',\n  table_destination: 'srs_persona',\n  code_prefix: 'PER',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre', 'apellido', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre',\n    'apellido',\n    'dui',\n    'iva',\n    'nit',\n    'carne_residente',\n    'estado_persona',\n    'direccion',\n    'correo_electronico',\n    'id_ctl_pais',\n    'id_ctl_municipio',\n    'importa_lac',\n    'tipo_persona_tramitador',\n    'fecha_registro',\n    'fecha_emision_documento_identidad',\n    'fecha_vencimiento_documento_identidad'\n  ],\n  field_types: {\n    'importa_lac': 'BOOLEAN',\n    'fecha_registro': 'TIMESTAMP',\n    'fecha_emision_documento_identidad': 'DATE',\n    'fecha_vencimiento_documento_identidad': 'DATE'\n  },\n  value_mappings: {\n    'estado_persona': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_persona_tramitador': {\n      1: 'NATURAL/INDIVIDUAL',\n      2: 'REPRESENTANTE LEGAL',\n      3: 'TRAMITADOR'\n    }\n  },\n  field_mappings: {\n    'id_ctl_pais': 'pais_code',\n    'id_ctl_municipio': 'municipio_code'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS',\n    'id_ctl_municipio': 'MUNI'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Datos maestros de personas naturales'\n};"
+        "jsCode": "return {\n  table_source: 'alim_persona',\n  table_destination: 'srs_persona',\n  code_prefix: 'PER',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre', 'apellido', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre',\n    'apellido',\n    'dui',\n    'iva',\n    'nit',\n    'carne_residente',\n    'estado_persona',\n    'direccion',\n    'correo_electronico',\n    'id_ctl_pais',\n    'id_ctl_municipio',\n    'importa_lac',\n    'tipo_persona_tramitador',\n    'fecha_registro',\n    'fecha_emision_documento_identidad',\n    'fecha_vencimiento_documento_identidad'\n  ],\n  field_types: {\n    'importa_lac': 'BOOLEAN',\n    'fecha_registro': 'TIMESTAMP',\n    'fecha_emision_documento_identidad': 'DATE',\n    'fecha_vencimiento_documento_identidad': 'DATE'\n  },\n  value_mappings: {\n    'estado_persona': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_persona_tramitador': {\n      1: 'NATURAL/INDIVIDUAL',\n      2: 'REPRESENTANTE LEGAL',\n      3: 'TRAMITADOR'\n    }\n  },\n  field_mappings: {\n    'id_ctl_pais': 'pais_code',\n    'id_ctl_municipio': 'municipio_code'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS',\n    'id_ctl_municipio': 'MUNI'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Datos maestros de personas naturales'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -475,7 +475,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_empresa_persona_aux',\n  table_destination: 'srs_empresa_persona_aux',\n  code_prefix: 'EPAUX',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre', 'es_empresa', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre',\n    'nit',\n    'correo_electronico',\n    'direccion',\n    'es_empresa',\n    'id_empresa_persona',\n    'id_ctl_pais',\n    'migrado'\n  ],\n  field_types: {\n    'es_empresa': 'BOOLEAN DEFAULT false',\n    'nit': 'VARCHAR(14)',\n    'correo_electronico': 'VARCHAR(50)',\n    'direccion': 'VARCHAR(150)',\n    'nombre': 'VARCHAR(200)',\n    'migrado': 'INTEGER'\n  },\n  field_mappings: {\n    'id_ctl_pais': 'pais_code'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Tabla auxiliar donde se guardaran todas las empresas y personas naturales ya sea con registro completo o registrados al momento de realizar una solicitud de registro sanitario'\n};"
+        "jsCode": "return {\n  table_source: 'alim_empresa_persona_aux',\n  table_destination: 'srs_empresa_persona_aux',\n  code_prefix: 'EPAUX',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre', 'es_empresa', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre',\n    'nit',\n    'correo_electronico',\n    'direccion',\n    'es_empresa',\n    'id_empresa_persona',\n    'id_ctl_pais',\n    'migrado'\n  ],\n  field_types: {\n    'es_empresa': 'BOOLEAN DEFAULT false',\n    'nit': 'VARCHAR(14)',\n    'correo_electronico': 'VARCHAR(50)',\n    'direccion': 'VARCHAR(150)',\n    'nombre': 'VARCHAR(200)',\n    'migrado': 'INTEGER'\n  },\n  field_mappings: {\n    'id_ctl_pais': 'pais_code'\n  },\n  relationships: {\n    'id_ctl_pais': 'PAIS'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Tabla auxiliar donde se guardaran todas las empresas y personas naturales ya sea con registro completo o registrados al momento de realizar una solicitud de registro sanitario'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -603,7 +603,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_municipio',\n  table_destination: 'srs_municipio',\n  code_prefix: 'MUNI',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre', 'id_ctl_departamento'],\n  promoted_fields: ['nombre', 'abreviatura', 'codigo_cnr', 'id_ctl_departamento'],\n  field_types: {},\n  field_mappings: {\n    'id_ctl_departamento': 'departamento_code'\n  },\n  relationships: {\n    'id_ctl_departamento': 'DEP'\n  },\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Municipios y localidades'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_municipio',\n  table_destination: 'srs_municipio',\n  code_prefix: 'MUNI',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre', 'id_ctl_departamento'],\n  promoted_fields: ['nombre', 'abreviatura', 'codigo_cnr', 'id_ctl_departamento'],\n  field_types: {},\n  field_mappings: {\n    'id_ctl_departamento': 'departamento_code'\n  },\n  relationships: {\n    'id_ctl_departamento': 'DEP'\n  },\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Municipios y localidades'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -821,7 +821,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_bodega',\n  table_destination: 'srs_bodega',\n  code_prefix: 'BOD',\n  use_db_prefix: true,\n  required_fields: ['id', 'codigo_bodega', 'nombre', 'id_ctl_municipio'],\n  promoted_fields: [\n    'codigo_bodega',\n    'nombre',\n    'estado_bodega',\n    'direccion',\n    'id_ctl_municipio',\n    'id_ctl_tipo_bodega',\n    'tipo_establecimiento'\n  ],\n  field_types: {},\n  value_mappings: {\n    'estado_bodega': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_establecimiento': {\n      'B': 'BODEGA',\n      'F': 'FABRICA',\n      'T': 'TIENDA COMERCIAL'\n    }\n  },\n  field_mappings: {\n    'codigo_bodega': 'codigo_externo',\n    'estado_bodega': 'estado',\n    'id_ctl_municipio': 'municipio_code',\n    'id_ctl_tipo_bodega': 'tipo_bodega_code'\n  },\n  relationships: {\n    'id_ctl_municipio': 'MUNI',\n    'id_ctl_tipo_bodega': 'TBOD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Datos de bodegas y almacenes'\n};"
+        "jsCode": "return {\n  table_source: 'alim_bodega',\n  table_destination: 'srs_bodega',\n  code_prefix: 'BOD',\n  use_db_prefix: false,\n  required_fields: ['id', 'codigo_bodega', 'nombre', 'id_ctl_municipio'],\n  promoted_fields: [\n    'codigo_bodega',\n    'nombre',\n    'estado_bodega',\n    'direccion',\n    'id_ctl_municipio',\n    'id_ctl_tipo_bodega',\n    'tipo_establecimiento'\n  ],\n  field_types: {},\n  value_mappings: {\n    'estado_bodega': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_establecimiento': {\n      'B': 'BODEGA',\n      'F': 'FABRICA',\n      'T': 'TIENDA COMERCIAL'\n    }\n  },\n  field_mappings: {\n    'codigo_bodega': 'codigo_externo',\n    'estado_bodega': 'estado',\n    'id_ctl_municipio': 'municipio_code',\n    'id_ctl_tipo_bodega': 'tipo_bodega_code'\n  },\n  relationships: {\n    'id_ctl_municipio': 'MUNI',\n    'id_ctl_tipo_bodega': 'TBOD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Datos de bodegas y almacenes'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -948,7 +948,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_empresa_persona_bodega',\n  table_destination: 'srs_empresa_persona_bodega',\n  code_prefix: 'EPBOD',\n  use_db_prefix: true,\n  required_fields: ['id', 'relacion_bodega_empresa_persona', 'id_alim_bodega', 'tipo_empresa_bodega', 'id_ctl_estado_proceso'],\n  promoted_fields: [\n    'relacion_bodega_empresa_persona',\n    'ruta_archivo_constancia_arrendamiento',\n    'estado_empresa_persona_bodega',\n    'id_alim_bodega',\n    'tipo_empresa_bodega',\n    'id_alim_empresa',\n    'id_ctl_estado_proceso',\n    'id_alim_persona',\n    'id_ctl_modulo',\n    'registrado'\n  ],\n  field_types: {\n    'registrado': 'BOOLEAN DEFAULT false',\n    'ruta_archivo_constancia_arrendamiento': 'VARCHAR(250)'\n  },\n  value_mappings: {\n    'relacion_bodega_empresa_persona': {\n      1: 'PROPIA',\n      2: 'ALQUILADA',\n      3: 'PRESTADA'\n    },\n    'estado_empresa_persona_bodega': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_empresa_bodega': {\n      1: 'EMPRESA DUENA',\n      2: 'EMPRESA NO DUENA'\n    }\n  },\n  field_mappings: {\n    'relacion_bodega_empresa_persona': 'relacion_tipo',\n    'estado_empresa_persona_bodega': 'estado',\n    'tipo_empresa_bodega': 'tipo_registro_propiedad',\n    'id_alim_bodega': 'bodega_code',\n    'id_alim_empresa': 'empresa_code',\n    'id_alim_persona': 'persona_code',\n    'id_ctl_estado_proceso': 'estado_proceso_code',\n    'id_ctl_modulo': 'modulo_code'\n  },\n  relationships: {\n    'id_alim_bodega': 'BOD',\n    'id_alim_empresa': 'EMP',\n    'id_alim_persona': 'PER',\n    'id_ctl_estado_proceso': 'ESTADO',\n    'id_ctl_modulo': 'MODULO'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Relación entre empresas, personas y bodegas'\n};"
+        "jsCode": "return {\n  table_source: 'alim_empresa_persona_bodega',\n  table_destination: 'srs_empresa_persona_bodega',\n  code_prefix: 'EPBOD',\n  use_db_prefix: false,\n  required_fields: ['id', 'relacion_bodega_empresa_persona', 'id_alim_bodega', 'tipo_empresa_bodega', 'id_ctl_estado_proceso'],\n  promoted_fields: [\n    'relacion_bodega_empresa_persona',\n    'ruta_archivo_constancia_arrendamiento',\n    'estado_empresa_persona_bodega',\n    'id_alim_bodega',\n    'tipo_empresa_bodega',\n    'id_alim_empresa',\n    'id_ctl_estado_proceso',\n    'id_alim_persona',\n    'id_ctl_modulo',\n    'registrado'\n  ],\n  field_types: {\n    'registrado': 'BOOLEAN DEFAULT false',\n    'ruta_archivo_constancia_arrendamiento': 'VARCHAR(250)'\n  },\n  value_mappings: {\n    'relacion_bodega_empresa_persona': {\n      1: 'PROPIA',\n      2: 'ALQUILADA',\n      3: 'PRESTADA'\n    },\n    'estado_empresa_persona_bodega': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    },\n    'tipo_empresa_bodega': {\n      1: 'EMPRESA DUENA',\n      2: 'EMPRESA NO DUENA'\n    }\n  },\n  field_mappings: {\n    'relacion_bodega_empresa_persona': 'relacion_tipo',\n    'estado_empresa_persona_bodega': 'estado',\n    'tipo_empresa_bodega': 'tipo_registro_propiedad',\n    'id_alim_bodega': 'bodega_code',\n    'id_alim_empresa': 'empresa_code',\n    'id_alim_persona': 'persona_code',\n    'id_ctl_estado_proceso': 'estado_proceso_code',\n    'id_ctl_modulo': 'modulo_code'\n  },\n  relationships: {\n    'id_alim_bodega': 'BOD',\n    'id_alim_empresa': 'EMP',\n    'id_alim_persona': 'PER',\n    'id_ctl_estado_proceso': 'ESTADO',\n    'id_ctl_modulo': 'MODULO'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Relación entre empresas, personas y bodegas'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -980,7 +980,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ENUM_STATIC',\n  table_destination: 'srs_tipo_producto',\n  code_prefix: 'TP',\n  use_db_prefix: true,\n  id_field: 'id',\n  required_fields: ['nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tipos de producto según origen: NACIONAL | IMPORTADO_UNION_ADUANERA | IMPORTADO_OTROS_PAISES',\n  static_values: [\n    { id: 1, nombre: 'NACIONAL' },\n    { id: 2, nombre: 'IMPORTADO_UNION_ADUANERA' },\n    { id: 3, nombre: 'IMPORTADO_OTROS_PAISES' }\n  ]\n};"
+        "jsCode": "return {\n  table_source: 'ENUM_STATIC',\n  table_destination: 'srs_tipo_producto',\n  code_prefix: 'TP',\n  use_db_prefix: false,\n  id_field: 'id',\n  required_fields: ['nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Tipos de producto según origen: NACIONAL | IMPORTADO_UNION_ADUANERA | IMPORTADO_OTROS_PAISES',\n  static_values: [\n    { id: 1, nombre: 'NACIONAL' },\n    { id: 2, nombre: 'IMPORTADO_UNION_ADUANERA' },\n    { id: 3, nombre: 'IMPORTADO_OTROS_PAISES' }\n  ]\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1012,7 +1012,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'ctl_estado_producto',\n  table_destination: 'srs_estado_producto',\n  code_prefix: 'ESTPROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Estados en el ciclo de vida de un producto'\n};"
+        "jsCode": "return {\n  table_source: 'ctl_estado_producto',\n  table_destination: 'srs_estado_producto',\n  code_prefix: 'ESTPROD',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre'],\n  promoted_fields: ['nombre'],\n  field_types: {},\n  field_mappings: {},\n  relationships: {},\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Estados en el ciclo de vida de un producto'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1044,7 +1044,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_producto',\n  table_destination: 'srs_producto',\n  code_prefix: 'PROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'nombre', 'tipo_producto', 'estado_registro', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre',\n    'tipo_producto',\n    'num_partida_arancelaria',\n    'ruta_archivo_ingredientes',\n    'fecha_emision_registro',\n    'fecha_vigencia_registro',\n    'num_autorizacion_reconocimiento',\n    'num_registro_sanitario',\n    'num_certificacion',\n    'estado_registro',\n    'id_ctl_estado_producto',\n    'id_ctl_pais',\n    'id_sub_grupo_alimenticio',\n    'detalle_reconocimiento',\n    'marca_temp',\n    'id_rm',\n    'ruta_archivo_vineta_reconocimiento',\n    'tipo_de_laboratorio',\n    'registro_centroamericano',\n    'pais_centroamericano_de_registro',\n    'fecha_vigencia_registro_segun_resolucion',\n    'ruta_resolucion_registro_centroamericano',\n    'ruta_declaracion_jurada'\n  ],\n  field_types: {\n    'num_partida_arancelaria': 'CHAR(14)',\n    'ruta_archivo_ingredientes': 'VARCHAR(250)',\n    'fecha_emision_registro': 'DATE',\n    'fecha_vigencia_registro': 'DATE',\n    'num_registro_sanitario': 'VARCHAR(15)',\n    'detalle_reconocimiento': 'JSONB',\n    'ruta_archivo_vineta_reconocimiento': 'VARCHAR(300)',\n    'tipo_de_laboratorio': 'INTEGER',\n    'registro_centroamericano': 'VARCHAR(20)',\n    'fecha_vigencia_registro_segun_resolucion': 'DATE',\n    'ruta_resolucion_registro_centroamericano': 'VARCHAR(255)',\n    'ruta_declaracion_jurada': 'VARCHAR(255)'\n  },\n  value_mappings: {\n    'estado_registro': {\n      1: 'ACTIVO',\n      2: 'BORRADO_LOGICO'\n    },\n    'tipo_producto': {\n      1: 'NACIONAL',\n      2: 'IMPORTADO_UNION_ADUANERA',\n      3: 'IMPORTADO_OTROS_PAISES'\n    }\n  },\n  field_mappings: {\n    'tipo_producto': 'tipo_producto_code',\n    'id_ctl_estado_producto': 'estado_producto_code',\n    'id_ctl_pais': 'pais_code',\n    'id_sub_grupo_alimenticio': 'sub_grupo_alimenticio_code',\n    'pais_centroamericano_de_registro': 'pais_centroamericano_code'\n  },\n  relationships: {\n    'tipo_producto': 'TP',\n    'id_ctl_estado_producto': 'ESTPROD',\n    'id_ctl_pais': 'PAIS',\n    'id_sub_grupo_alimenticio': 'SUBGA',\n    'pais_centroamericano_de_registro': 'PAIS'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Catálogo detallado de productos'\n};"
+        "jsCode": "return {\n  table_source: 'alim_producto',\n  table_destination: 'srs_producto',\n  code_prefix: 'PROD',\n  use_db_prefix: false,\n  required_fields: ['id', 'nombre', 'tipo_producto', 'estado_registro', 'id_ctl_pais'],\n  promoted_fields: [\n    'nombre',\n    'tipo_producto',\n    'num_partida_arancelaria',\n    'ruta_archivo_ingredientes',\n    'fecha_emision_registro',\n    'fecha_vigencia_registro',\n    'num_autorizacion_reconocimiento',\n    'num_registro_sanitario',\n    'num_certificacion',\n    'estado_registro',\n    'id_ctl_estado_producto',\n    'id_ctl_pais',\n    'id_sub_grupo_alimenticio',\n    'detalle_reconocimiento',\n    'marca_temp',\n    'id_rm',\n    'ruta_archivo_vineta_reconocimiento',\n    'tipo_de_laboratorio',\n    'registro_centroamericano',\n    'pais_centroamericano_de_registro',\n    'fecha_vigencia_registro_segun_resolucion',\n    'ruta_resolucion_registro_centroamericano',\n    'ruta_declaracion_jurada'\n  ],\n  field_types: {\n    'num_partida_arancelaria': 'CHAR(14)',\n    'ruta_archivo_ingredientes': 'VARCHAR(250)',\n    'fecha_emision_registro': 'DATE',\n    'fecha_vigencia_registro': 'DATE',\n    'num_registro_sanitario': 'VARCHAR(15)',\n    'detalle_reconocimiento': 'JSONB',\n    'ruta_archivo_vineta_reconocimiento': 'VARCHAR(300)',\n    'tipo_de_laboratorio': 'INTEGER',\n    'registro_centroamericano': 'VARCHAR(20)',\n    'fecha_vigencia_registro_segun_resolucion': 'DATE',\n    'ruta_resolucion_registro_centroamericano': 'VARCHAR(255)',\n    'ruta_declaracion_jurada': 'VARCHAR(255)'\n  },\n  value_mappings: {\n    'estado_registro': {\n      1: 'ACTIVO',\n      2: 'BORRADO_LOGICO'\n    }\n  },\n  field_mappings: {\n    'tipo_producto': 'tipo_producto_code',\n    'id_ctl_estado_producto': 'estado_producto_code',\n    'id_ctl_pais': 'pais_code',\n    'id_sub_grupo_alimenticio': 'sub_grupo_alimenticio_code',\n    'pais_centroamericano_de_registro': 'pais_centroamericano_code'\n  },\n  relationships: {\n    'tipo_producto': 'TP',\n    'id_ctl_estado_producto': 'ESTPROD',\n    'id_ctl_pais': 'PAIS',\n    'id_sub_grupo_alimenticio': 'SUBGA',\n    'pais_centroamericano_de_registro': 'PAIS'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Catálogo detallado de productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1076,7 +1076,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_marca_producto',\n  table_destination: 'srs_marca_producto',\n  code_prefix: 'MARCPROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_ctl_marca', 'id_alim_producto'],\n  promoted_fields: [\n    'estado_marca_producto',\n    'id_ctl_marca',\n    'id_alim_producto'\n  ],\n  field_types: {},\n  value_mappings: {\n    'estado_marca_producto': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_ctl_marca': 'marca_code',\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_ctl_marca': 'MARCA',\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Asociación entre marcas y productos'\n};"
+        "jsCode": "return {\n  table_source: 'alim_marca_producto',\n  table_destination: 'srs_marca_producto',\n  code_prefix: 'MARCPROD',\n  use_db_prefix: false,\n  required_fields: ['id', 'id_ctl_marca', 'id_alim_producto'],\n  promoted_fields: [\n    'estado_marca_producto',\n    'id_ctl_marca',\n    'id_alim_producto'\n  ],\n  field_types: {},\n  value_mappings: {\n    'estado_marca_producto': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_ctl_marca': 'marca_code',\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_ctl_marca': 'MARCA',\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Asociación entre marcas y productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1108,7 +1108,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_producto_certificado_libre_venta',\n  table_destination: 'srs_producto_certificado_libre_venta',\n  code_prefix: 'PRODCLV',\n  use_db_prefix: true,\n  required_fields: ['id', 'fecha_vigencia', 'nombre_prod_segun_clv', 'id_alim_certificado_libre_venta', 'id_ctl_estado_proceso', 'id_alim_producto'],\n  promoted_fields: [\n    'fecha_vigencia',\n    'nombre_prod_segun_clv',\n    'id_alim_certificado_libre_venta',\n    'id_ctl_estado_proceso',\n    'id_alim_producto'\n  ],\n  field_types: {\n    'fecha_vigencia': 'DATE',\n    'nombre_prod_segun_clv': 'VARCHAR(600)'\n  },\n  field_mappings: {\n    'id_alim_certificado_libre_venta': 'certificado_libre_venta_code',\n    'id_ctl_estado_proceso': 'estado_proceso_code',\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_alim_certificado_libre_venta': 'CLV',\n    'id_ctl_estado_proceso': 'ESTADO',\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Relación entre productos y certificados'\n};"
+        "jsCode": "return {\n  table_source: 'alim_producto_certificado_libre_venta',\n  table_destination: 'srs_producto_certificado_libre_venta',\n  code_prefix: 'PRODCLV',\n  use_db_prefix: false,\n  required_fields: ['id', 'fecha_vigencia', 'nombre_prod_segun_clv', 'id_alim_certificado_libre_venta', 'id_ctl_estado_proceso', 'id_alim_producto'],\n  promoted_fields: [\n    'fecha_vigencia',\n    'nombre_prod_segun_clv',\n    'id_alim_certificado_libre_venta',\n    'id_ctl_estado_proceso',\n    'id_alim_producto'\n  ],\n  field_types: {\n    'fecha_vigencia': 'DATE',\n    'nombre_prod_segun_clv': 'VARCHAR(600)'\n  },\n  field_mappings: {\n    'id_alim_certificado_libre_venta': 'certificado_libre_venta_code',\n    'id_ctl_estado_proceso': 'estado_proceso_code',\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_alim_certificado_libre_venta': 'CLV',\n    'id_ctl_estado_proceso': 'ESTADO',\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Relación entre productos y certificados'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1140,7 +1140,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_envase_producto',\n  table_destination: 'srs_envase_producto',\n  code_prefix: 'ENVPROD',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_alim_producto', 'estado_envase_producto'],\n  promoted_fields: [\n    'id_alim_producto',\n    'estado_envase_producto'\n  ],\n  field_types: {},\n  value_mappings: {\n    'estado_envase_producto': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Almacena la información de los envases de los productos'\n};"
+        "jsCode": "return {\n  table_source: 'alim_envase_producto',\n  table_destination: 'srs_envase_producto',\n  code_prefix: 'ENVPROD',\n  use_db_prefix: false,\n  required_fields: ['id', 'id_alim_producto', 'estado_envase_producto'],\n  promoted_fields: [\n    'id_alim_producto',\n    'estado_envase_producto'\n  ],\n  field_types: {},\n  value_mappings: {\n    'estado_envase_producto': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_alim_producto': 'producto_code'\n  },\n  relationships: {\n    'id_alim_producto': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: true,\n  table_description: 'Almacena la información de los envases de los productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1172,12 +1172,44 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_bodega_producto',\n  table_destination: 'srs_bodega_producto',\n  code_prefix: 'BODPROD',\n  use_db_prefix: true,\n  id_field: 'id_alim_bodega_producto',\n  required_fields: ['id_alim_bodega_producto', 'fecha_registro', 'id_alim_producto', 'id_alim_bodega'],\n  promoted_fields: [\n    'fecha_registro',\n    'fecha_traslado',\n    'id_alim_producto',\n    'id_alim_bodega'\n  ],\n  field_types: {\n    'fecha_registro': 'DATE',\n    'fecha_traslado': 'DATE'\n  },\n  field_mappings: {\n    'id_alim_producto': 'producto_code',\n    'id_alim_bodega': 'bodega_code'\n  },\n  relationships: {\n    'id_alim_producto': 'PROD',\n    'id_alim_bodega': 'BOD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Ubicación de productos en bodegas'\n};"
+        "jsCode": "return {\n  table_source: 'alim_presentacion_producto',\n  table_destination: 'srs_presentacion_producto',\n  code_prefix: 'PRESPROD',\n  use_db_prefix: false,\n  required_fields: ['id', 'cantidad', 'estado_presentacion_producto', 'id_ctl_unidad_medida', 'id_alim_producto', 'id_alim_envase_producto'],\n  promoted_fields: [\n    'cantidad',\n    'ruta_archivo_vineta',\n    'estado_presentacion_producto',\n    'id_ctl_unidad_medida',\n    'id_alim_producto',\n    'id_alim_envase_producto'\n  ],\n  field_types: {\n    'cantidad': 'VARCHAR(20)',\n    'ruta_archivo_vineta': 'VARCHAR(256)'\n  },\n  value_mappings: {\n    'estado_presentacion_producto': {\n      1: 'ACTIVO',\n      2: 'INACTIVO'\n    }\n  },\n  field_mappings: {\n    'id_ctl_unidad_medida': 'unidad_medida_code',\n    'id_alim_producto': 'producto_code',\n    'id_alim_envase_producto': 'envase_producto_code'\n  },\n  relationships: {\n    'id_ctl_unidad_medida': 'UNIDAD',\n    'id_alim_producto': 'PROD',\n    'id_alim_envase_producto': 'ENVPROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Almacena las distintas presentaciones (de venta) que puede tener un producto'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         2048,
+        3400
+      ],
+      "id": "presprod-config-001",
+      "name": "Config: srs_presentacion_producto"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "L5EXIfRXTrEXMkFz",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.1,
+      "position": [
+        2304,
+        3400
+      ],
+      "id": "presprod-migrate-001",
+      "name": "Migrate: srs_presentacion_producto",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "return {\n  table_source: 'alim_bodega_producto',\n  table_destination: 'srs_bodega_producto',\n  code_prefix: 'BODPROD',\n  use_db_prefix: false,\n  id_field: 'id_alim_bodega_producto',\n  required_fields: ['id_alim_bodega_producto', 'fecha_registro', 'id_alim_producto', 'id_alim_bodega'],\n  promoted_fields: [\n    'fecha_registro',\n    'fecha_traslado',\n    'id_alim_producto',\n    'id_alim_bodega'\n  ],\n  field_types: {\n    'fecha_registro': 'DATE',\n    'fecha_traslado': 'DATE'\n  },\n  field_mappings: {\n    'id_alim_producto': 'producto_code',\n    'id_alim_bodega': 'bodega_code'\n  },\n  relationships: {\n    'id_alim_producto': 'PROD',\n    'id_alim_bodega': 'BOD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Ubicación de productos en bodegas'\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2560,
         3400
       ],
       "id": "fdab1e40-2f3c-40a3-88c4-e7ec8f1cd305",
@@ -1195,7 +1227,7 @@
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.1,
       "position": [
-        2304,
+        2816,
         3400
       ],
       "id": "7e9ba2a2-24f6-4d1b-abc8-011e5f5158b8",
@@ -1204,7 +1236,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_material_envase_producto',\n  table_destination: 'srs_material_envase_producto',\n  code_prefix: 'MATENV',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_ctl_material', 'id_alim_envase_producto'],\n  promoted_fields: [\n    'id_ctl_material',\n    'id_alim_envase_producto'\n  ],\n  field_types: {},\n  field_mappings: {\n    'id_ctl_material': 'material_code',\n    'id_alim_envase_producto': 'envase_producto_code'\n  },\n  relationships: {\n    'id_ctl_material': 'MAT',\n    'id_alim_envase_producto': 'ENVPROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Materiales y envases de productos'\n};"
+        "jsCode": "return {\n  table_source: 'alim_material_envase_producto',\n  table_destination: 'srs_material_envase_producto',\n  code_prefix: 'MATENV',\n  use_db_prefix: false,\n  required_fields: ['id', 'id_ctl_material', 'id_alim_envase_producto'],\n  promoted_fields: [\n    'id_ctl_material',\n    'id_alim_envase_producto'\n  ],\n  field_types: {},\n  field_mappings: {\n    'id_ctl_material': 'material_code',\n    'id_alim_envase_producto': 'envase_producto_code'\n  },\n  relationships: {\n    'id_ctl_material': 'MAT',\n    'id_alim_envase_producto': 'ENVPROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Materiales y envases de productos'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1236,7 +1268,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_empresa_persona_aux_funcion_producto',\n  table_destination: 'srs_empresa_persona_aux_funcion_producto',\n  code_prefix: 'EPAFP',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_ctl_funcion_empresa_persona', 'id_alim_producto', 'id_alim_empresa_persona_aux'],\n  promoted_fields: [\n    'id_ctl_funcion_empresa_persona',\n    'id_alim_producto',\n    'id_alim_empresa_persona_aux'\n  ],\n  field_types: {},\n  value_mappings: {},\n  field_mappings: {\n    'id_ctl_funcion_empresa_persona': 'funcion_empresa_persona_code',\n    'id_alim_producto': 'producto_code',\n    'id_alim_empresa_persona_aux': 'empresa_persona_aux_code'\n  },\n  relationships: {\n    'id_ctl_funcion_empresa_persona': 'FUNC',\n    'id_alim_producto': 'PROD',\n    'id_alim_empresa_persona_aux': 'EPAUX'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Funciones que tiene una empresa o persona natural sobre un determinado producto (Fabricante, Distribuidor, Envasador, Importador, Propietario RS)'\n};"
+        "jsCode": "return {\n  table_source: 'alim_empresa_persona_aux_funcion_producto',\n  table_destination: 'srs_empresa_persona_aux_funcion_producto',\n  code_prefix: 'EPAFP',\n  use_db_prefix: false,\n  required_fields: ['id', 'id_ctl_funcion_empresa_persona', 'id_alim_producto', 'id_alim_empresa_persona_aux'],\n  promoted_fields: [\n    'id_ctl_funcion_empresa_persona',\n    'id_alim_producto',\n    'id_alim_empresa_persona_aux'\n  ],\n  field_types: {},\n  value_mappings: {},\n  field_mappings: {\n    'id_ctl_funcion_empresa_persona': 'funcion_empresa_persona_code',\n    'id_alim_producto': 'producto_code',\n    'id_alim_empresa_persona_aux': 'empresa_persona_aux_code'\n  },\n  relationships: {\n    'id_ctl_funcion_empresa_persona': 'FUNC',\n    'id_alim_producto': 'PROD',\n    'id_alim_empresa_persona_aux': 'EPAUX'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Funciones que tiene una empresa o persona natural sobre un determinado producto (Fabricante, Distribuidor, Envasador, Importador, Propietario RS)'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1268,7 +1300,7 @@
     },
     {
       "parameters": {
-        "jsCode": "return {\n  table_source: 'alim_producto_sub_grupo_alimenticio',\n  table_destination: 'srs_producto_sub_grupo_alimenticio',\n  code_prefix: 'PRODSGA',\n  use_db_prefix: true,\n  required_fields: ['id', 'id_alim_sub_grupo_alimenticio', 'id_alim_prod'],\n  promoted_fields: [\n    'id_alim_sub_grupo_alimenticio',\n    'id_alim_prod'\n  ],\n  field_types: {},\n  value_mappings: {},\n  field_mappings: {\n    'id_alim_sub_grupo_alimenticio': 'sub_grupo_alimenticio_code',\n    'id_alim_prod': 'producto_code'\n  },\n  relationships: {\n    'id_alim_sub_grupo_alimenticio': 'SUBGA',\n    'id_alim_prod': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Almacena los diferentes subgrupos alimenticios a los que puede pertenecer un producto'\n};"
+        "jsCode": "return {\n  table_source: 'alim_producto_sub_grupo_alimenticio',\n  table_destination: 'srs_producto_sub_grupo_alimenticio',\n  code_prefix: 'PRODSGA',\n  use_db_prefix: false,\n  required_fields: ['id', 'id_alim_sub_grupo_alimenticio', 'id_alim_prod'],\n  promoted_fields: [\n    'id_alim_sub_grupo_alimenticio',\n    'id_alim_prod'\n  ],\n  field_types: {},\n  value_mappings: {},\n  field_mappings: {\n    'id_alim_sub_grupo_alimenticio': 'sub_grupo_alimenticio_code',\n    'id_alim_prod': 'producto_code'\n  },\n  relationships: {\n    'id_alim_sub_grupo_alimenticio': 'SUBGA',\n    'id_alim_prod': 'PROD'\n  },\n  batch_size: 1000,\n  register_in_data_center: false,\n  table_description: 'Almacena los diferentes subgrupos alimenticios a los que puede pertenecer un producto'\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1995,6 +2027,28 @@
       ]
     },
     "Migrate: srs_envase_producto": {
+      "main": [
+        [
+          {
+            "node": "Config: srs_presentacion_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: srs_presentacion_producto": {
+      "main": [
+        [
+          {
+            "node": "Migrate: srs_presentacion_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Migrate: srs_presentacion_producto": {
       "main": [
         [
           {
