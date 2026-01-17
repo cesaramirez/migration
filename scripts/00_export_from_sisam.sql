@@ -5,28 +5,36 @@
 
 SELECT
     p.id as original_id,
-    p.nombre,
+    TRIM(p.nombre) as nombre,
     CASE p.tipo_producto
         WHEN 1 THEN 'Nacional'
         WHEN 2 THEN 'Importado Unión Aduanera'
         WHEN 3 THEN 'Importado Otros Países'
         ELSE 'Desconocido'
     END as tipo_producto,
-    p.num_partida_arancelaria,
-    p.fecha_emision_registro::text as fecha_emision_registro,
-    p.fecha_vigencia_registro::text as fecha_vigencia_registro,
-    p.num_autorizacion_reconocimiento,
-    p.num_registro_sanitario,
-    ep.nombre as estado_producto,
+    NULLIF(TRIM(p.num_partida_arancelaria), '') as num_partida_arancelaria,
+    TO_CHAR(p.fecha_emision_registro, 'DD/MM/YYYY') as fecha_emision_registro,
+    TO_CHAR(p.fecha_vigencia_registro, 'DD/MM/YYYY') as fecha_vigencia_registro,
+    NULLIF(TRIM(p.num_registro_sanitario), '') as num_registro_sanitario,
+    UPPER(ep.nombre) as estado_producto,
     pais.nombre as pais,
-    sg.nombre as sub_grupo
+    sg.nombre as subgrupo_alimenticio,
+    cga.nombre as clasificacion_alimenticia,
+    tr.nombre as riesgo
 FROM alim_producto p
 LEFT JOIN ctl_estado_producto ep ON ep.id = p.id_ctl_estado_producto
 LEFT JOIN ctl_pais pais ON pais.id = p.id_ctl_pais
 LEFT JOIN alim_sub_grupo_alimenticio sg ON sg.id = p.id_sub_grupo_alimenticio
+LEFT JOIN ctl_clasificacion_grupo_alimenticio cga ON cga.id = sg.id_ctl_clasificacion_grupo_alimenticio
+LEFT JOIN ctl_tipo_riesgo tr ON tr.id = sg.id_ctl_tipo_riesgo
 WHERE p.estado_registro = 1
+  AND p.fecha_emision_registro IS NOT NULL
+  AND p.fecha_vigencia_registro IS NOT NULL
+  AND sg.nombre IS NOT NULL AND TRIM(sg.nombre) != '' AND sg.nombre NOT LIKE '%MIGRADO%'
+  AND cga.nombre IS NOT NULL AND TRIM(cga.nombre) != ''
+  AND tr.nombre IS NOT NULL AND TRIM(tr.nombre) != ''
 ORDER BY p.id
-LIMIT 100;
+LIMIT 25000;
 
 -- =============================================================================
 -- NOTA: Los campos de archivos (ruta_archivo_*) se manejarán en una fase posterior

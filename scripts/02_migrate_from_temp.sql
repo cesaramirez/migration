@@ -32,7 +32,7 @@ SELECT
     gen_random_uuid(),
     'T81 - Registro Sanitario Alimentos',
     'Productos alimenticios migrados del sistema SRS (Trámite 81)',
-    'active',
+    'ACTIVE',
     1,
     true,
     NOW(),
@@ -68,16 +68,17 @@ SELECT
     NOW()
 FROM expedient_base_entities e
 CROSS JOIN (VALUES
-    ('Nombre del Producto', 'TEXT', true, 1),
-    ('Tipo de Producto', 'TEXT', true, 2),
-    ('Partida Arancelaria', 'TEXT', false, 3),
-    ('Fecha de Emisión del Registro', 'DATE', false, 4),
-    ('Fecha de Vigencia del Registro', 'DATE', false, 5),
-    ('Autorización de Reconocimiento', 'TEXT', false, 6),
-    ('Registro Sanitario', 'TEXT', false, 7),
-    ('Estado del Producto', 'TEXT', false, 8),
-    ('País', 'TEXT', true, 9),
-    ('Sub Grupo Alimenticio', 'TEXT', false, 10)
+    ('Nombre del producto', 'TEXT', true, 1),
+    ('Número de registro sanitario', 'TEXT', false, 2),
+    ('Tipo de producto', 'TEXT', true, 3),
+    ('Número de partida arancelaria', 'TEXT', false, 4),
+    ('Fecha de emisión del registro', 'DATE', false, 5),
+    ('Fecha de vigencia del registro', 'DATE', false, 6),
+    ('Estado', 'TEXT', false, 7),
+    ('Subgrupo alimenticio', 'TEXT', false, 8),
+    ('Clasificación alimenticia', 'TEXT', false, 9),
+    ('Riesgo', 'TEXT', false, 10),
+    ('País de fabricación', 'TEXT', true, 11)
 ) AS field(name, field_type, is_required, ord)
 WHERE e.name = 'T81 - Registro Sanitario Alimentos'
   AND NOT EXISTS (
@@ -130,95 +131,104 @@ WHERE e.name = 'T81 - Registro Sanitario Alimentos';
 -- PASO 4: Migrar Valores de Campos
 -- =============================================================================
 
--- 4.1 Nombre del Producto
+-- 4.1 Nombre del producto
 INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 SELECT gen_random_uuid(), r.id, f.id, '"' || t.nombre || '"', NOW(), NOW()
 FROM migration_alim_producto_temp t
 JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
 JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
-JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del Producto'
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del producto'
 WHERE e.name = 'T81 - Registro Sanitario Alimentos';
 
--- 4.2 Tipo de Producto
-INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
-SELECT gen_random_uuid(), r.id, f.id, '"' || t.tipo_producto || '"', NOW(), NOW()
-FROM migration_alim_producto_temp t
-JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
-JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
-JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Tipo de Producto'
-WHERE e.name = 'T81 - Registro Sanitario Alimentos';
-
--- 4.3 Partida Arancelaria
-INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
-SELECT gen_random_uuid(), r.id, f.id, '"' || t.num_partida_arancelaria || '"', NOW(), NOW()
-FROM migration_alim_producto_temp t
-JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
-JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
-JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Partida Arancelaria'
-WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.num_partida_arancelaria IS NOT NULL;
-
--- 4.4 Fecha de Emisión
-INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
-SELECT gen_random_uuid(), r.id, f.id, '"' || t.fecha_emision_registro || '"', NOW(), NOW()
-FROM migration_alim_producto_temp t
-JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
-JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
-JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Fecha de Emisión del Registro'
-WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fecha_emision_registro IS NOT NULL;
-
--- 4.5 Fecha de Vigencia
-INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
-SELECT gen_random_uuid(), r.id, f.id, '"' || t.fecha_vigencia_registro || '"', NOW(), NOW()
-FROM migration_alim_producto_temp t
-JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
-JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
-JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Fecha de Vigencia del Registro'
-WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fecha_vigencia_registro IS NOT NULL;
-
--- 4.6 Autorización de Reconocimiento
-INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
-SELECT gen_random_uuid(), r.id, f.id, '"' || t.num_autorizacion_reconocimiento || '"', NOW(), NOW()
-FROM migration_alim_producto_temp t
-JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
-JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
-JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Autorización de Reconocimiento'
-WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.num_autorizacion_reconocimiento IS NOT NULL;
-
--- 4.7 Registro Sanitario
+-- 4.2 Número de registro sanitario
 INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 SELECT gen_random_uuid(), r.id, f.id, '"' || t.num_registro_sanitario || '"', NOW(), NOW()
 FROM migration_alim_producto_temp t
 JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
 JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
-JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Registro Sanitario'
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Número de registro sanitario'
 WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.num_registro_sanitario IS NOT NULL;
 
--- 4.8 Estado del Producto
+-- 4.3 Tipo de producto
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.tipo_producto || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Tipo de producto'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos';
+
+-- 4.4 Número de partida arancelaria
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.num_partida_arancelaria || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Número de partida arancelaria'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.num_partida_arancelaria IS NOT NULL;
+
+-- 4.5 Fecha de emisión del registro
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.fecha_emision_registro || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Fecha de emisión del registro'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fecha_emision_registro IS NOT NULL;
+
+-- 4.6 Fecha de vigencia del registro
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.fecha_vigencia_registro || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Fecha de vigencia del registro'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fecha_vigencia_registro IS NOT NULL;
+
+-- 4.7 Estado
 INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 SELECT gen_random_uuid(), r.id, f.id, '"' || t.estado_producto || '"', NOW(), NOW()
 FROM migration_alim_producto_temp t
 JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
 JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
-JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Estado del Producto'
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Estado'
 WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.estado_producto IS NOT NULL;
 
--- 4.9 País
+-- 4.8 Subgrupo alimenticio
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.subgrupo_alimenticio || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Subgrupo alimenticio'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.subgrupo_alimenticio IS NOT NULL;
+
+-- 4.9 Clasificación alimenticia
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.clasificacion_alimenticia || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Clasificación alimenticia'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.clasificacion_alimenticia IS NOT NULL;
+
+-- 4.10 Riesgo
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.riesgo || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Riesgo'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.riesgo IS NOT NULL;
+
+-- 4.11 País de fabricación
 INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 SELECT gen_random_uuid(), r.id, f.id, '"' || t.pais || '"', NOW(), NOW()
 FROM migration_alim_producto_temp t
 JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
 JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
-JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País'
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País de fabricación'
 WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.pais IS NOT NULL;
-
--- 4.10 Sub Grupo Alimenticio
-INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
-SELECT gen_random_uuid(), r.id, f.id, '"' || t.sub_grupo || '"', NOW(), NOW()
-FROM migration_alim_producto_temp t
-JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
-JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
-JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Sub Grupo Alimenticio'
-WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.sub_grupo IS NOT NULL;
 
 -- =============================================================================
 -- PASO 5: Verificación
