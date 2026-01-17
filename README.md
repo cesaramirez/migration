@@ -1,42 +1,38 @@
 # Elaniin Migration System
 
-Sistema completo de migración ETL para migrar datos desde múltiples fuentes hacia PostgreSQL SDT.
-
----
-
-## 🤖 Contexto Rápido (para LLMs)
-
-Este repositorio contiene **dos sistemas de migración**:
-
-### 1. **Migración con n8n Workflows** (`/srs/`)
-- Migración automatizada de tablas `alim_*` → `srs_*` vía n8n
-- Migración de Google Sheets → `ach_*`
-- Orquestadores y workflows parametrizados
-
-### 2. **Migración Manual a Expedient Base** (`/scripts/`)
-- Migración de productos alimenticios a la estructura `expedient_base`
-- Scripts SQL secuenciales para exportar, transformar y cargar datos
-- DDLs de referencia en `/assets/ddls/`
-- Estrategias de migración en `/assets/strategies/`
-
-**Entidad principal migrada:** `T81 - Registro Sanitario Alimentos`
-
-**Estructura de destino:**
-- `expedient_base_entities` - Definición de la entidad
-- `expedient_base_entity_fields` - Campos con configuración JSON (secciones, tipos)
-- `expedient_base_registries` - Registros individuales (productos)
-- `expedient_base_registry_fields` - Valores de cada campo
+Sistema completo de migración ETL basado en n8n para migrar datos desde múltiples fuentes (PostgreSQL SRS y Google Sheets ACH) hacia el Data Center de PostgreSQL SDT.
 
 ---
 
 ## 📋 Tabla de Contenidos
 
-- [Contexto Rápido](#-contexto-rápido-para-llms)
+- [Visión General](#-visión-general)
 - [Estructura del Proyecto](#-estructura-del-proyecto)
-- [Migración a Expedient Base](#-migración-a-expedient-base)
-- [Sistemas n8n](#-sistemas-de-migración-n8n)
+- [Sistemas de Migración](#-sistemas-de-migración)
+  - [1. Migración SRS (PostgreSQL → PostgreSQL)](#1-migración-srs-postgresql--postgresql)
+  - [2. Migración ACH (Google Sheets → PostgreSQL)](#2-migración-ach-google-sheets--postgresql)
 - [Conceptos Clave](#-conceptos-clave)
 - [Inicio Rápido](#-inicio-rápido)
+- [Configuración Detallada](#-configuración-detallada)
+- [Monitoreo y Debugging](#-monitoreo-y-debugging)
+- [Solución de Problemas](#-solución-de-problemas)
+
+---
+
+## 🎯 Visión General
+
+Este repositorio contiene workflows de n8n que automatizan la migración de datos desde diferentes fuentes hacia un esquema unificado en PostgreSQL. El sistema soporta:
+
+- ✅ **Migración desde PostgreSQL** (tablas `alim_*` → `srs_*`)
+- ✅ **Migración desde Google Sheets** (catálogos ACH → `ach_*`)
+- ✅ **Catálogos estáticos (ENUM_STATIC)** - Sin dependencia de DB origen
+- ✅ Generación automática de códigos únicos
+- ✅ Mapeo de valores y transformaciones
+- ✅ Gestión de relaciones entre tablas
+- ✅ UPSERT automático (actualización de registros existentes)
+- ✅ Auditoría completa de migraciones
+- ✅ **Batch sizing dinámico** - Auto-ajuste según volumen
+- ✅ Comentarios SQL con valores ENUM y documentación
 
 ---
 
@@ -44,76 +40,18 @@ Este repositorio contiene **dos sistemas de migración**:
 
 ```
 /Users/heycsar/Developer/Elaniin/Migration/
-├── scripts/                           # Scripts SQL de migración manual
-│   ├── 00_export_from_sisam.sql       # Query para exportar de SISAM
-│   ├── 01_create_temp_table.sql       # Crear tabla temporal en SDT
-│   ├── 02_migrate_from_temp.sql       # Migrar a expedient_base
-│   ├── 99_rollback_migration.sql      # Rollback de migración
-│   └── extract_ddls.sh                # Script para extraer DDLs
-├── assets/
-│   ├── ddls/                          # Definiciones de tablas (DDL)
-│   │   ├── alim_producto.md
-│   │   ├── alim_certificado_libre_venta.md
-│   │   ├── alim_empresa_persona_aux.md
-│   │   └── ... (más tablas)
-│   └── strategies/                    # Estrategias de migración
-│       └── T81_producto_alimenticio.md
-├── srs/                               # Workflows n8n
+├── srs/
 │   ├── Migrate All SRS Tables (Master Orchestrator).json
 │   ├── Migrate SRS Table (Parametrized).json
 │   ├── Migrate All ACH Google Sheets (Master Orchestrator).json
 │   └── Migrate Google Sheets Table (Parametrized).json
 ├── Definiciones Técnicas Migración de Datos y Lógica.pdf
-└── README.md
+└── README.md (este archivo)
 ```
 
 ---
 
-## 🍎 Migración a Expedient Base
-
-### **Flujo de Migración (3 pasos):**
-
-```
-SISAM (alim_producto) → Tabla Temporal → expedient_base_*
-```
-
-### **Campos Migrados (20 campos en 3 secciones):**
-
-| Sección | Campos |
-|---------|--------|
-| **Datos generales del producto** | Nombre, Registro sanitario, Tipo, Partida arancelaria, Fechas emisión/vigencia, Estado, Subgrupo alimenticio, Clasificación alimenticia, Riesgo, País fabricación |
-| **Certificado de Libre Venta** | Código CLV, Nombre según CLV, País procedencia CLV |
-| **Propietario del Registro Sanitario** | Nombre, NIT, Correo, Dirección, País, Razón social |
-
-### **Ejecución:**
-
-1. **En SISAM:** Ejecutar `00_export_from_sisam.sql` y exportar como CSV
-2. **En SDT DEV:**
-   ```sql
-   -- Crear tabla temporal
-   \i scripts/01_create_temp_table.sql
-
-   -- Importar CSV
-   COPY migration_alim_producto_temp FROM '/path/to/file.csv' WITH (FORMAT csv, HEADER true);
-
-   -- Migrar a expedient_base
-   \i scripts/02_migrate_from_temp.sql
-   ```
-
-### **Rollback:**
-```sql
-\i scripts/99_rollback_migration.sql
-```
-
-### **Notas Importantes:**
-- Los valores se guardan envueltos en comillas dobles: `"valor"`
-- Las fechas usan formato `DD/MM/YYYY`
-- El campo `configuration` en entity_fields contiene JSON con secciones
-- Los campos filtran registros con subgrupo/clasificación/riesgo válidos
-
----
-
-## 🔄 Sistemas de Migración (n8n)
+## 🔄 Sistemas de Migración
 
 ### 1. Migración SRS (PostgreSQL → PostgreSQL)
 
