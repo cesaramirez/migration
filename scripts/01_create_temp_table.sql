@@ -55,7 +55,11 @@ CREATE TABLE migration_alim_producto_temp (
     importador_correo varchar(255),
     importador_direccion varchar(500),
     importador_pais varchar(255),
-    importador_razon_social varchar(255)
+    importador_razon_social varchar(255),
+    -- IDs de origen para relaciones
+    original_sub_id integer,
+    original_pais_iso integer,
+    original_clv_id integer
 );
 
 -- =============================================================================

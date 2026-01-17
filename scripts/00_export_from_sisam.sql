@@ -74,7 +74,11 @@ SELECT
     CASE
         WHEN imp_aux.es_empresa = true THEN imp_aux.nombre
         ELSE NULL
-    END as importador_razon_social
+    END as importador_razon_social,
+    -- Relaciones (IDs de origen para búsqueda en SDT)
+    p.id_sub_grupo_alimenticio as original_sub_id,
+    pais.isonumero as original_pais_iso,
+    clv.id as original_clv_id
 FROM alim_producto p
 LEFT JOIN ctl_estado_producto ep ON ep.id = p.id_ctl_estado_producto
 LEFT JOIN ctl_pais pais ON pais.id = p.id_ctl_pais

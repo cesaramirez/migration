@@ -119,7 +119,11 @@ CROSS JOIN (VALUES
     ('Correo del importador', 'EMAIL', false, 41, '{"show_in_summary":false,"section":{"title":"Datos del Importador","order":7},"key":"correo_importador","placeholder":"Correo del importador","maxLength":"255","buttonEnabled":false,"type":"email"}'),
     ('Dirección del importador', 'TEXTAREA', false, 42, '{"show_in_summary":false,"section":{"title":"Datos del Importador","order":7},"key":"direccion_importador","placeholder":"Dirección del importador","maxLength":"500","buttonEnabled":false,"type":"textarea"}'),
     ('País del importador', 'TEXT', false, 43, '{"show_in_summary":false,"section":{"title":"Datos del Importador","order":7},"key":"pais_importador","placeholder":"País del importador","maxLength":"255","buttonEnabled":false,"type":"text"}'),
-    ('Razón social del importador', 'TEXT', false, 44, '{"show_in_summary":false,"section":{"title":"Datos del Importador","order":7},"key":"razon_social_importador","placeholder":"Razón social del importador","maxLength":"255","buttonEnabled":false,"type":"text"}')
+    ('Razón social del importador', 'TEXT', false, 44, '{"show_in_summary":false,"section":{"title":"Datos del Importador","order":7},"key":"razon_social_importador","placeholder":"Razón social del importador","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    -- Relaciones
+    ('id_sub_grupo_alimenticio', 'TEXT', false, 45, '{"show_in_summary":false,"section":{"title":"Relaciones","order":8},"key":"id_sub_grupo_alimenticio","placeholder":"ID Subgrupo Alimenticio","maxLength":"50","buttonEnabled":false,"type":"text"}'),
+    ('id_pais_fabricacion', 'TEXT', false, 46, '{"show_in_summary":false,"section":{"title":"Relaciones","order":8},"key":"id_pais_fabricacion","placeholder":"ID País Fabricación","maxLength":"50","buttonEnabled":false,"type":"text"}'),
+    ('id_clv', 'TEXT', false, 47, '{"show_in_summary":false,"section":{"title":"Relaciones","order":8},"key":"id_clv","placeholder":"ID CLV","maxLength":"50","buttonEnabled":false,"type":"text"}')
 ) AS field(name, field_type, is_required, ord, config)
 WHERE e.name = 'T81 - Registro Sanitario Alimentos'
   AND NOT EXISTS (
@@ -567,6 +571,36 @@ JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.origin
 JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del importador'
 WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_razon_social IS NOT NULL;
+
+-- 4.45 id_sub_grupo_alimenticio
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || dest.id || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'id_sub_grupo_alimenticio'
+JOIN srs_sub_grupo_alimenticio dest ON dest.legacy_id = 'SGR-' || t.original_sub_id
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.original_sub_id IS NOT NULL;
+
+-- 4.46 id_pais_fabricacion
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || dest.id || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'id_pais_fabricacion'
+JOIN paises dest ON dest.iso_number = t.original_pais_iso
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.original_pais_iso IS NOT NULL;
+
+-- 4.47 id_clv
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || dest.id || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'id_clv'
+JOIN srs_certificado_libre_venta dest ON dest.legacy_id = 'CLV-' || t.original_clv_id
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.original_clv_id IS NOT NULL;
 
 -- =============================================================================
 -- PASO 5: Verificación
