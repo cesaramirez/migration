@@ -112,8 +112,7 @@ LEFT JOIN ctl_pais pais_imp ON pais_imp.id = imp_aux.id_ctl_pais
 WHERE p.estado_registro = 1
   AND p.fecha_emision_registro IS NOT NULL
   AND p.fecha_vigencia_registro IS NOT NULL
-ORDER BY p.id
-LIMIT 25000;
+ORDER BY p.id;
 
 -- =============================================================================
 -- NOTA: Los campos de archivos (ruta_archivo_*) se manejarán en una fase posterior
