@@ -16,7 +16,18 @@ CREATE TABLE migration_alim_producto_temp (
     pais varchar(255),
     subgrupo_alimenticio varchar(500),
     clasificacion_alimenticia varchar(500),
-    riesgo varchar(255)
+    riesgo varchar(255),
+    -- Certificado de Libre Venta
+    codigo_clv varchar(100),
+    nombre_producto_clv varchar(1000),
+    pais_procedencia_clv varchar(255),
+    -- Propietario del Registro Sanitario
+    propietario_nombre varchar(500),
+    propietario_nit varchar(50),
+    propietario_correo varchar(255),
+    propietario_direccion varchar(500),
+    propietario_pais varchar(255),
+    propietario_razon_social varchar(255)
 );
 
 -- =============================================================================

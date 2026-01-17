@@ -20,13 +20,35 @@ SELECT
     pais.nombre as pais,
     sg.nombre as subgrupo_alimenticio,
     cga.nombre as clasificacion_alimenticia,
-    tr.nombre as riesgo
+    tr.nombre as riesgo,
+    -- Campos de Certificado de Libre Venta
+    clv.cod_clv as codigo_clv,
+    pclv.nombre_prod_segun_clv as nombre_producto_clv,
+    pais_clv.nombre as pais_procedencia_clv,
+    -- Campos de Propietario del Registro Sanitario
+    prop_aux.nombre as propietario_nombre,
+    prop_aux.nit as propietario_nit,
+    prop_aux.correo_electronico as propietario_correo,
+    prop_aux.direccion as propietario_direccion,
+    pais_prop.nombre as propietario_pais,
+    CASE
+        WHEN prop_aux.es_empresa = true THEN prop_aux.nombre
+        ELSE NULL
+    END as propietario_razon_social
 FROM alim_producto p
 LEFT JOIN ctl_estado_producto ep ON ep.id = p.id_ctl_estado_producto
 LEFT JOIN ctl_pais pais ON pais.id = p.id_ctl_pais
 LEFT JOIN alim_sub_grupo_alimenticio sg ON sg.id = p.id_sub_grupo_alimenticio
 LEFT JOIN ctl_clasificacion_grupo_alimenticio cga ON cga.id = sg.id_ctl_clasificacion_grupo_alimenticio
 LEFT JOIN ctl_tipo_riesgo tr ON tr.id = sg.id_ctl_tipo_riesgo
+-- JOINs para CLV
+LEFT JOIN alim_producto_certificado_libre_venta pclv ON pclv.id_alim_producto = p.id
+LEFT JOIN alim_certificado_libre_venta clv ON clv.id = pclv.id_alim_certificado_libre_venta
+LEFT JOIN ctl_pais pais_clv ON pais_clv.id = clv.id_ctl_pais
+-- JOINs para Propietario (id_ctl_funcion_empresa_persona = 4 = Propietario de registro sanitario)
+LEFT JOIN alim_empresa_persona_aux_funcion_producto prop_fp ON prop_fp.id_alim_producto = p.id AND prop_fp.id_ctl_funcion_empresa_persona = 4
+LEFT JOIN alim_empresa_persona_aux prop_aux ON prop_aux.id = prop_fp.id_alim_empresa_persona_aux
+LEFT JOIN ctl_pais pais_prop ON pais_prop.id = prop_aux.id_ctl_pais
 WHERE p.estado_registro = 1
   AND p.fecha_emision_registro IS NOT NULL
   AND p.fecha_vigencia_registro IS NOT NULL

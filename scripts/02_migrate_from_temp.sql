@@ -45,7 +45,7 @@ WHERE NOT EXISTS (
 SELECT id, name FROM expedient_base_entities WHERE name = 'T81 - Registro Sanitario Alimentos';
 
 -- =============================================================================
--- PASO 2: Crear Campos de la Entidad (10 campos TEXT/DATE)
+-- PASO 2: Crear Campos de la Entidad (14 campos TEXT/DATE)
 -- =============================================================================
 INSERT INTO expedient_base_entity_fields (
     id,
@@ -54,6 +54,7 @@ INSERT INTO expedient_base_entity_fields (
     field_type,
     is_required,
     "order",
+    configuration,
     created_at,
     updated_at
 )
@@ -64,22 +65,34 @@ SELECT
     field.field_type,
     field.is_required,
     field.ord,
+    field.config::jsonb,
     NOW(),
     NOW()
 FROM expedient_base_entities e
 CROSS JOIN (VALUES
-    ('Nombre del producto', 'TEXT', true, 1),
-    ('Número de registro sanitario', 'TEXT', false, 2),
-    ('Tipo de producto', 'TEXT', true, 3),
-    ('Número de partida arancelaria', 'TEXT', false, 4),
-    ('Fecha de emisión del registro', 'DATE', false, 5),
-    ('Fecha de vigencia del registro', 'DATE', false, 6),
-    ('Estado', 'TEXT', false, 7),
-    ('Subgrupo alimenticio', 'TEXT', false, 8),
-    ('Clasificación alimenticia', 'TEXT', false, 9),
-    ('Riesgo', 'TEXT', false, 10),
-    ('País de fabricación', 'TEXT', true, 11)
-) AS field(name, field_type, is_required, ord)
+    ('Nombre del producto', 'TEXT', true, 1, '{"show_in_summary":true,"section":{"title":"Datos generales del producto","order":1},"key":"nombre_del_producto","placeholder":"Nombre del producto","maxLength":"1000","buttonEnabled":false,"type":"text"}'),
+    ('Número de registro sanitario', 'TEXT', false, 2, '{"show_in_summary":true,"section":{"title":"Datos generales del producto","order":1},"key":"numero_registro_sanitario","placeholder":"Número de registro sanitario","maxLength":"50","buttonEnabled":false,"type":"text"}'),
+    ('Tipo de producto', 'TEXT', true, 3, '{"show_in_summary":false,"section":{"title":"Datos generales del producto","order":1},"key":"tipo_de_producto","placeholder":"Tipo de producto","maxLength":"100","buttonEnabled":false,"type":"text"}'),
+    ('Número de partida arancelaria', 'TEXT', false, 4, '{"show_in_summary":false,"section":{"title":"Datos generales del producto","order":1},"key":"numero_partida_arancelaria","placeholder":"Número de partida arancelaria","maxLength":"50","buttonEnabled":false,"type":"text"}'),
+    ('Fecha de emisión del registro', 'DATE', false, 5, '{"show_in_summary":false,"section":{"title":"Datos generales del producto","order":1},"key":"fecha_emision_registro","placeholder":"Fecha de emisión del registro","buttonEnabled":false,"type":"date"}'),
+    ('Fecha de vigencia del registro', 'DATE', false, 6, '{"show_in_summary":true,"section":{"title":"Datos generales del producto","order":1},"key":"fecha_vigencia_registro","placeholder":"Fecha de vigencia del registro","buttonEnabled":false,"type":"date"}'),
+    ('Estado', 'TEXT', false, 7, '{"show_in_summary":true,"section":{"title":"Datos generales del producto","order":1},"key":"estado","placeholder":"Estado","maxLength":"50","buttonEnabled":false,"type":"text"}'),
+    ('Subgrupo alimenticio', 'TEXT', false, 8, '{"show_in_summary":false,"section":{"title":"Datos generales del producto","order":1},"key":"subgrupo_alimenticio","placeholder":"Subgrupo alimenticio","maxLength":"500","buttonEnabled":false,"type":"text"}'),
+    ('Clasificación alimenticia', 'TEXT', false, 9, '{"show_in_summary":false,"section":{"title":"Datos generales del producto","order":1},"key":"clasificacion_alimenticia","placeholder":"Clasificación alimenticia","maxLength":"500","buttonEnabled":false,"type":"text"}'),
+    ('Riesgo', 'TEXT', false, 10, '{"show_in_summary":false,"section":{"title":"Datos generales del producto","order":1},"key":"riesgo","placeholder":"Riesgo","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    ('País de fabricación', 'TEXT', true, 11, '{"show_in_summary":false,"section":{"title":"Datos generales del producto","order":1},"key":"pais_de_fabricacion","placeholder":"País de fabricación","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    -- Certificado de Libre Venta
+    ('Código de CLV', 'TEXT', false, 12, '{"show_in_summary":false,"section":{"title":"Certificado de Libre Venta","order":2},"key":"codigo_de_clv","placeholder":"Código de CLV","maxLength":"100","buttonEnabled":false,"type":"text"}'),
+    ('Nombre del producto según CLV', 'TEXT', false, 13, '{"show_in_summary":false,"section":{"title":"Certificado de Libre Venta","order":2},"key":"nombre_producto_segun_clv","placeholder":"Nombre del producto según CLV","maxLength":"1000","buttonEnabled":false,"type":"text"}'),
+    ('País de procedencia según CLV', 'TEXT', false, 14, '{"show_in_summary":false,"section":{"title":"Certificado de Libre Venta","order":2},"key":"pais_procedencia_clv","placeholder":"País de procedencia según CLV","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    -- Propietario del Registro Sanitario
+    ('Nombre del propietario', 'TEXT', false, 15, '{"show_in_summary":false,"section":{"title":"Datos de la empresa o persona propietaria del Registro Sanitario","order":3},"key":"nombre_propietario","placeholder":"Nombre del propietario","maxLength":"500","buttonEnabled":false,"type":"text"}'),
+    ('NIT del propietario del registro sanitario', 'TEXT', false, 16, '{"show_in_summary":false,"section":{"title":"Datos de la empresa o persona propietaria del Registro Sanitario","order":3},"key":"nit_propietario","placeholder":"NIT del propietario del registro sanitario","maxLength":"50","buttonEnabled":false,"type":"text"}'),
+    ('Correo electrónico del propietario del registro', 'EMAIL', false, 17, '{"show_in_summary":false,"section":{"title":"Datos de la empresa o persona propietaria del Registro Sanitario","order":3},"key":"correo_propietario","placeholder":"Correo electrónico del propietario del registro","maxLength":"255","buttonEnabled":false,"type":"email"}'),
+    ('Dirección del propietario del registro sanitario', 'TEXTAREA', false, 18, '{"show_in_summary":false,"section":{"title":"Datos de la empresa o persona propietaria del Registro Sanitario","order":3},"key":"direccion_propietario","placeholder":"Dirección del propietario del registro sanitario","maxLength":"500","buttonEnabled":false,"type":"textarea"}'),
+    ('País de procedencia del propietario del registro', 'TEXT', false, 19, '{"show_in_summary":false,"section":{"title":"Datos de la empresa o persona propietaria del Registro Sanitario","order":3},"key":"pais_propietario","placeholder":"País de procedencia del propietario del registro","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    ('Razón social del propietario', 'TEXT', false, 20, '{"show_in_summary":false,"section":{"title":"Datos de la empresa o persona propietaria del Registro Sanitario","order":3},"key":"razon_social_propietario","placeholder":"Razón social del propietario","maxLength":"255","buttonEnabled":false,"type":"text"}')
+) AS field(name, field_type, is_required, ord, config)
 WHERE e.name = 'T81 - Registro Sanitario Alimentos'
   AND NOT EXISTS (
       SELECT 1 FROM expedient_base_entity_fields ef
@@ -229,6 +242,87 @@ JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.origin
 JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País de fabricación'
 WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.pais IS NOT NULL;
+
+-- 4.12 Código de CLV
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.codigo_clv || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Código de CLV'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.codigo_clv IS NOT NULL;
+
+-- 4.13 Nombre del producto según CLV
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.nombre_producto_clv || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del producto según CLV'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.nombre_producto_clv IS NOT NULL;
+
+-- 4.14 País de procedencia según CLV
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.pais_procedencia_clv || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País de procedencia según CLV'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.pais_procedencia_clv IS NOT NULL;
+
+-- 4.15 Nombre del propietario
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.propietario_nombre || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del propietario'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_nombre IS NOT NULL;
+
+-- 4.16 NIT del propietario del registro sanitario
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.propietario_nit || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'NIT del propietario del registro sanitario'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_nit IS NOT NULL;
+
+-- 4.17 Correo electrónico del propietario del registro
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.propietario_correo || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Correo electrónico del propietario del registro'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_correo IS NOT NULL;
+
+-- 4.18 Dirección del propietario del registro sanitario
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.propietario_direccion || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Dirección del propietario del registro sanitario'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_direccion IS NOT NULL;
+
+-- 4.19 País de procedencia del propietario del registro
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.propietario_pais || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País de procedencia del propietario del registro'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_pais IS NOT NULL;
+
+-- 4.20 Razón social del propietario
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.propietario_razon_social || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del propietario'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_razon_social IS NOT NULL;
 
 -- =============================================================================
 -- PASO 5: Verificación
