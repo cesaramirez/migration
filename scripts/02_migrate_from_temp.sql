@@ -572,35 +572,35 @@ JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del importador'
 WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_razon_social IS NOT NULL;
 
--- 4.45 id_sub_grupo_alimenticio
+-- 4.45 id_sub_grupo_alimenticio (inserta "" si no hay subgrupo)
 INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
-SELECT gen_random_uuid(), r.id, f.id, '"' || dest.id || '"', NOW(), NOW()
+SELECT gen_random_uuid(), r.id, f.id, COALESCE('"' || dest.id || '"', '""'), NOW(), NOW()
 FROM migration_alim_producto_temp t
 JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
 JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'id_sub_grupo_alimenticio'
-JOIN srs_sub_grupo_alimenticio dest ON dest.legacy_id = 'SGR-' || t.original_sub_id
-WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.original_sub_id IS NOT NULL;
+LEFT JOIN srs_sub_grupo_alimenticio dest ON dest.legacy_id = 'SGR-' || t.original_sub_id
+WHERE e.name = 'T81 - Registro Sanitario Alimentos';
 
--- 4.46 id_pais_fabricacion
+-- 4.46 id_pais_fabricacion (inserta "" si no hay país)
 INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
-SELECT gen_random_uuid(), r.id, f.id, '"' || dest.id || '"', NOW(), NOW()
+SELECT gen_random_uuid(), r.id, f.id, COALESCE('"' || dest.id || '"', '""'), NOW(), NOW()
 FROM migration_alim_producto_temp t
 JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
 JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'id_pais_fabricacion'
-JOIN paises dest ON dest.iso_number = t.original_pais_iso
-WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.original_pais_iso IS NOT NULL;
+LEFT JOIN paises dest ON dest.iso_number = t.original_pais_iso
+WHERE e.name = 'T81 - Registro Sanitario Alimentos';
 
--- 4.47 id_clv
+-- 4.47 id_clv (inserta "" si no hay CLV)
 INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
-SELECT gen_random_uuid(), r.id, f.id, '"' || dest.id || '"', NOW(), NOW()
+SELECT gen_random_uuid(), r.id, f.id, COALESCE('"' || dest.id || '"', '""'), NOW(), NOW()
 FROM migration_alim_producto_temp t
 JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
 JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'id_clv'
-JOIN srs_certificado_libre_venta dest ON dest.legacy_id = 'CLV-' || t.original_clv_id
-WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.original_clv_id IS NOT NULL;
+LEFT JOIN srs_certificado_libre_venta dest ON dest.legacy_id = 'CLV-' || t.original_clv_id
+WHERE e.name = 'T81 - Registro Sanitario Alimentos';
 
 -- =============================================================================
 -- PASO 5: Verificación
