@@ -91,7 +91,35 @@ CROSS JOIN (VALUES
     ('Correo electrónico del propietario del registro', 'EMAIL', false, 17, '{"show_in_summary":false,"section":{"title":"Datos de la empresa o persona propietaria del Registro Sanitario","order":3},"key":"correo_propietario","placeholder":"Correo electrónico del propietario del registro","maxLength":"255","buttonEnabled":false,"type":"email"}'),
     ('Dirección del propietario del registro sanitario', 'TEXTAREA', false, 18, '{"show_in_summary":false,"section":{"title":"Datos de la empresa o persona propietaria del Registro Sanitario","order":3},"key":"direccion_propietario","placeholder":"Dirección del propietario del registro sanitario","maxLength":"500","buttonEnabled":false,"type":"textarea"}'),
     ('País de procedencia del propietario del registro', 'TEXT', false, 19, '{"show_in_summary":false,"section":{"title":"Datos de la empresa o persona propietaria del Registro Sanitario","order":3},"key":"pais_propietario","placeholder":"País de procedencia del propietario del registro","maxLength":"255","buttonEnabled":false,"type":"text"}'),
-    ('Razón social del propietario', 'TEXT', false, 20, '{"show_in_summary":false,"section":{"title":"Datos de la empresa o persona propietaria del Registro Sanitario","order":3},"key":"razon_social_propietario","placeholder":"Razón social del propietario","maxLength":"255","buttonEnabled":false,"type":"text"}')
+    ('Razón social del propietario', 'TEXT', false, 20, '{"show_in_summary":false,"section":{"title":"Datos de la empresa o persona propietaria del Registro Sanitario","order":3},"key":"razon_social_propietario","placeholder":"Razón social del propietario","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    -- Fabricante
+    ('Nombre del fabricante', 'TEXT', false, 21, '{"show_in_summary":false,"section":{"title":"Datos del Fabricante","order":4},"key":"nombre_fabricante","placeholder":"Nombre del fabricante","maxLength":"500","buttonEnabled":false,"type":"text"}'),
+    ('NIT del fabricante', 'TEXT', false, 22, '{"show_in_summary":false,"section":{"title":"Datos del Fabricante","order":4},"key":"nit_fabricante","placeholder":"NIT del fabricante","maxLength":"50","buttonEnabled":false,"type":"text"}'),
+    ('Correo del fabricante', 'EMAIL', false, 23, '{"show_in_summary":false,"section":{"title":"Datos del Fabricante","order":4},"key":"correo_fabricante","placeholder":"Correo del fabricante","maxLength":"255","buttonEnabled":false,"type":"email"}'),
+    ('Dirección del fabricante', 'TEXTAREA', false, 24, '{"show_in_summary":false,"section":{"title":"Datos del Fabricante","order":4},"key":"direccion_fabricante","placeholder":"Dirección del fabricante","maxLength":"500","buttonEnabled":false,"type":"textarea"}'),
+    ('País del fabricante', 'TEXT', false, 25, '{"show_in_summary":false,"section":{"title":"Datos del Fabricante","order":4},"key":"pais_fabricante","placeholder":"País del fabricante","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    ('Razón social del fabricante', 'TEXT', false, 26, '{"show_in_summary":false,"section":{"title":"Datos del Fabricante","order":4},"key":"razon_social_fabricante","placeholder":"Razón social del fabricante","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    -- Distribuidor
+    ('Nombre del distribuidor', 'TEXT', false, 27, '{"show_in_summary":false,"section":{"title":"Datos del Distribuidor","order":5},"key":"nombre_distribuidor","placeholder":"Nombre del distribuidor","maxLength":"500","buttonEnabled":false,"type":"text"}'),
+    ('NIT del distribuidor', 'TEXT', false, 28, '{"show_in_summary":false,"section":{"title":"Datos del Distribuidor","order":5},"key":"nit_distribuidor","placeholder":"NIT del distribuidor","maxLength":"50","buttonEnabled":false,"type":"text"}'),
+    ('Correo del distribuidor', 'EMAIL', false, 29, '{"show_in_summary":false,"section":{"title":"Datos del Distribuidor","order":5},"key":"correo_distribuidor","placeholder":"Correo del distribuidor","maxLength":"255","buttonEnabled":false,"type":"email"}'),
+    ('Dirección del distribuidor', 'TEXTAREA', false, 30, '{"show_in_summary":false,"section":{"title":"Datos del Distribuidor","order":5},"key":"direccion_distribuidor","placeholder":"Dirección del distribuidor","maxLength":"500","buttonEnabled":false,"type":"textarea"}'),
+    ('País del distribuidor', 'TEXT', false, 31, '{"show_in_summary":false,"section":{"title":"Datos del Distribuidor","order":5},"key":"pais_distribuidor","placeholder":"País del distribuidor","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    ('Razón social del distribuidor', 'TEXT', false, 32, '{"show_in_summary":false,"section":{"title":"Datos del Distribuidor","order":5},"key":"razon_social_distribuidor","placeholder":"Razón social del distribuidor","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    -- Envasador
+    ('Nombre del envasador', 'TEXT', false, 33, '{"show_in_summary":false,"section":{"title":"Datos del Envasador","order":6},"key":"nombre_envasador","placeholder":"Nombre del envasador","maxLength":"500","buttonEnabled":false,"type":"text"}'),
+    ('NIT del envasador', 'TEXT', false, 34, '{"show_in_summary":false,"section":{"title":"Datos del Envasador","order":6},"key":"nit_envasador","placeholder":"NIT del envasador","maxLength":"50","buttonEnabled":false,"type":"text"}'),
+    ('Correo del envasador', 'EMAIL', false, 35, '{"show_in_summary":false,"section":{"title":"Datos del Envasador","order":6},"key":"correo_envasador","placeholder":"Correo del envasador","maxLength":"255","buttonEnabled":false,"type":"email"}'),
+    ('Dirección del envasador', 'TEXTAREA', false, 36, '{"show_in_summary":false,"section":{"title":"Datos del Envasador","order":6},"key":"direccion_envasador","placeholder":"Dirección del envasador","maxLength":"500","buttonEnabled":false,"type":"textarea"}'),
+    ('País del envasador', 'TEXT', false, 37, '{"show_in_summary":false,"section":{"title":"Datos del Envasador","order":6},"key":"pais_envasador","placeholder":"País del envasador","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    ('Razón social del envasador', 'TEXT', false, 38, '{"show_in_summary":false,"section":{"title":"Datos del Envasador","order":6},"key":"razon_social_envasador","placeholder":"Razón social del envasador","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    -- Importador
+    ('Nombre del importador', 'TEXT', false, 39, '{"show_in_summary":false,"section":{"title":"Datos del Importador","order":7},"key":"nombre_importador","placeholder":"Nombre del importador","maxLength":"500","buttonEnabled":false,"type":"text"}'),
+    ('NIT del importador', 'TEXT', false, 40, '{"show_in_summary":false,"section":{"title":"Datos del Importador","order":7},"key":"nit_importador","placeholder":"NIT del importador","maxLength":"50","buttonEnabled":false,"type":"text"}'),
+    ('Correo del importador', 'EMAIL', false, 41, '{"show_in_summary":false,"section":{"title":"Datos del Importador","order":7},"key":"correo_importador","placeholder":"Correo del importador","maxLength":"255","buttonEnabled":false,"type":"email"}'),
+    ('Dirección del importador', 'TEXTAREA', false, 42, '{"show_in_summary":false,"section":{"title":"Datos del Importador","order":7},"key":"direccion_importador","placeholder":"Dirección del importador","maxLength":"500","buttonEnabled":false,"type":"textarea"}'),
+    ('País del importador', 'TEXT', false, 43, '{"show_in_summary":false,"section":{"title":"Datos del Importador","order":7},"key":"pais_importador","placeholder":"País del importador","maxLength":"255","buttonEnabled":false,"type":"text"}'),
+    ('Razón social del importador', 'TEXT', false, 44, '{"show_in_summary":false,"section":{"title":"Datos del Importador","order":7},"key":"razon_social_importador","placeholder":"Razón social del importador","maxLength":"255","buttonEnabled":false,"type":"text"}')
 ) AS field(name, field_type, is_required, ord, config)
 WHERE e.name = 'T81 - Registro Sanitario Alimentos'
   AND NOT EXISTS (
@@ -323,6 +351,222 @@ JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.origin
 JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del propietario'
 WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_razon_social IS NOT NULL;
+
+-- 4.21 Nombre del fabricante
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.fabricante_nombre || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del fabricante'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fabricante_nombre IS NOT NULL;
+
+-- 4.22 NIT del fabricante
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.fabricante_nit || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'NIT del fabricante'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fabricante_nit IS NOT NULL;
+
+-- 4.23 Correo del fabricante
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.fabricante_correo || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Correo del fabricante'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fabricante_correo IS NOT NULL;
+
+-- 4.24 Dirección del fabricante
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.fabricante_direccion || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Dirección del fabricante'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fabricante_direccion IS NOT NULL;
+
+-- 4.25 País del fabricante
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.fabricante_pais || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País del fabricante'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fabricante_pais IS NOT NULL;
+
+-- 4.26 Razón social del fabricante
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.fabricante_razon_social || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del fabricante'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fabricante_razon_social IS NOT NULL;
+
+-- 4.27 Nombre del distribuidor
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.distribuidor_nombre || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del distribuidor'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.distribuidor_nombre IS NOT NULL;
+
+-- 4.28 NIT del distribuidor
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.distribuidor_nit || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'NIT del distribuidor'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.distribuidor_nit IS NOT NULL;
+
+-- 4.29 Correo del distribuidor
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.distribuidor_correo || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Correo del distribuidor'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.distribuidor_correo IS NOT NULL;
+
+-- 4.30 Dirección del distribuidor
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.distribuidor_direccion || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Dirección del distribuidor'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.distribuidor_direccion IS NOT NULL;
+
+-- 4.31 País del distribuidor
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.distribuidor_pais || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País del distribuidor'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.distribuidor_pais IS NOT NULL;
+
+-- 4.32 Razón social del distribuidor
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.distribuidor_razon_social || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del distribuidor'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.distribuidor_razon_social IS NOT NULL;
+
+-- 4.33 Nombre del envasador
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.envasador_nombre || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del envasador'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.envasador_nombre IS NOT NULL;
+
+-- 4.34 NIT del envasador
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.envasador_nit || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'NIT del envasador'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.envasador_nit IS NOT NULL;
+
+-- 4.35 Correo del envasador
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.envasador_correo || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Correo del envasador'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.envasador_correo IS NOT NULL;
+
+-- 4.36 Dirección del envasador
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.envasador_direccion || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Dirección del envasador'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.envasador_direccion IS NOT NULL;
+
+-- 4.37 País del envasador
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.envasador_pais || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País del envasador'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.envasador_pais IS NOT NULL;
+
+-- 4.38 Razón social del envasador
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.envasador_razon_social || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del envasador'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.envasador_razon_social IS NOT NULL;
+
+-- 4.39 Nombre del importador
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.importador_nombre || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del importador'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_nombre IS NOT NULL;
+
+-- 4.40 NIT del importador
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.importador_nit || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'NIT del importador'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_nit IS NOT NULL;
+
+-- 4.41 Correo del importador
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.importador_correo || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Correo del importador'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_correo IS NOT NULL;
+
+-- 4.42 Dirección del importador
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.importador_direccion || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Dirección del importador'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_direccion IS NOT NULL;
+
+-- 4.43 País del importador
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.importador_pais || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País del importador'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_pais IS NOT NULL;
+
+-- 4.44 Razón social del importador
+INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+SELECT gen_random_uuid(), r.id, f.id, '"' || t.importador_razon_social || '"', NOW(), NOW()
+FROM migration_alim_producto_temp t
+JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
+JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del importador'
+WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_razon_social IS NOT NULL;
 
 -- =============================================================================
 -- PASO 5: Verificación

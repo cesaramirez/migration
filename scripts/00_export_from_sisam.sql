@@ -34,7 +34,47 @@ SELECT
     CASE
         WHEN prop_aux.es_empresa = true THEN prop_aux.nombre
         ELSE NULL
-    END as propietario_razon_social
+    END as propietario_razon_social,
+    -- Campos de Fabricante
+    fab_aux.nombre as fabricante_nombre,
+    fab_aux.nit as fabricante_nit,
+    fab_aux.correo_electronico as fabricante_correo,
+    fab_aux.direccion as fabricante_direccion,
+    pais_fab.nombre as fabricante_pais,
+    CASE
+        WHEN fab_aux.es_empresa = true THEN fab_aux.nombre
+        ELSE NULL
+    END as fabricante_razon_social,
+    -- Campos de Distribuidor
+    dist_aux.nombre as distribuidor_nombre,
+    dist_aux.nit as distribuidor_nit,
+    dist_aux.correo_electronico as distribuidor_correo,
+    dist_aux.direccion as distribuidor_direccion,
+    pais_dist.nombre as distribuidor_pais,
+    CASE
+        WHEN dist_aux.es_empresa = true THEN dist_aux.nombre
+        ELSE NULL
+    END as distribuidor_razon_social,
+    -- Campos de Envasador
+    env_aux.nombre as envasador_nombre,
+    env_aux.nit as envasador_nit,
+    env_aux.correo_electronico as envasador_correo,
+    env_aux.direccion as envasador_direccion,
+    pais_env.nombre as envasador_pais,
+    CASE
+        WHEN env_aux.es_empresa = true THEN env_aux.nombre
+        ELSE NULL
+    END as envasador_razon_social,
+    -- Campos de Importador
+    imp_aux.nombre as importador_nombre,
+    imp_aux.nit as importador_nit,
+    imp_aux.correo_electronico as importador_correo,
+    imp_aux.direccion as importador_direccion,
+    pais_imp.nombre as importador_pais,
+    CASE
+        WHEN imp_aux.es_empresa = true THEN imp_aux.nombre
+        ELSE NULL
+    END as importador_razon_social
 FROM alim_producto p
 LEFT JOIN ctl_estado_producto ep ON ep.id = p.id_ctl_estado_producto
 LEFT JOIN ctl_pais pais ON pais.id = p.id_ctl_pais
@@ -45,16 +85,29 @@ LEFT JOIN ctl_tipo_riesgo tr ON tr.id = sg.id_ctl_tipo_riesgo
 LEFT JOIN alim_producto_certificado_libre_venta pclv ON pclv.id_alim_producto = p.id
 LEFT JOIN alim_certificado_libre_venta clv ON clv.id = pclv.id_alim_certificado_libre_venta
 LEFT JOIN ctl_pais pais_clv ON pais_clv.id = clv.id_ctl_pais
--- JOINs para Propietario (id_ctl_funcion_empresa_persona = 4 = Propietario de registro sanitario)
+-- JOINs para Propietario (4 = Propietario)
 LEFT JOIN alim_empresa_persona_aux_funcion_producto prop_fp ON prop_fp.id_alim_producto = p.id AND prop_fp.id_ctl_funcion_empresa_persona = 4
 LEFT JOIN alim_empresa_persona_aux prop_aux ON prop_aux.id = prop_fp.id_alim_empresa_persona_aux
 LEFT JOIN ctl_pais pais_prop ON pais_prop.id = prop_aux.id_ctl_pais
+-- JOINs para Fabricante (1 = Fabricante)
+LEFT JOIN alim_empresa_persona_aux_funcion_producto fab_fp ON fab_fp.id_alim_producto = p.id AND fab_fp.id_ctl_funcion_empresa_persona = 1
+LEFT JOIN alim_empresa_persona_aux fab_aux ON fab_aux.id = fab_fp.id_alim_empresa_persona_aux
+LEFT JOIN ctl_pais pais_fab ON pais_fab.id = fab_aux.id_ctl_pais
+-- JOINs para Distribuidor (2 = Distribuidor)
+LEFT JOIN alim_empresa_persona_aux_funcion_producto dist_fp ON dist_fp.id_alim_producto = p.id AND dist_fp.id_ctl_funcion_empresa_persona = 2
+LEFT JOIN alim_empresa_persona_aux dist_aux ON dist_aux.id = dist_fp.id_alim_empresa_persona_aux
+LEFT JOIN ctl_pais pais_dist ON pais_dist.id = dist_aux.id_ctl_pais
+-- JOINs para Envasador (3 = Envasador)
+LEFT JOIN alim_empresa_persona_aux_funcion_producto env_fp ON env_fp.id_alim_producto = p.id AND env_fp.id_ctl_funcion_empresa_persona = 3
+LEFT JOIN alim_empresa_persona_aux env_aux ON env_aux.id = env_fp.id_alim_empresa_persona_aux
+LEFT JOIN ctl_pais pais_env ON pais_env.id = env_aux.id_ctl_pais
+-- JOINs para Importador (5 = Importador)
+LEFT JOIN alim_empresa_persona_aux_funcion_producto imp_fp ON imp_fp.id_alim_producto = p.id AND imp_fp.id_ctl_funcion_empresa_persona = 5
+LEFT JOIN alim_empresa_persona_aux imp_aux ON imp_aux.id = imp_fp.id_alim_empresa_persona_aux
+LEFT JOIN ctl_pais pais_imp ON pais_imp.id = imp_aux.id_ctl_pais
 WHERE p.estado_registro = 1
   AND p.fecha_emision_registro IS NOT NULL
   AND p.fecha_vigencia_registro IS NOT NULL
-  AND sg.nombre IS NOT NULL AND TRIM(sg.nombre) != '' AND sg.nombre NOT LIKE '%MIGRADO%'
-  AND cga.nombre IS NOT NULL AND TRIM(cga.nombre) != ''
-  AND tr.nombre IS NOT NULL AND TRIM(tr.nombre) != ''
 ORDER BY p.id
 LIMIT 25000;
 
