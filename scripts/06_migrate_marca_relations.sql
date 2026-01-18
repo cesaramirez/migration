@@ -1,9 +1,9 @@
 -- =============================================================================
--- MIGRACIÓN DE RELACIONES PRODUCTO → BODEGA
+-- MIGRACIÓN DE RELACIONES PRODUCTO → MARCA
 -- =============================================================================
 -- Ejecutar en: CORE Database
 -- Prerrequisito: Tener los CSV cargados en tablas temporales
--- (Ver assets/guides/migration_bodega_relations.md para carga de CSVs)
+-- (Ver assets/guides/migration_marca_producto_relations.md para carga de CSVs)
 
 INSERT INTO expedient_base_registry_relation (
     expedient_base_registry_id,
@@ -18,22 +18,22 @@ INSERT INTO expedient_base_registry_relation (
 SELECT
     r.id AS expedient_base_registry_id,
     f.id AS expedient_base_entity_field_id,
-    bm.bodega_uuid AS relation_id,
+    mm.marca_uuid AS relation_id,
     'selected_option' AS relation_type,
     'data_center' AS source,
-    'srs_bodega' AS reference_name,
-    COALESCE(mbp.fecha_registro::timestamp, NOW()) AS created_at,
+    'srs_marca' AS reference_name,
+    NOW() AS created_at,
     NOW() AS updated_at
-FROM migration_bodega_producto mbp
+FROM migration_marca_producto mmp
 JOIN expedient_base_registries r
-    ON r.legacy_id = 'PRD-' || mbp.id_alim_producto
-JOIN migration_bodega_mapping bm
-    ON bm.legacy_id = 'BOD-' || mbp.id_alim_bodega
+    ON r.legacy_id = 'PRD-' || mmp.id_alim_producto
+JOIN migration_marca_mapping mm
+    ON mm.legacy_id = 'MARCA-' || mmp.id_ctl_marca
 JOIN expedient_base_entities e
     ON e.id = r.expedient_base_entity_id
 JOIN expedient_base_entity_fields f
     ON f.expedient_base_entity_id = e.id
-    AND f.name = 'Bodegas';
+    AND f.name = 'Marcas';
 
 -- =============================================================================
 -- VALIDACIÓN
@@ -43,9 +43,9 @@ SELECT COUNT(*) as total_relaciones
 FROM expedient_base_registry_relation
 WHERE relation_type = 'selected_option'
   AND source = 'data_center'
-  AND reference_name = 'srs_bodega';
+  AND reference_name = 'srs_marca';
 
 SELECT
-    (SELECT COUNT(*) FROM migration_bodega_producto) as origen,
+    (SELECT COUNT(*) FROM migration_marca_producto) as origen,
     (SELECT COUNT(*) FROM expedient_base_registry_relation
-     WHERE reference_name = 'srs_bodega') as destino;
+     WHERE reference_name = 'srs_marca') as destino;
