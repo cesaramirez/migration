@@ -141,7 +141,9 @@
 	    -- Relaciones
 	    ('id_sub_grupo_alimenticio', 'TEXT', false, 45, '{"show_in_summary":false,"section":{"title":"Relaciones","order":8},"key":"id_sub_grupo_alimenticio","placeholder":"ID Subgrupo Alimenticio","maxLength":"50","buttonEnabled":false,"type":"text"}'),
 	    ('id_pais_fabricacion', 'TEXT', false, 46, '{"show_in_summary":false,"section":{"title":"Relaciones","order":8},"key":"id_pais_fabricacion","placeholder":"ID País Fabricación","maxLength":"50","buttonEnabled":false,"type":"text"}'),
-	    ('id_clv', 'TEXT', false, 47, '{"show_in_summary":false,"section":{"title":"Relaciones","order":8},"key":"id_clv","placeholder":"ID CLV","maxLength":"50","buttonEnabled":false,"type":"text"}')
+	    ('id_clv', 'TEXT', false, 47, '{"show_in_summary":false,"section":{"title":"Relaciones","order":8},"key":"id_clv","placeholder":"ID CLV","maxLength":"50","buttonEnabled":false,"type":"text"}'),
+	    ('Marcas', 'TEXT', false, 48, '{"show_in_summary":true,"section":{"title":"Relaciones","order":8},"key":"marcas","placeholder":"Marcas del producto","buttonEnabled":false,"type":"multiple_selection"}'),
+	    ('Bodegas', 'TEXT', false, 49, '{"show_in_summary":true,"section":{"title":"Relaciones","order":8},"key":"bodegas","placeholder":"Bodegas asignadas","buttonEnabled":false,"type":"multiple_selection"}')
 	) AS field(name, field_type, is_required, ord, config)
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos'
 	  AND NOT EXISTS (

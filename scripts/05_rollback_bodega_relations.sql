@@ -14,13 +14,13 @@ BEGIN;
 -- Verificar cantidad antes de eliminar
 SELECT COUNT(*) as relaciones_a_eliminar
 FROM expedient_base_registry_relation
-WHERE relation_type = 'selection_option'
+WHERE relation_type = 'selected_option'
   AND source = 'data_center'
   AND reference_name = 'srs_bodega';
 
 -- Ejecutar DELETE
 DELETE FROM expedient_base_registry_relation
-WHERE relation_type = 'selection_option'
+WHERE relation_type = 'selected_option'
   AND source = 'data_center'
   AND reference_name = 'srs_bodega';
 
@@ -39,7 +39,7 @@ COMMIT;
 
 /*
 DELETE FROM expedient_base_registry_relation
-WHERE relation_type = 'selection_option'
+WHERE relation_type = 'selected_option'
   AND source = 'data_center'
   AND reference_name = 'srs_bodega'
   AND created_at >= '2026-01-18 00:00:00';  -- Ajustar fecha
@@ -69,7 +69,7 @@ DECLARE
 BEGIN
     SELECT COUNT(*) INTO v_count
     FROM expedient_base_registry_relation
-    WHERE relation_type = 'selection_option'
+    WHERE relation_type = 'selected_option'
       AND source = 'data_center'
       AND reference_name = 'srs_bodega';
 
@@ -77,7 +77,7 @@ BEGIN
 
     IF v_count > 0 THEN
         DELETE FROM expedient_base_registry_relation
-        WHERE relation_type = 'selection_option'
+        WHERE relation_type = 'selected_option'
           AND source = 'data_center'
           AND reference_name = 'srs_bodega';
 

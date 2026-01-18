@@ -257,7 +257,7 @@ INSERT INTO expedient_base_registry_relation (
 SELECT
     r.id AS expedient_base_registry_id,      -- UUID del producto
     bm.bodega_uuid AS relation_id,            -- UUID de la bodega
-    'selection_option' AS relation_type,      -- Tipo para data center
+    'selected_option' AS relation_type,      -- Tipo para data center
     'data_center' AS source,                  -- Origen de la relación
     'srs_bodega' AS reference_name,
     COALESCE(mbp.fecha_registro::timestamp, NOW()) AS created_at,
@@ -279,7 +279,7 @@ JOIN migration_bodega_mapping bm
 -- Conteo total de relaciones creadas
 SELECT COUNT(*) as total_relaciones
 FROM expedient_base_registry_relation
-WHERE relation_type = 'selection_option'
+WHERE relation_type = 'selected_option'
   AND source = 'data_center'
   AND reference_name = 'srs_bodega';
 -- Esperado: ~42,795
@@ -377,12 +377,12 @@ BEGIN;
 -- Contar registros a eliminar (verificar antes)
 SELECT COUNT(*) as registros_a_eliminar
 FROM expedient_base_registry_relation
-WHERE relation_type = 'data_center'
+WHERE relation_type = 'selected_option'
   AND reference_name = 'srs_bodega';
 
 -- Eliminar relaciones
 DELETE FROM expedient_base_registry_relation
-WHERE relation_type = 'data_center'
+WHERE relation_type = 'selected_option'
   AND reference_name = 'srs_bodega';
 
 -- Verificar eliminación
@@ -412,7 +412,7 @@ AND reference_name = 'srs_bodega';
 ```sql
 -- Eliminar relaciones creadas después de cierta fecha
 DELETE FROM expedient_base_registry_relation
-WHERE relation_type = 'data_center'
+WHERE relation_type = 'selected_option'
   AND reference_name = 'srs_bodega'
   AND created_at >= '2026-01-17 22:00:00';
 ```
@@ -428,14 +428,14 @@ BEGIN
     -- Contar antes
     SELECT COUNT(*) INTO v_count
     FROM expedient_base_registry_relation
-    WHERE relation_type = 'data_center'
+    WHERE relation_type = 'selected_option'
       AND reference_name = 'srs_bodega';
 
     RAISE NOTICE 'Relaciones bodega a eliminar: %', v_count;
 
     IF v_count > 0 THEN
         DELETE FROM expedient_base_registry_relation
-        WHERE relation_type = 'data_center'
+        WHERE relation_type = 'selected_option'
           AND reference_name = 'srs_bodega';
 
         RAISE NOTICE 'Rollback completado: % relaciones eliminadas', v_count;

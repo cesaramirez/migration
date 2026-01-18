@@ -7,6 +7,7 @@ INSERT INTO expedient_base_registry_relation (
     expedient_base_registry_id,
     relation_id,
     relation_type,
+    source,
     reference_name,
     created_at,
     updated_at
@@ -14,7 +15,8 @@ INSERT INTO expedient_base_registry_relation (
 SELECT
     r.id AS expedient_base_registry_id,
     bm.bodega_uuid AS relation_id,
-    'data_center' AS relation_type,
+    'selected_option' AS relation_type,
+    'data_center' AS source,
     'srs_bodega' AS reference_name,
     COALESCE(mbp.fecha_registro::timestamp, NOW()) AS created_at,
     NOW() AS updated_at
@@ -30,7 +32,8 @@ JOIN migration_bodega_mapping bm
 
 SELECT COUNT(*) as total_relaciones
 FROM expedient_base_registry_relation
-WHERE relation_type = 'data_center'
+WHERE relation_type = 'selected_option'
+  AND source = 'data_center'
   AND reference_name = 'srs_bodega';
 
 SELECT
