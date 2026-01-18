@@ -2,9 +2,9 @@
 	-- PASO 2B: MIGRAR DESDE TABLA TEMPORAL (ejecutar en SDT DEV)
 	-- =============================================================================
 	-- Requiere: 01_create_temp_table.sql ejecutado y datos importados
-	
+
 	BEGIN;
-	
+
 	-- =============================================================================
 	-- PASO 0: Función para generar unique_code
 	-- =============================================================================
@@ -14,7 +14,25 @@
 	    RETURN UPPER(encode(gen_random_bytes(6), 'hex'));
 	END;
 	$$ LANGUAGE plpgsql;
-	
+
+	-- =============================================================================
+	-- PASO 0.1: Agregar columna legacy_id si no existe
+	-- =============================================================================
+	ALTER TABLE expedient_base_registries
+	ADD COLUMN IF NOT EXISTS legacy_id VARCHAR(30);
+
+	-- Agregar constraint UNIQUE para ON CONFLICT (si no existe)
+	DO $$
+	BEGIN
+	    IF NOT EXISTS (
+	        SELECT 1 FROM pg_constraint WHERE conname = 'uk_ebr_legacy_id'
+	    ) THEN
+	        ALTER TABLE expedient_base_registries
+	        ADD CONSTRAINT uk_ebr_legacy_id UNIQUE (legacy_id);
+	    END IF;
+	END $$;
+
+
 	-- =============================================================================
 	-- PASO 1: Crear Entidad Base (si no existe)
 	-- =============================================================================
@@ -40,10 +58,10 @@
 	WHERE NOT EXISTS (
 	    SELECT 1 FROM expedient_base_entities WHERE name = 'T81 - Registro Sanitario Alimentos'
 	);
-	
+
 	-- Verificar entity creada
 	SELECT id, name FROM expedient_base_entities WHERE name = 'T81 - Registro Sanitario Alimentos';
-	
+
 	-- =============================================================================
 	-- PASO 2: Crear Campos de la Entidad (14 campos TEXT/DATE)
 	-- =============================================================================
@@ -130,14 +148,14 @@
 	      SELECT 1 FROM expedient_base_entity_fields ef
 	      WHERE ef.expedient_base_entity_id = e.id
 	  );
-	
+
 	-- Verificar campos creados
 	SELECT ef.name, ef.field_type, ef."order"
 	FROM expedient_base_entity_fields ef
 	JOIN expedient_base_entities e ON e.id = ef.expedient_base_entity_id
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos'
 	ORDER BY ef."order";
-	
+
 	-- =============================================================================
 	-- PASO 3: Migrar Registros desde tabla temporal
 	-- =============================================================================
@@ -147,6 +165,7 @@
 	    metadata,
 	    expedient_base_entity_id,
 	    unique_code,
+	    legacy_id,
 	    created_at,
 	    updated_at
 	)
@@ -160,22 +179,24 @@
 	    ),
 	    e.id,
 	    generate_unique_code(),
+	    'PRD-' || t.original_id,  -- legacy_id para JOINs rápidos
 	    NOW(),
 	    NOW()
 	FROM migration_alim_producto_temp t
 	CROSS JOIN expedient_base_entities e
-	WHERE e.name = 'T81 - Registro Sanitario Alimentos';
-	
+	WHERE e.name = 'T81 - Registro Sanitario Alimentos'
+	ON CONFLICT (legacy_id) DO NOTHING;
+
 	-- Verificar registros migrados
 	SELECT COUNT(*) as total_migrados
 	FROM expedient_base_registries r
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos';
-	
+
 	-- =============================================================================
 	-- PASO 4: Migrar Valores de Campos
 	-- =============================================================================
-	
+
 	-- 4.1 Nombre del producto
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.nombre || '"', NOW(), NOW()
@@ -184,7 +205,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del producto'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos';
-	
+
 	-- 4.2 Número de registro sanitario
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.num_registro_sanitario || '"', NOW(), NOW()
@@ -193,7 +214,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Número de registro sanitario'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.num_registro_sanitario IS NOT NULL;
-	
+
 	-- 4.3 Tipo de producto
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.tipo_producto || '"', NOW(), NOW()
@@ -202,7 +223,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Tipo de producto'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos';
-	
+
 	-- 4.4 Número de partida arancelaria
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.num_partida_arancelaria || '"', NOW(), NOW()
@@ -211,7 +232,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Número de partida arancelaria'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.num_partida_arancelaria IS NOT NULL;
-	
+
 	-- 4.5 Fecha de emisión del registro
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.fecha_emision_registro || '"', NOW(), NOW()
@@ -220,7 +241,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Fecha de emisión del registro'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fecha_emision_registro IS NOT NULL;
-	
+
 	-- 4.6 Fecha de vigencia del registro
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.fecha_vigencia_registro || '"', NOW(), NOW()
@@ -229,7 +250,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Fecha de vigencia del registro'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fecha_vigencia_registro IS NOT NULL;
-	
+
 	-- 4.7 Estado
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.estado_producto || '"', NOW(), NOW()
@@ -238,7 +259,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Estado'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.estado_producto IS NOT NULL;
-	
+
 	-- 4.8 Subgrupo alimenticio
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.subgrupo_alimenticio || '"', NOW(), NOW()
@@ -247,7 +268,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Subgrupo alimenticio'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.subgrupo_alimenticio IS NOT NULL;
-	
+
 	-- 4.9 Clasificación alimenticia
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.clasificacion_alimenticia || '"', NOW(), NOW()
@@ -256,7 +277,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Clasificación alimenticia'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.clasificacion_alimenticia IS NOT NULL;
-	
+
 	-- 4.10 Riesgo
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.riesgo || '"', NOW(), NOW()
@@ -265,7 +286,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Riesgo'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.riesgo IS NOT NULL;
-	
+
 	-- 4.11 País de fabricación
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.pais || '"', NOW(), NOW()
@@ -274,7 +295,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País de fabricación'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.pais IS NOT NULL;
-	
+
 	-- 4.12 Código de CLV
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.codigo_clv || '"', NOW(), NOW()
@@ -283,7 +304,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Código de CLV'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.codigo_clv IS NOT NULL;
-	
+
 	-- 4.13 Nombre del producto según CLV
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.nombre_producto_clv || '"', NOW(), NOW()
@@ -292,7 +313,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del producto según CLV'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.nombre_producto_clv IS NOT NULL;
-	
+
 	-- 4.14 País de procedencia según CLV
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.pais_procedencia_clv || '"', NOW(), NOW()
@@ -301,7 +322,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País de procedencia según CLV'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.pais_procedencia_clv IS NOT NULL;
-	
+
 	-- 4.15 Nombre del propietario
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.propietario_nombre || '"', NOW(), NOW()
@@ -310,7 +331,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del propietario'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_nombre IS NOT NULL;
-	
+
 	-- 4.16 NIT del propietario del registro sanitario
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.propietario_nit || '"', NOW(), NOW()
@@ -319,7 +340,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'NIT del propietario del registro sanitario'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_nit IS NOT NULL;
-	
+
 	-- 4.17 Correo electrónico del propietario del registro
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.propietario_correo || '"', NOW(), NOW()
@@ -328,7 +349,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Correo electrónico del propietario del registro'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_correo IS NOT NULL;
-	
+
 	-- 4.18 Dirección del propietario del registro sanitario
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.propietario_direccion || '"', NOW(), NOW()
@@ -337,7 +358,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Dirección del propietario del registro sanitario'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_direccion IS NOT NULL;
-	
+
 	-- 4.19 País de procedencia del propietario del registro
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.propietario_pais || '"', NOW(), NOW()
@@ -346,7 +367,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País de procedencia del propietario del registro'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_pais IS NOT NULL;
-	
+
 	-- 4.20 Razón social del propietario
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.propietario_razon_social || '"', NOW(), NOW()
@@ -355,7 +376,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del propietario'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.propietario_razon_social IS NOT NULL;
-	
+
 	-- 4.21 Nombre del fabricante
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.fabricante_nombre || '"', NOW(), NOW()
@@ -364,7 +385,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del fabricante'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fabricante_nombre IS NOT NULL;
-	
+
 	-- 4.22 NIT del fabricante
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.fabricante_nit || '"', NOW(), NOW()
@@ -373,7 +394,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'NIT del fabricante'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fabricante_nit IS NOT NULL;
-	
+
 	-- 4.23 Correo del fabricante
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.fabricante_correo || '"', NOW(), NOW()
@@ -382,7 +403,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Correo del fabricante'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fabricante_correo IS NOT NULL;
-	
+
 	-- 4.24 Dirección del fabricante
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.fabricante_direccion || '"', NOW(), NOW()
@@ -391,7 +412,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Dirección del fabricante'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fabricante_direccion IS NOT NULL;
-	
+
 	-- 4.25 País del fabricante
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.fabricante_pais || '"', NOW(), NOW()
@@ -400,7 +421,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País del fabricante'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fabricante_pais IS NOT NULL;
-	
+
 	-- 4.26 Razón social del fabricante
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.fabricante_razon_social || '"', NOW(), NOW()
@@ -409,7 +430,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del fabricante'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.fabricante_razon_social IS NOT NULL;
-	
+
 	-- 4.27 Nombre del distribuidor
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.distribuidor_nombre || '"', NOW(), NOW()
@@ -418,7 +439,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del distribuidor'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.distribuidor_nombre IS NOT NULL;
-	
+
 	-- 4.28 NIT del distribuidor
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.distribuidor_nit || '"', NOW(), NOW()
@@ -427,7 +448,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'NIT del distribuidor'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.distribuidor_nit IS NOT NULL;
-	
+
 	-- 4.29 Correo del distribuidor
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.distribuidor_correo || '"', NOW(), NOW()
@@ -436,7 +457,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Correo del distribuidor'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.distribuidor_correo IS NOT NULL;
-	
+
 	-- 4.30 Dirección del distribuidor
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.distribuidor_direccion || '"', NOW(), NOW()
@@ -445,7 +466,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Dirección del distribuidor'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.distribuidor_direccion IS NOT NULL;
-	
+
 	-- 4.31 País del distribuidor
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.distribuidor_pais || '"', NOW(), NOW()
@@ -454,7 +475,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País del distribuidor'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.distribuidor_pais IS NOT NULL;
-	
+
 	-- 4.32 Razón social del distribuidor
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.distribuidor_razon_social || '"', NOW(), NOW()
@@ -463,7 +484,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del distribuidor'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.distribuidor_razon_social IS NOT NULL;
-	
+
 	-- 4.33 Nombre del envasador
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.envasador_nombre || '"', NOW(), NOW()
@@ -472,7 +493,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del envasador'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.envasador_nombre IS NOT NULL;
-	
+
 	-- 4.34 NIT del envasador
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.envasador_nit || '"', NOW(), NOW()
@@ -481,7 +502,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'NIT del envasador'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.envasador_nit IS NOT NULL;
-	
+
 	-- 4.35 Correo del envasador
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.envasador_correo || '"', NOW(), NOW()
@@ -490,7 +511,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Correo del envasador'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.envasador_correo IS NOT NULL;
-	
+
 	-- 4.36 Dirección del envasador
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.envasador_direccion || '"', NOW(), NOW()
@@ -499,7 +520,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Dirección del envasador'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.envasador_direccion IS NOT NULL;
-	
+
 	-- 4.37 País del envasador
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.envasador_pais || '"', NOW(), NOW()
@@ -508,7 +529,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País del envasador'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.envasador_pais IS NOT NULL;
-	
+
 	-- 4.38 Razón social del envasador
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.envasador_razon_social || '"', NOW(), NOW()
@@ -517,7 +538,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del envasador'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.envasador_razon_social IS NOT NULL;
-	
+
 	-- 4.39 Nombre del importador
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.importador_nombre || '"', NOW(), NOW()
@@ -526,7 +547,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Nombre del importador'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_nombre IS NOT NULL;
-	
+
 	-- 4.40 NIT del importador
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.importador_nit || '"', NOW(), NOW()
@@ -535,7 +556,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'NIT del importador'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_nit IS NOT NULL;
-	
+
 	-- 4.41 Correo del importador
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.importador_correo || '"', NOW(), NOW()
@@ -544,7 +565,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Correo del importador'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_correo IS NOT NULL;
-	
+
 	-- 4.42 Dirección del importador
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.importador_direccion || '"', NOW(), NOW()
@@ -553,7 +574,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Dirección del importador'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_direccion IS NOT NULL;
-	
+
 	-- 4.43 País del importador
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.importador_pais || '"', NOW(), NOW()
@@ -562,7 +583,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'País del importador'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_pais IS NOT NULL;
-	
+
 	-- 4.44 Razón social del importador
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, '"' || t.importador_razon_social || '"', NOW(), NOW()
@@ -571,7 +592,7 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Razón social del importador'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos' AND t.importador_razon_social IS NOT NULL;
-	
+
 	-- 4.45 id_sub_grupo_alimenticio (inserta "" si no hay subgrupo)
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, COALESCE('"' || dest.id || '"', '""'), NOW(), NOW()
@@ -581,7 +602,7 @@
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'id_sub_grupo_alimenticio'
 	LEFT JOIN srs_sub_grupo_alimenticio dest ON dest.legacy_id = 'SGR-' || t.original_sub_id
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos';
-	
+
 	-- 4.46 id_pais_fabricacion (inserta "" si no hay país)
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, COALESCE('"' || dest.id || '"', '""'), NOW(), NOW()
@@ -591,7 +612,7 @@
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'id_pais_fabricacion'
 	LEFT JOIN paises dest ON dest.iso_number = t.original_pais_iso
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos';
-	
+
 	-- 4.47 id_clv (inserta "" si no hay CLV)
 	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 	SELECT gen_random_uuid(), r.id, f.id, COALESCE('"' || dest.id || '"', '""'), NOW(), NOW()
@@ -601,11 +622,11 @@
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'id_clv'
 	LEFT JOIN srs_certificado_libre_venta dest ON dest.legacy_id = 'CLV-' || t.original_clv_id
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos';
-	
+
 	-- =============================================================================
 	-- PASO 5: Verificación
 	-- =============================================================================
-	
+
 	-- Resumen
 	SELECT 'Registros migrados' as metrica, COUNT(DISTINCT r.id) as total
 	FROM expedient_base_registries r
@@ -617,7 +638,7 @@
 	JOIN expedient_base_registries r ON r.id = rf.expedient_base_registry_id
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos';
-	
+
 	-- Detalle por campo
 	SELECT f.name as campo, COUNT(rf.id) as registros_con_valor
 	FROM expedient_base_entity_fields f
@@ -626,14 +647,14 @@
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos'
 	GROUP BY f.name, f."order"
 	ORDER BY f."order";
-	
+
 	-- Muestra de datos
 	SELECT r.unique_code, r.name as producto, (r.metadata->>'original_id') as id_original
 	FROM expedient_base_registries r
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos'
 	LIMIT 5;
-	
+
 	-- =============================================================================
 	-- DECISIÓN FINAL
 	-- =============================================================================

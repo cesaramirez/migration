@@ -3,7 +3,7 @@
 -- =============================================================================
 -- Después de ejecutar, exportar el resultado como SQL/JSON desde TablePlus
 
-SELECT
+SELECT DISTINCT ON (p.id)
     p.id as original_id,
     TRIM(p.nombre) as nombre,
     CASE p.tipo_producto
@@ -112,7 +112,8 @@ LEFT JOIN ctl_pais pais_imp ON pais_imp.id = imp_aux.id_ctl_pais
 WHERE p.estado_registro = 1
   AND p.fecha_emision_registro IS NOT NULL
   AND p.fecha_vigencia_registro IS NOT NULL
-ORDER BY p.id;
+-- IMPORTANTE: Ordenar por fecha_emision de CLV DESC para que DISTINCT ON tome el más reciente
+ORDER BY p.id, clv.fecha_emision DESC NULLS LAST;
 
 -- =============================================================================
 -- NOTA: Los campos de archivos (ruta_archivo_*) se manejarán en una fase posterior
