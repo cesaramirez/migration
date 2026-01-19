@@ -1,4 +1,4 @@
-	-- =============================================================================
+		-- =============================================================================
 	-- PASO 2B: MIGRAR DESDE TABLA TEMPORAL (ejecutar en SDT DEV)
 	-- =============================================================================
 	-- Requiere: 01_create_temp_table.sql ejecutado y datos importados
@@ -142,8 +142,8 @@
 	    ('id_sub_grupo_alimenticio', 'TEXT', false, 45, '{"show_in_summary":false,"section":{"title":"Relaciones","order":8},"key":"id_sub_grupo_alimenticio","placeholder":"ID Subgrupo Alimenticio","maxLength":"50","buttonEnabled":false,"type":"text"}'),
 	    ('id_pais_fabricacion', 'TEXT', false, 46, '{"show_in_summary":false,"section":{"title":"Relaciones","order":8},"key":"id_pais_fabricacion","placeholder":"ID País Fabricación","maxLength":"50","buttonEnabled":false,"type":"text"}'),
 	    ('id_clv', 'TEXT', false, 47, '{"show_in_summary":false,"section":{"title":"Relaciones","order":8},"key":"id_clv","placeholder":"ID CLV","maxLength":"50","buttonEnabled":false,"type":"text"}'),
-	    ('Marcas', 'TEXT', false, 48, '{"show_in_summary":true,"section":{"title":"Relaciones","order":8},"key":"marcas","placeholder":"Marcas del producto","buttonEnabled":false,"type":"text"}'),
-	    ('Bodegas', 'TEXT', false, 49, '{"show_in_summary":true,"section":{"title":"Relaciones","order":8},"key":"bodegas","placeholder":"Bodegas asignadas","buttonEnabled":false,"type":"text"}')
+	    ('Marcas', 'MULTISELECT', false, 48, '{"key":"marcas","type":"select","section":{"order":8,"title":"Marcas"},"placeholder":"Selecciona las marcas","buttonEnabled":false,"options_root_table":"srs_marca","options_root_column":"nombre","options_root_source":"database","multipleSelection":true,"can_expand":false,"show_in_summary":true}'),
+	    ('Bodegas', 'MULTISELECT', false, 49, '{"key":"bodegas","type":"select","section":{"order":9,"title":"Bodegas"},"placeholder":"Selecciona las bodegas","buttonEnabled":false,"options_root_table":"srs_bodega","options_root_column":"nombre","options_root_source":"database","multipleSelection":true,"can_expand":false,"show_in_summary":true}')
 	) AS field(name, field_type, is_required, ord, config)
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos'
 	  AND NOT EXISTS (
@@ -623,6 +623,22 @@
 	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
 	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'id_clv'
 	LEFT JOIN srs_certificado_libre_venta dest ON dest.legacy_id = 'CLV-' || t.original_clv_id
+	WHERE e.name = 'T81 - Registro Sanitario Alimentos';
+
+	-- 4.48 Marcas (insertar vacío, las relaciones van en expedient_base_registry_relation)
+	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+	SELECT gen_random_uuid(), r.id, f.id, '""', NOW(), NOW()
+	FROM expedient_base_registries r
+	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Marcas'
+	WHERE e.name = 'T81 - Registro Sanitario Alimentos';
+
+	-- 4.49 Bodegas (insertar vacío, las relaciones van en expedient_base_registry_relation)
+	INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
+	SELECT gen_random_uuid(), r.id, f.id, '""', NOW(), NOW()
+	FROM expedient_base_registries r
+	JOIN expedient_base_entities e ON e.id = r.expedient_base_entity_id
+	JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = e.id AND f.name = 'Bodegas'
 	WHERE e.name = 'T81 - Registro Sanitario Alimentos';
 
 	-- =============================================================================

@@ -11,13 +11,13 @@ BEGIN;
 SELECT COUNT(*) as relaciones_a_eliminar
 FROM expedient_base_registry_relation
 WHERE reference_name = 'srs_marca'
-  AND relation_type = 'selected_option'
+  AND relation_type = 'field_value'
   AND source = 'data_center';
 
 -- 2. Eliminar relaciones de marcas
 DELETE FROM expedient_base_registry_relation
 WHERE reference_name = 'srs_marca'
-  AND relation_type = 'selected_option'
+  AND relation_type = 'field_value'
   AND source = 'data_center';
 
 -- 3. Verificación final (debe ser 0)

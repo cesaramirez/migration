@@ -1,98 +1,81 @@
 # DDL: srs_unidad_medida (Migración Cross-Database)
 
-Migración de `ctl_unidad_medida` (BD origen) → `srs_unidad_medida` (BD destino) via CSV.
+Migración de `ctl_unidad_medida` (SISAM) → `srs_unidad_medida` (Centro de Datos)
 
 ---
 
-## Paso 1: Crear Tabla en BD Destino
+## Paso 1: Crear Tabla en Centro de Datos
 
 ```sql
 DROP TABLE IF EXISTS srs_unidad_medida CASCADE;
 
 CREATE TABLE srs_unidad_medida (
-    id                        UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    nombre                    VARCHAR(100) NOT NULL,
-    simbolo                   VARCHAR(20) NOT NULL,
-    legacy_id                 VARCHAR(20) NOT NULL UNIQUE,
-    created_at                TIMESTAMP DEFAULT NOW(),
-    updated_at                TIMESTAMP DEFAULT NOW(),
-    deleted_at                TIMESTAMP
+    id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    nombre            TEXT NOT NULL,
+    simbolo           TEXT,
+    legacy_id         VARCHAR(30) NOT NULL UNIQUE,
+    activo            BOOLEAN DEFAULT true,
+    attributes        JSONB,
+    sys_migrated_at   TIMESTAMP DEFAULT NOW(),
+    created_at        TIMESTAMP DEFAULT NOW(),
+    updated_at        TIMESTAMP DEFAULT NOW(),
+    deleted_at        TIMESTAMP
 );
 
-CREATE INDEX idx_unidad_legacy ON srs_unidad_medida(legacy_id);
-CREATE INDEX idx_unidad_nombre ON srs_unidad_medida(nombre);
-CREATE INDEX idx_unidad_simbolo ON srs_unidad_medida(simbolo);
+CREATE INDEX idx_unidad_medida_legacy ON srs_unidad_medida(legacy_id);
+CREATE INDEX idx_unidad_medida_nombre ON srs_unidad_medida(nombre);
 ```
 
 ---
 
-## Paso 2: Exportar Datos (BD Origen → TablePlus)
+## Paso 2: Exportar de SISAM
 
 ```sql
+-- Ejecutar en SISAM
 SELECT
-    um.nombre,
-    um.simbolo,
-    CONCAT('UM-', um.id) AS legacy_id
-FROM ctl_unidad_medida um
-WHERE um.activo = TRUE;
+    nombre,
+    simbolo,
+    activo,
+    CONCAT('UM-', id) AS legacy_id
+FROM ctl_unidad_medida
+WHERE activo = true
+ORDER BY id;
 ```
 
-Guardar como: `/Users/heycsar/tmp/unidades_medida.csv`
+➡️ Exportar a: `/Users/heycsar/tmp/unidades_medida.csv`
 
 ---
 
-## Paso 3: Importar en BD Destino (Terminal)
-
-```bash
-psql -h HOST -U usuario -d base_datos_destino
-```
+## Paso 3: Importar en Centro de Datos
 
 ```sql
-\COPY srs_unidad_medida(nombre, simbolo, legacy_id) FROM '/Users/heycsar/tmp/unidades_medida.csv' WITH CSV HEADER;
+\COPY srs_unidad_medida(nombre, simbolo, activo, legacy_id)
+FROM '/Users/heycsar/tmp/unidades_medida.csv'
+WITH CSV HEADER;
 ```
 
 ---
 
-## Paso 4: Registrar en data_center_tables
+## Paso 4: Validar
 
 ```sql
-INSERT INTO data_center_tables (id, name, description, columns, deleted_at, created_at, updated_at)
-VALUES (
-    'f5a6b7c8-d9e0-4f1a-2b3c-4d5e6f7a8b9c',
-    'srs_unidad_medida',
-    'Catálogo de unidades de medida para presentaciones de productos',
-    '[{"id": "f1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c", "name": "id", "type": "UUID"}, {"id": "f2a3b4c5-d6e7-4f8a-9b0c-1d2e3f4a5b6c", "name": "nombre", "type": "STRING"}, {"id": "f3a4b5c6-d7e8-4f9a-0b1c-2d3e4f5a6b7c", "name": "simbolo", "type": "STRING"}, {"id": "f4a5b6c7-d8e9-4f0a-1b2c-3d4e5f6a7b8c", "name": "legacy_id", "type": "STRING"}, {"id": "f5a6b7c8-d9e0-4f1a-2b3c-4d5e6f7a8b9d", "name": "created_at", "type": "TIMESTAMP"}, {"id": "f6a7b8c9-d0e1-4f2a-3b4c-5d6e7f8a9b0d", "name": "updated_at", "type": "TIMESTAMP"}, {"id": "f7a8b9c0-d1e2-4f3a-4b5c-6d7e8f9a0b1d", "name": "deleted_at", "type": "TIMESTAMP"}]',
-    NULL,
-    NOW(),
-    NOW()
-);
+SELECT COUNT(*) as total FROM srs_unidad_medida;
+SELECT * FROM srs_unidad_medida ORDER BY legacy_id LIMIT 10;
 ```
 
 ---
 
-## Paso 5: Validar
-
-```sql
-SELECT COUNT(*) FROM srs_unidad_medida;
-SELECT * FROM srs_unidad_medida ORDER BY nombre;
-```
-
----
-
-## Resumen de Columnas (7 total)
+## Resumen de Columnas
 
 | Campo | Tipo | Origen |
 |-------|------|--------|
 | `id` | UUID | generado |
-| `nombre` | STRING | nombre |
-| `simbolo` | STRING | simbolo |
-| `legacy_id` | STRING | UM-{id} |
-| `created_at` | TIMESTAMP | generado |
-| `updated_at` | TIMESTAMP | generado |
+| `nombre` | TEXT | nombre |
+| `simbolo` | TEXT | simbolo |
+| `legacy_id` | VARCHAR(30) | UM-{id} |
+| `activo` | BOOLEAN | default true |
+| `attributes` | JSONB | - |
+| `sys_migrated_at` | TIMESTAMP | NOW() |
+| `created_at` | TIMESTAMP | NOW() |
+| `updated_at` | TIMESTAMP | NOW() |
 | `deleted_at` | TIMESTAMP | soft delete |
-
-## Campos Removidos
-
-- `codigo_regional`
-- `id_ctl_modulo`
-- `activo` (usado solo como filtro)
