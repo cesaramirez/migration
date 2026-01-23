@@ -513,7 +513,9 @@ FASE 3: RELACIONES                                       │
 | `00_export_from_sisam.sql` | `scripts/` | Extrae productos con JOINs | SISAM |
 | `00_setup_temp_catalogs.sql` | `scripts/` | Preparar catálogos temporales | Core |
 | `01_create_temp_table.sql` | `scripts/` | Crea tabla de staging | Core |
-| `02_migrate_from_temp.sql` | `scripts/` | Migra a expedient_base | Core |
+| `02_migrate_from_temp.sql` | `scripts/` | Migra a expedient_base (crea entidad) | Core |
+| `03_migrate_by_entity_uuid.sql` | `scripts/` | **NUEVO** Migra usando UUID de entidad existente | Core |
+| `03_rollback_by_entity_uuid.sql` | `scripts/` | **NUEVO** Rollback para migración por UUID | Core |
 | `05_migrate_bodega_relations.sql` | `scripts/` | Crea relaciones producto-bodega | Core |
 | `99_rollback_migration.sql` | `scripts/` | Rollback completo | Core |
 
@@ -524,7 +526,58 @@ FASE 3: RELACIONES                                       │
 | `Migrate All SRS Tables (Master Orchestrator)` | - | Orquesta migración de catálogos |
 | `Migrate SRS Table (Parametrized)` | `L5EXIfRXTrEXMkFz` | Ejecuta migración individual |
 
-### 7.3 Ejemplo: Query de Extracción Principal
+### 7.3 Migración Basada en UUID (Nuevo Enfoque)
+
+#### ¿Cuándo usar este tipo de migración?
+
+| Escenario | Script a usar |
+|-----------|---------------|
+| **Entidad creada localmente** (script la crea) | `02_migrate_from_temp.sql` |
+| **Entidad creada por otro equipo** (ya existe con UUID) | `03_migrate_by_entity_uuid.sql` |
+
+#### Diferencias Clave
+
+| Aspecto | Por Nombre | Por UUID |
+|---------|------------|----------|
+| Búsqueda de entidad | `WHERE e.name = 'T81 - ...'` | `WHERE e.id = 'af224c8b-...'::uuid` |
+| Crea entidad | ✅ Sí | ❌ No (ya existe) |
+| Crea campos | ✅ Sí | ❌ No (ya existen) |
+| Robustez | Depende del nombre exacto | Inmutable (UUID es fijo) |
+| Uso | Migraciones autónomas | Coordinación entre equipos |
+
+#### UUID de Referencia
+
+```
+Entidad: T81 - Registro Sanitario Alimentos
+UUID: af224c8b-ccdf-44ef-8e5d-58b8d7d70285
+Status: ACTIVE
+Version: 1
+```
+
+#### Validaciones Previas Obligatorias
+
+Antes de ejecutar `03_migrate_by_entity_uuid.sql`, verificar:
+
+```sql
+-- 1. Verificar que la entidad existe
+SELECT id, name, status FROM expedient_base_entities
+WHERE id = 'af224c8b-ccdf-44ef-8e5d-58b8d7d70285'::uuid;
+
+-- 2. Verificar campos disponibles (deben coincidir con la migración)
+SELECT f.name, f.field_type, f."order"
+FROM expedient_base_entity_fields f
+WHERE f.expedient_base_entity_id = 'af224c8b-ccdf-44ef-8e5d-58b8d7d70285'::uuid
+ORDER BY f."order";
+
+-- 3. Verificar que no hay conflictos de legacy_id
+SELECT COUNT(*) as legacy_ids_existentes
+FROM expedient_base_registries
+WHERE legacy_id LIKE 'PRD-%';
+```
+
+---
+
+### 7.4 Ejemplo: Query de Extracción Principal
 
 ```sql
 SELECT DISTINCT ON (p.id)
