@@ -1,21 +1,36 @@
 -- =============================================================================
--- ROLLBACK FASE 2: Relaciones Producto → Presentación
+-- ROLLBACK: Relaciones Producto → Presentación
 -- =============================================================================
--- Base de Datos: CORE
--- IMPORTANTE: Ajustar la fecha/hora al momento en que se ejecutó la migración
+-- Ejecutar en: CORE Database
+-- Elimina SOLO relaciones de productos migrados (legacy_id LIKE 'PRD-%')
+-- NO afecta relaciones creadas por la aplicación después de la migración
+-- =============================================================================
 
--- Ver relaciones actuales
-SELECT COUNT(*) as total_relaciones_actual
-FROM expedient_base_registry_relation
-WHERE reference_name = 'presentaciones_registro_sanitario';
+-- Vista previa de relaciones a eliminar
+SELECT COUNT(*) as total_a_eliminar
+FROM expedient_base_registry_relation rel
+JOIN expedient_base_registries r ON r.id = rel.expedient_base_registry_id
+WHERE rel.reference_name = 'presentaciones_registro_sanitario'
+  AND r.legacy_id LIKE 'PRD-%';  -- Solo productos migrados
 
--- Eliminar solo relaciones creadas después de cierta fecha
--- ⚠️ AJUSTAR LA FECHA/HORA según cuando ejecutaste el INSERT
+-- Ver relaciones que NO se eliminarán (creadas por app)
+SELECT COUNT(*) as relaciones_preservadas
+FROM expedient_base_registry_relation rel
+JOIN expedient_base_registries r ON r.id = rel.expedient_base_registry_id
+WHERE rel.reference_name = 'presentaciones_registro_sanitario'
+  AND (r.legacy_id IS NULL OR r.legacy_id NOT LIKE 'PRD-%');
+
+-- Eliminar relaciones de productos MIGRADOS solamente
 DELETE FROM expedient_base_registry_relation
-WHERE reference_name = 'presentaciones_registro_sanitario'
-  AND created_at >= '2026-01-18 23:00:00';  -- ⚠️ CAMBIAR ESTA FECHA
+WHERE id IN (
+    SELECT rel.id
+    FROM expedient_base_registry_relation rel
+    JOIN expedient_base_registries r ON r.id = rel.expedient_base_registry_id
+    WHERE rel.reference_name = 'presentaciones_registro_sanitario'
+      AND r.legacy_id LIKE 'PRD-%'
+);
 
 -- Verificar eliminación
-SELECT COUNT(*) as total_relaciones_despues_rollback
+SELECT COUNT(*) as total_despues_rollback
 FROM expedient_base_registry_relation
 WHERE reference_name = 'presentaciones_registro_sanitario';

@@ -2,15 +2,17 @@
 -- ROLLBACK: Presentaciones de Productos
 -- =============================================================================
 -- Ejecutar en: Centro de Datos Database
--- IMPORTANTE: Ajustar la fecha/hora al momento en que se ejecutó la migración
+-- Elimina registros migrados identificados por legacy_id
+-- =============================================================================
 
--- Ver registros actuales
-SELECT COUNT(*) as total_actual FROM presentaciones_registro_sanitario;
+-- Vista previa de registros a eliminar
+SELECT COUNT(*) as total_a_eliminar
+FROM presentaciones_registro_sanitario
+WHERE legacy_id LIKE 'PRES-%';
 
--- Eliminar solo registros creados después de cierta fecha
--- AJUSTAR LA FECHA/HORA según cuando ejecutaste el INSERT
+-- Eliminar registros migrados
 DELETE FROM presentaciones_registro_sanitario
-WHERE created_at >= '2026-01-18 18:00:00';  -- ⚠️ CAMBIAR ESTA FECHA
+WHERE legacy_id LIKE 'PRES-%';
 
 -- Verificar eliminación
 SELECT COUNT(*) as total_despues_rollback FROM presentaciones_registro_sanitario;

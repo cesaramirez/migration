@@ -58,8 +58,11 @@ CREATE TABLE migration_alim_producto_temp (
     importador_razon_social varchar(255),
     -- IDs de origen para relaciones
     original_sub_id integer,
-    original_pais_iso integer,
-    original_clv_id integer
+    original_clv_id integer,
+    -- Campos de cruce para PAISES (múltiples opciones)
+    original_pais_iso_number integer,        -- Cruce con paises.iso_number
+    original_pais_iso_2 varchar(2),          -- Cruce con paises.iso_2_code
+    original_pais_iso_3 varchar(3)           -- Cruce con paises.iso_3_code
 );
 
 -- =============================================================================

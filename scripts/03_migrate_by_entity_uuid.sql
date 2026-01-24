@@ -559,13 +559,16 @@ JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = r.expedient_
 LEFT JOIN srs_sub_grupo_alimenticio dest ON dest.legacy_id = 'SGR-' || t.original_sub_id
 WHERE r.expedient_base_entity_id = 'af224c8b-ccdf-44ef-8e5d-58b8d7d70285'::uuid;
 
--- 5.2 id_pais_fabricacion
+-- 5.2 id_pais_fabricacion (con fallback: iso_number → iso_2_code → iso_3_code)
 INSERT INTO expedient_base_registry_fields (id, expedient_base_registry_id, expedient_base_entity_field_id, value, created_at, updated_at)
 SELECT gen_random_uuid(), r.id, f.id, COALESCE('"' || dest.id || '"', '""'), NOW(), NOW()
 FROM migration_alim_producto_temp t
 JOIN expedient_base_registries r ON (r.metadata->>'original_id')::int = t.original_id
 JOIN expedient_base_entity_fields f ON f.expedient_base_entity_id = r.expedient_base_entity_id AND f.name = 'id_pais_fabricacion'
-LEFT JOIN paises dest ON dest.iso_number = t.original_pais_iso
+LEFT JOIN paises dest ON
+    dest.iso_number = t.original_pais_iso_number  -- Cruce principal por iso_number
+    OR dest.iso_2_code = t.original_pais_iso_2    -- Fallback por iso_2_code
+    OR dest.iso_3_code = t.original_pais_iso_3    -- Fallback por iso_3_code
 WHERE r.expedient_base_entity_id = 'af224c8b-ccdf-44ef-8e5d-58b8d7d70285'::uuid;
 
 -- 5.3 id_clv
