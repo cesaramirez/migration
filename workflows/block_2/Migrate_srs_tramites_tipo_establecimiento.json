@@ -1,0 +1,151 @@
+{
+  "name": "Migrate srs_tramites_tipo_establecimiento",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        100
+      ],
+      "id": "start-001",
+      "name": "Start"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "CREATE TABLE IF NOT EXISTS public.srs_tramites_tipo_establecimiento (\n  id integer NOT NULL PRIMARY KEY,\n  tipo character varying(255),\n  descripcion text,\n  form_id character varying(50),\n  tramite_abreviado character varying(50),\n  activo_cnr boolean,\n  legacy_id character varying(50) \n);\n\nCREATE UNIQUE INDEX IF NOT EXISTS pk_srs_tramites_tipo_establecimiento ON public.srs_tramites_tipo_establecimiento USING btree (id);\nCREATE INDEX IF NOT EXISTS idx_srs_tramites_tipo_establecimiento_legacy_id ON public.srs_tramites_tipo_establecimiento USING btree (legacy_id);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        220,
+        100
+      ],
+      "id": "create-table-tipo-establecimiento",
+      "name": "1. Create srs_tramites_tipo_establecimiento",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    establet_id as id,\n    establet_tipo as tipo,\n    establet_descripcion as descripcion,\n    form_id,\n    tramite_abreviado,\n    activo_cnr,\n    CONCAT('TIPO_EST-', establet_id) as legacy_id\nFROM\n    public.tipo_establecimiento;"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        440,
+        100
+      ],
+      "id": "extract-tipo-establecimiento",
+      "name": "2. Extract tipo_establecimiento",
+      "credentials": {
+        "postgres": {
+          "id": "FE5FZumu7wjrkwiJ",
+          "name": "Data Center Dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO public.srs_tramites_tipo_establecimiento (id, tipo, descripcion, form_id, tramite_abreviado, activo_cnr, legacy_id)\nVALUES \n{{ $json.id ? \"(\" + $json.id + \", \" + ($json.tipo ? \"'\" + $json.tipo.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.descripcion ? \"'\" + $json.descripcion.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.form_id ? \"'\" + $json.form_id.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.tramite_abreviado ? \"'\" + $json.tramite_abreviado.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.activo_cnr === null ? \"NULL\" : $json.activo_cnr) + \", '\" + $json.legacy_id + \"')\" : '' }}\nON CONFLICT (id) DO UPDATE SET\n    tipo = EXCLUDED.tipo,\n    descripcion = EXCLUDED.descripcion,\n    form_id = EXCLUDED.form_id,\n    tramite_abreviado = EXCLUDED.tramite_abreviado,\n    activo_cnr = EXCLUDED.activo_cnr;",
+        "options": {
+          "queryBatching": "transaction"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        660,
+        100
+      ],
+      "id": "insert-tipo-establecimiento",
+      "name": "3. Insert srs_tramites_tipo_establecimiento",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM data_center_tables WHERE name = 'srs_tramites_tipo_establecimiento';\n\nINSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nVALUES (\n    gen_random_uuid(),\n    'srs_tramites_tipo_establecimiento',\n    'Catálogo de tipos de establecimientos migrado desde tramites-srs',\n    '[{\"name\": \"id\", \"type\": \"INTEGER\"}, {\"name\": \"tipo\", \"type\": \"VARCHAR\"}, {\"name\": \"descripcion\", \"type\": \"TEXT\"}, {\"name\": \"legacy_id\", \"type\": \"VARCHAR\"}]'::jsonb,\n    NOW(), NOW()\n);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        880,
+        100
+      ],
+      "id": "register-tipo-establecimiento",
+      "name": "4. Register srs_tramites_tipo_establecimiento",
+      "credentials": {
+        "postgres": {
+          "id": "GD8QgKfRASwPpsel",
+          "name": "SDT"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "1. Create srs_tramites_tipo_establecimiento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Create srs_tramites_tipo_establecimiento": {
+      "main": [
+        [
+          {
+            "node": "2. Extract tipo_establecimiento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Extract tipo_establecimiento": {
+      "main": [
+        [
+          {
+            "node": "3. Insert srs_tramites_tipo_establecimiento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Insert srs_tramites_tipo_establecimiento": {
+      "main": [
+        [
+          {
+            "node": "4. Register srs_tramites_tipo_establecimiento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": []
+}
