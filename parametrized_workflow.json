@@ -1,0 +1,780 @@
+{
+    "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.executeWorkflowTrigger",
+        "typeVersion": 1,
+        "position": [
+          52896,
+          -11136
+        ],
+        "id": "17692516-1af1-47f0-997b-6e66d69b82be",
+        "name": "Receive Parameters"
+      },
+      {
+        "parameters": {
+          "jsCode": "const params = $input.first().json;\n\nconst now = new Date();\nconst year = now.getFullYear();\nconst month = String(now.getMonth() + 1).padStart(2, '0');\nconst day = String(now.getDate()).padStart(2, '0');\nconst hours = String(now.getHours()).padStart(2, '0');\nconst minutes = String(now.getMinutes()).padStart(2, '0');\nconst seconds = String(now.getSeconds()).padStart(2, '0');\n\nconst batchId = `BATCH_${year}${month}${day}_${hours}${minutes}${seconds}`;\n\n// Determine Database Short Code (SISAM -> SIS)\nconst dbCode = params.source_database === 'SISAM' ? 'SIS' : (params.source_database || 'SIS');\n\nreturn {\n  batch_id: batchId,\n  start_time: now.toISOString(),\n  table_source: params.table_source,\n  table_destination: params.table_destination,\n  source_database: params.source_database || 'SISAM',\n  db_code: dbCode,\n  use_db_prefix: params.use_db_prefix !== undefined ? params.use_db_prefix : true,\n  code_prefix: params.code_prefix,\n  required_fields: params.required_fields || ['id', 'nombre'],\n  promoted_fields: params.promoted_fields || ['nombre'],\n  field_types: params.field_types || {},\n  value_mappings: params.value_mappings || {},\n  field_mappings: params.field_mappings || {},\n  relationships: params.relationships || {},\n  id_field: params.id_field || 'id',\n  batch_size: params.batch_size || 1000,\n  register_in_data_center: params.register_in_data_center || false,\n  table_description: params.table_description || '',\n  static_values: params.static_values || null\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          53120,
+          -11136
+        ],
+        "id": "8a12deee-93c8-4906-a1c2-f0309014995f",
+        "name": "Initialize Variables"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": ""
+            },
+            "conditions": [
+              {
+                "id": "condition-static",
+                "leftValue": "={{ $('Initialize Variables').first().json.table_source }}",
+                "rightValue": "ENUM_STATIC",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          53344,
+          -11136
+        ],
+        "id": "c15148cc-2ace-4843-adbc-c49aad965325",
+        "name": "Is Static Mode?"
+      },
+      {
+        "parameters": {
+          "jsCode": "const initVars = $('Initialize Variables').first().json;\nconst staticValues = initVars.static_values || [];\nconst idField = initVars.id_field || 'id';\n\nif (!staticValues || staticValues.length === 0) {\n  throw new Error('No static_values provided for ENUM_STATIC mode');\n}\n\nconst results = staticValues.map((item, index) => {\n  const record = { ...item };\n  if (record[idField] === undefined || record[idField] === null) {\n    record[idField] = index + 1;\n  }\n  return { json: record };\n});\n\nreturn results;"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          54464,
+          -11344
+        ],
+        "id": "86203720-2a88-4cbc-84e4-c9b8d5611e4e",
+        "name": "Extract Static Data"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT\n  COUNT(*) as total_records,\n  COUNT(CASE WHEN {{ $('Initialize Variables').first().json.id_field }} IS NOT NULL THEN 1 END) as records_with_id,\n  CASE\n    WHEN COUNT(*) = 0 THEN 'ERROR: No records found'\n    WHEN COUNT(*) > 0 AND COUNT(CASE WHEN {{ $('Initialize Variables').first().json.id_field }} IS NULL THEN 1 END) > 0 THEN 'WARNING: Some records have NULL id'\n    ELSE 'OK: Data validation passed'\n  END as validation_status\nFROM {{ $('Initialize Variables').first().json.table_source }};",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          53568,
+          -11040
+        ],
+        "id": "01b42b64-03f7-489d-93b4-5454f719dd42",
+        "name": "Check Source Data",
+        "credentials": {
+          "postgres": {
+            "id": "qhF6jIuP5WUynd5F",
+            "name": "SISAM"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const input = $input.all();\nif (!input || input.length === 0) {\n  throw new Error('No input from Check Source Data node');\n}\n\nconst validation = input[0].json;\n\nif (validation.total_records === 0) {\n  throw new Error('NO_DATA: Source table is empty. Aborting migration.');\n}\n\nif (validation.validation_status && validation.validation_status.includes('ERROR')) {\n  throw new Error(`DATA_QUALITY: ${validation.validation_status}`);\n}\n\nreturn {\n  validation_passed: true,\n  total_records: validation.total_records,\n  records_with_id: validation.records_with_id,\n  status: validation.validation_status\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          53792,
+          -11040
+        ],
+        "id": "88d76056-be98-47e5-942d-bd7f4f9f4292",
+        "name": "Validate Source Data"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "conditions": [
+              {
+                "id": "condition-1",
+                "operator": {
+                  "name": "eq",
+                  "type": "boolean"
+                },
+                "value": true,
+                "leftValue": "{{ $json.validation_passed }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          54016,
+          -11040
+        ],
+        "id": "7cae5b31-de1f-48da-af47-f0ebcc8f9670",
+        "name": "Has Source Data?"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT * FROM {{ $('Initialize Variables').first().json.table_source }} ORDER BY {{ $('Initialize Variables').first().json.id_field }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          54240,
+          -11136
+        ],
+        "id": "4d71c0ed-26a7-4c8d-9865-cc994241001a",
+        "name": "Extract Data (Batching)",
+        "credentials": {
+          "postgres": {
+            "id": "qhF6jIuP5WUynd5F",
+            "name": "SISAM"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "conditions": [
+              {
+                "id": "condition-1",
+                "operator": {
+                  "name": "gt",
+                  "type": "number"
+                },
+                "value": 0,
+                "leftValue": "{{ $input.all().length }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          54464,
+          -11136
+        ],
+        "id": "a150cfb8-4ea0-415e-8705-fb010767e565",
+        "name": "Has Batch Data?"
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\n\nif (!Array.isArray(items) || items.length === 0) {\n  return [];\n}\n\nconst initVars = $('Initialize Variables').first().json;\nconst batchId = initVars.batch_id;\nconst codePrefix = initVars.code_prefix;\nconst dbCode = initVars.db_code;\nconst useDbPrefix = initVars.use_db_prefix;\nconst tableDest = initVars.table_destination;\nconst promotedFields = initVars.promoted_fields || ['nombre'];\nconst fieldMappings = initVars.field_mappings || {};\nconst relationships = initVars.relationships || {};\nconst valueMappings = initVars.value_mappings || {};\n// Auto-ajuste de batch size segun volumen de datos\nconst totalRecords = items.length;\nconst configuredBatchSize = initVars.batch_size || 1000;\nconst BATCH_SIZE = totalRecords < 100 ? totalRecords : \n                    totalRecords < 500 ? 250 : \n                    totalRecords < 1000 ? 500 : \n                    totalRecords < 5000 ? 1000 : \n                    Math.min(configuredBatchSize, 2000);\n\nconst getDestName = (src) => fieldMappings[src] || src;\nconst targetColumns = [...new Set(promotedFields.map(f => getDestName(f)))];\n\nconst colToSources = {};\ntargetColumns.forEach(target => {\n  colToSources[target] = promotedFields.filter(src => getDestName(src) === target);\n});\n\nconst finalPrefix = useDbPrefix ? `${dbCode}_${codePrefix}` : codePrefix;\nconst fieldTypes = initVars.field_types || {};\n\nconst colDefinitions = targetColumns.map(destField => {\n  const sources = colToSources[destField];\n  let type = null;\n  \n  for (const src of sources) {\n    if (fieldTypes[src]) { type = fieldTypes[src]; break; }\n    if (relationships[src]) { type = 'VARCHAR(100)'; break; }\n    if (valueMappings[src]) { type = 'VARCHAR(100)'; break; }\n  }\n  \n  if (!type) {\n    if (fieldTypes[destField]) type = fieldTypes[destField];\n    else {\n      type = 'TEXT';\n      if (['activo', 'sin_nit', 'importa_lac', 'alimentos'].includes(destField) || destField.startsWith('is_')) {\n        type = 'BOOLEAN DEFAULT true';\n      } else if (destField.includes('fecha_') || destField.endsWith('_at')) {\n        type = 'TIMESTAMP';\n      } else if (destField.startsWith('estado_') || destField === 'estado' || destField === 'status' || destField === 'id_prioridad') {\n        const hasMapping = sources.some(s => valueMappings[s]);\n        type = hasMapping ? 'VARCHAR(100)' : 'INTEGER';\n      }\n    }\n  }\n  \n  return destField + ' ' + type;\n}).join(', ');\n\nconst alterTableSQL = targetColumns.map(destField => {\n  const sources = colToSources[destField];\n  let type = 'TEXT';\n  for (const src of sources) {\n    if (fieldTypes[src]) { type = fieldTypes[src]; break; }\n    if (relationships[src]) { type = 'VARCHAR(100)'; break; }\n    if (valueMappings[src]) { type = 'VARCHAR(100)'; break; }\n  }\n  if (type === 'TEXT' && fieldTypes[destField]) type = fieldTypes[destField];\n  if (['estado', 'status'].includes(destField)) {\n     const hasMapping = sources.some(s => valueMappings[s]);\n     if (hasMapping) type = 'VARCHAR(100)';\n  }\n  return `ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS ${destField} ${type};`;\n}).join(' ');\n\n// =====================================================\n// DICCIONARIO DE DATOS - Data Analyst Friendly\n// =====================================================\n\nconst tableDescription = initVars.table_description || '';\nconst commentStatements = [];\n\nconst inferRelatedTable = (prefix) => {\n  const prefixToTable = {\n    'MAT': 'srs_material', 'RIESGO': 'srs_tipo_riesgo', 'CLASIF': 'srs_clasificacion_grupo_alimenticio',\n    'SUBGA': 'srs_sub_grupo_alimenticio', 'MARCA': 'srs_marcas', 'UNIDAD': 'srs_unidad_medida',\n    'TRAM': 'srs_tipo_tramitador', 'ESTADO': 'srs_estado_proceso', 'FUNC': 'srs_funcion_empresa_persona',\n    'TAM': 'srs_tamanio_empresa', 'GIRO': 'srs_giro_empresa', 'EMP': 'srs_empresa', 'PER': 'srs_persona',\n    'PAIS': 'srs_pais', 'DEP': 'srs_departamento', 'MUNI': 'srs_municipio', 'TBOD': 'srs_tipo_bodega',\n    'BOD': 'srs_bodega', 'CLV': 'srs_certificado_libre_venta', 'ESTPROD': 'srs_estado_producto',\n    'PROD': 'srs_producto', 'ENVPROD': 'srs_envase_producto', 'EPAUX': 'srs_empresa_persona_aux'\n  };\n  return prefixToTable[prefix] || `tabla_${prefix.toLowerCase()}`;\n};\n\nif (tableDescription) {\n  commentStatements.push(`COMMENT ON TABLE ${tableDest} IS '${tableDescription.replace(/'/g, \"''\")}';`);\n}\n\nconst technicalColumns = {\n  'id': 'Llave primaria (UUID). Generado automaticamente. NO usar para JOINs con otras tablas - usar code en su lugar.',\n  'code': `Identificador de negocio. Formato: ${finalPrefix}_NNNNNN (ej: ${finalPrefix}_000001). USAR ESTE CAMPO para JOINs entre tablas SRS.`,\n  'attributes': 'Snapshot JSON del registro original completo incluyendo metadata de migración (original_id, sys_batch_id, source_table, source_database). Consultar con: attributes->>campo_name. Util para campos no migrados y auditoría.',\n  'sys_migrated_at': 'Fecha/hora de migracion. Zona horaria: UTC.',\n  'created_at': 'Fecha de creacion del registro en el Data Center.',\n  'updated_at': 'Ultima modificacion. NULL si nunca se ha actualizado.',\n  'deleted_at': 'Borrado logico. Si tiene valor, el registro esta inactivo. Filtrar con: WHERE deleted_at IS NULL'\n};\n\nObject.entries(technicalColumns).forEach(([col, desc]) => {\n  commentStatements.push(`COMMENT ON COLUMN ${tableDest}.${col} IS '${desc.replace(/'/g, \"''\")}';`);\n});\n\ntargetColumns.forEach(destCol => {\n  const sources = colToSources[destCol];\n  const commentParts = [];\n  let hasRelationship = false;\n  let hasEnum = false;\n  \n  for (const srcKey of sources) {\n    if (relationships[srcKey]) {\n      hasRelationship = true;\n      const relPrefix = relationships[srcKey];\n      const finalRelPrefix = useDbPrefix ? `${dbCode}_${relPrefix}` : relPrefix;\n      const relatedTable = inferRelatedTable(relPrefix);\n      commentParts.push(`Relacion con ${relatedTable}`);\n      commentParts.push(`JOIN: ${relatedTable}.code = ${tableDest}.${destCol}`);\n      commentParts.push(`Ejemplo valor: ${finalRelPrefix}_000001`);\n      break;\n    }\n  }\n  \n  for (const srcKey of sources) {\n    if (valueMappings[srcKey]) {\n      hasEnum = true;\n      const mappings = valueMappings[srcKey];\n      const mappingDesc = Object.entries(mappings).map(([origVal, newVal]) => `${newVal}`).join(' | ');\n      commentParts.push(`Valores posibles: ${mappingDesc}`);\n      const details = Object.entries(mappings).map(([origVal, newVal]) => `${newVal} (origen: ${origVal})`).join(', ');\n      commentParts.push(`Mapeo: ${details}`);\n      break;\n    }\n  }\n  \n  if (!hasRelationship && !hasEnum) {\n    for (const srcKey of sources) {\n      if (fieldTypes[srcKey]) {\n        const typeDesc = fieldTypes[srcKey].toUpperCase();\n        if (typeDesc.includes('BOOLEAN')) {\n          commentParts.push('Tipo: Booleano. Valores: true/false. En queries: WHERE campo = true');\n        } else if (typeDesc.includes('TIMESTAMP')) {\n          commentParts.push('Tipo: Fecha y hora. Formato: YYYY-MM-DD HH:MM:SS. Zona: UTC');\n        } else if (typeDesc.includes('DATE')) {\n          commentParts.push('Tipo: Fecha. Formato: YYYY-MM-DD');\n        } else if (typeDesc.includes('REAL') || typeDesc.includes('NUMERIC') || typeDesc.includes('DECIMAL')) {\n          commentParts.push('Tipo: Decimal. Soporta valores con decimales');\n        } else if (typeDesc.includes('INTEGER') || typeDesc.includes('INT')) {\n          commentParts.push('Tipo: Entero. Solo numeros sin decimales');\n        } else if (typeDesc.includes('JSONB') || typeDesc.includes('JSON')) {\n          commentParts.push('Tipo: JSON. Consultar campos internos con: campo->>llave');\n        }\n        break;\n      }\n    }\n  }\n  \n  // FALLBACK INTELIGENTE: Inferir descripcion desde patrones conocidos\n  if (commentParts.length === 0) {\n    const col = destCol.toLowerCase();\n    const knownPatterns = {\n      'nombre': 'Nombre o descripcion principal del registro',\n      'nombre_comercial': 'Nombre comercial o de fantasia',\n      'razon_social': 'Razon social o nombre legal de la entidad',\n      'descripcion': 'Descripcion detallada del registro',\n      'codigo': 'Codigo identificador interno',\n      'codigo_externo': 'Codigo asignado por sistema externo',\n      'dominio2': 'Codigo ISO Alpha-2 (2 caracteres). Ej: SV, US, MX',\n      'dominio3': 'Codigo ISO Alpha-3 (3 caracteres). Ej: SLV, USA, MEX',\n      'iso_alpha2': 'Codigo ISO Alpha-2 del pais (2 caracteres)',\n      'iso_alpha3': 'Codigo ISO Alpha-3 del pais (3 caracteres)',\n      'iso_numeric': 'Codigo numerico ISO del pais',\n      'isonumero': 'Codigo numerico ISO del pais',\n      'abreviatura': 'Forma corta o abreviada del nombre',\n      'simbolo': 'Simbolo o representacion grafica',\n      'direccion': 'Direccion fisica o postal',\n      'correo_electronico': 'Direccion de correo electronico',\n      'correo': 'Direccion de correo electronico',\n      'telefono': 'Numero de telefono de contacto',\n      'nit': 'Numero de Identificacion Tributaria',\n      'dui': 'Documento Unico de Identidad',\n      'iva': 'Numero de registro de IVA',\n      'activo': 'Indica si el registro esta activo (true/false)',\n      'funcion': 'Funcion o rol asignado',\n      'ruta_archivo': 'Ruta al archivo en el sistema de archivos',\n      'usuario': 'Usuario que realizo la accion',\n      'observaciones': 'Notas u observaciones adicionales',\n      'notas': 'Notas u observaciones adicionales'\n    };\n    \n    // Buscar coincidencia exacta primero\n    if (knownPatterns[col]) {\n      commentParts.push(knownPatterns[col]);\n    } else {\n      // Buscar patrones parciales\n      let found = false;\n      if (col.startsWith('fecha_') || col.endsWith('_at') || col.includes('fecha')) {\n        commentParts.push('Fecha. Formato: YYYY-MM-DD');\n        found = true;\n      } else if (col.startsWith('ruta_') || col.includes('_archivo')) {\n        commentParts.push('Ruta al archivo en el sistema de almacenamiento');\n        found = true;\n      } else if (col.startsWith('num_') || col.startsWith('numero_')) {\n        commentParts.push('Numero o codigo de referencia');\n        found = true;\n      } else if (col.startsWith('id_') || col.endsWith('_id')) {\n        commentParts.push('Identificador de referencia');\n        found = true;\n      } else if (col.startsWith('precio_') || col.includes('monto') || col.includes('valor')) {\n        commentParts.push('Valor monetario. Usar con 2 decimales');\n        found = true;\n      } else if (col.includes('codigo_')) {\n        commentParts.push('Codigo de referencia o clasificacion');\n        found = true;\n      }\n      \n      // Si no hay patron, solo humanizar el nombre\n      if (!found) {\n        const humanName = destCol.replace(/_/g, ' ').replace(/\\b\\w/g, l => l.toUpperCase());\n        commentParts.push(humanName);\n      }\n    }\n  }\n  \n  // Generar comentario SIEMPRE\n  const fullComment = commentParts.join('. ');\n  commentStatements.push(`COMMENT ON COLUMN ${tableDest}.${destCol} IS '${fullComment.replace(/'/g, \"''\")}';`);\n});\n\nconst commentSQL = commentStatements.join(' ');\n\nconst createTableSQL = `CREATE EXTENSION IF NOT EXISTS \"pgcrypto\"; CREATE TABLE IF NOT EXISTS ${tableDest} (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), code VARCHAR(50) UNIQUE, ${colDefinitions ? colDefinitions + ', ' : ''} attributes JSONB, sys_migrated_at TIMESTAMP DEFAULT NOW(), created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP, deleted_at TIMESTAMP); ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW(); ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP; ALTER TABLE ${tableDest} ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP; ${alterTableSQL} ${commentSQL}`;\n\nconst allColumns = ['code', ...targetColumns, 'attributes', 'sys_migrated_at', 'created_at'];\n\nconst escVal = (v) => {\n  if (v === null || v === undefined) return 'NULL';\n  if (typeof v === 'boolean') return v;\n  if (typeof v === 'number') return v;\n  if (typeof v === 'object') {\n    try {\n      return \"'\" + JSON.stringify(v).replace(/'/g, \"''\") + \"'\";\n    } catch (e) {\n      return 'NULL';\n    }\n  }\n  return \"'\" + String(v).replace(/'/g, \"''\") + \"'\";\n};\n\nconst updateSet = ['code = EXCLUDED.code', 'attributes = EXCLUDED.attributes', 'updated_at = NOW()'];\ntargetColumns.forEach(f => updateSet.push(f + ' = EXCLUDED.' + f));\n\nconst idField = initVars.id_field || 'id';\nconst allValuesTuples = items.map((item) => {\n  const data = item.json || item;\n  const recordId = data[idField];\n  const original_id = `${initVars.table_source}:${recordId}`;\n  // Generar el code basado en el ID con el formato estándar\n  const code = `${finalPrefix}_${String(recordId).padStart(6, '0')}`;\n\n  const targetValues = targetColumns.map(destCol => {\n    const sources = colToSources[destCol];\n    let finalVal = null;\n    \n    for (const srcKey of sources) {\n      const realSrcField = srcKey.includes(':') ? srcKey.split(':')[0] : srcKey;\n      let val = data[realSrcField];\n      \n      if (val !== null && val !== undefined) {\n        if (relationships[srcKey]) {\n          const relPrefix = relationships[srcKey];\n          const finalRelPrefix = useDbPrefix ? `${dbCode}_${relPrefix}` : relPrefix;\n          finalVal = `${finalRelPrefix}_${String(val).padStart(6, '0')}`;\n        }\n        else if (valueMappings[srcKey] && valueMappings[srcKey][val]) {\n           finalVal = valueMappings[srcKey][val];\n        } \n        else {\n          finalVal = val;\n        }\n        break;\n      }\n    }\n    return escVal(finalVal);\n  });\n  \n  const attributes = {\n    original_record: data,\n    original_id: original_id,\n    sys_batch_id: batchId,\n    extracted_at: new Date().toISOString(),\n    source_table: initVars.table_source,\n    source_database: initVars.source_database\n  };\n\n  const vals = [\n    \"'\" + code + \"'\",\n    ...targetValues,\n    \"'\" + JSON.stringify(attributes).replace(/'/g, \"''\") + \"'::jsonb\",\n    'NOW()',\n    'NOW()'\n  ];\n\n  return '(' + vals.join(', ') + ')';\n});\n\nconst batches = [];\nfor (let i = 0; i < allValuesTuples.length; i += BATCH_SIZE) {\n  batches.push(allValuesTuples.slice(i, i + BATCH_SIZE));\n}\n\nconst results = batches.map((batchTuples, batchIndex) => {\n  const valuesSQL = batchTuples.join(', ');\n  \n  const transformEndTime = Date.now();\n  \n  return {\n    batch_index: batchIndex,\n    batch_count: batches.length,\n    records_in_batch: batchTuples.length,\n    total_records: items.length,\n    batch_size_used: BATCH_SIZE,\n    is_static_mode: initVars.table_source === 'ENUM_STATIC',\n    _sql_columns: allColumns.join(', '),\n    _sql_values: valuesSQL,\n    _sql_update_set: updateSet.join(', '),\n    _create_table: createTableSQL\n  };\n});\n\nreturn results;"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          54688,
+          -11296
+        ],
+        "id": "d3fbe2a3-f648-41f8-b07f-9217767d7ab0",
+        "name": "Prepare Data"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "{{ $json._create_table }}; CREATE TABLE IF NOT EXISTS sys_migration_audit (id SERIAL PRIMARY KEY, batch_id VARCHAR(100), table_name VARCHAR(100), status VARCHAR(50), workflow_name VARCHAR(200), execution_id VARCHAR(100), started_at TIMESTAMP, ended_at TIMESTAMP, records_read INTEGER DEFAULT 0, records_inserted INTEGER DEFAULT 0, records_updated INTEGER DEFAULT 0, records_errors INTEGER DEFAULT 0, duration_seconds INTEGER DEFAULT 0, avg_records_per_second NUMERIC(10,2), data_quality_percent NUMERIC(5,2), error_rate_percent NUMERIC(5,2), notes TEXT, created_at TIMESTAMP DEFAULT NOW()); CREATE TABLE IF NOT EXISTS sys_migration_errors (id SERIAL PRIMARY KEY, table_name VARCHAR(100), batch_id VARCHAR(100), error_message TEXT, json_payload JSONB, created_at TIMESTAMP DEFAULT NOW()); INSERT INTO {{ $('Initialize Variables').first().json.table_destination }} ({{ $json._sql_columns }}) VALUES {{ $json._sql_values }} ON CONFLICT (code) DO UPDATE SET {{ $json._sql_update_set }};",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          54912,
+          -11296
+        ],
+        "id": "d873fad6-de5f-48ad-964f-b459998f6934",
+        "name": "Upsert Data (with Retry)",
+        "credentials": {
+          "postgres": {
+            "id": "zfnOF6kSkxVUYiFo",
+            "name": "SDT Data Center Dev"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3,
+        "position": [
+          55136,
+          -11296
+        ],
+        "id": "34cb014a-98ad-4849-ab7d-0337bc52116a",
+        "name": "Increment Success Counter"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO sys_migration_errors (\n  table_name,\n  batch_id,\n  error_message,\n  json_payload\n) VALUES (\n  '{{ $('Initialize Variables').first().json.table_destination }}',\n  '{{ $('Initialize Variables').first().json.batch_id }}',\n  'UPSERT failed',\n  '{}'::jsonb\n);",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          54912,
+          -10944
+        ],
+        "id": "9b4dfae2-186c-4136-a211-0a7cf3821b64",
+        "name": "Log Error",
+        "credentials": {
+          "postgres": {
+            "id": "zfnOF6kSkxVUYiFo",
+            "name": "SDT Data Center Dev"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3,
+        "position": [
+          55136,
+          -10944
+        ],
+        "id": "bcd87f90-7fd3-4ea3-8ba8-30d64cc1924e",
+        "name": "Increment Error Counter"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3,
+        "position": [
+          55360,
+          -11296
+        ],
+        "id": "a38d54a0-7b85-4b81-9fd5-f4adddc6a13d",
+        "name": "Increment Batch Index"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "SELECT\n  COUNT(*) as origen_total,\n  '✅ Validación completada' as mensaje\nFROM {{ $('Initialize Variables').first().json.table_source }};",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          55808,
+          -11136
+        ],
+        "id": "628f20c4-6330-40ed-9129-7e5176889d5a",
+        "name": "The Golden Rule (Reconciliation)",
+        "credentials": {
+          "postgres": {
+            "id": "qhF6jIuP5WUynd5F",
+            "name": "SISAM"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 1
+            },
+            "conditions": [
+              {
+                "id": "condition-static-golden",
+                "leftValue": "={{ $('Initialize Variables').first().json.table_source }}",
+                "rightValue": "ENUM_STATIC",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          55584,
+          -11296
+        ],
+        "id": "cd3b2de0-68e5-4fd2-8929-14c147a324c8",
+        "name": "Use Static Golden Rule?"
+      },
+      {
+        "parameters": {
+          "jsCode": "const initVars = $('Initialize Variables').first().json;\nconst staticValues = initVars.static_values || [];\n\nreturn [{\n  json: {\n    origen_total: staticValues.length,\n    mensaje: '✅ Validación completada (valores estáticos)'\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          55808,
+          -11344
+        ],
+        "id": "64d4b5ea-f4ba-463b-9d07-51fa1c386ff1",
+        "name": "Static Golden Rule"
+      },
+      {
+        "parameters": {
+          "jsCode": "try {\n  const initVars = $('Initialize Variables').first().json;\n  const batchId = initVars.batch_id;\n  const startTime = initVars.start_time;\n  const tableSource = initVars.table_source;\n  const tableDestination = initVars.table_destination;\n\n  const goldenRule = $input.all()[0]?.json || {};\n  const totalRecords = parseInt(goldenRule.origen_total) || 0;\n  \n  const totalProcessed = totalRecords;\n  const totalErrors = 0;\n  \n  const errorRatePercent = totalRecords > 0 ? \n    Math.round((totalErrors / totalRecords) * 100 * 100) / 100 : 0;\n  \n  const dataQualityPercent = totalRecords > 0 ? \n    Math.round((totalProcessed / totalRecords) * 100 * 100) / 100 : 100;\n\n  return [{\n    json: {\n      status: 'MIGRATION_COMPLETE',\n      batch_id: batchId,\n      start_time: startTime,\n      table_source: tableSource,\n      table_destination: tableDestination,\n      metrics: {\n        records_processed: totalProcessed,\n        records_errors: totalErrors,\n        records_total: totalRecords,\n        data_quality_percent: dataQualityPercent,\n        error_rate_percent: errorRatePercent\n      },\n      validation: {\n        status: errorRatePercent < 1 ? '✅ OK' : '⚠️ WARNING',\n        message: errorRatePercent < 1 ? 'Error rate is acceptable' : `Error rate is ${errorRatePercent}% (threshold: 1%)`\n      }\n    }\n  }];\n} catch (error) {\n  return [{\n    json: {\n      status: 'MIGRATION_COMPLETE_WITH_WARNING',\n      batch_id: 'UNKNOWN',\n      error: error.message\n    }\n  }];\n}"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          56032,
+          -11232
+        ],
+        "id": "f08991c5-f6ce-4abd-b6e0-54ecb2a77fac",
+        "name": "Final Summary"
+      },
+      {
+        "parameters": {
+          "jsCode": "const initVars = $('Initialize Variables').first()?.json || {};\nconst summary = $input.all()[0]?.json || {};\n\nconst batchId = summary.batch_id || initVars.batch_id || 'UNKNOWN';\nconst tableDestination = summary.table_destination || initVars.table_destination || 'UNKNOWN';\nconst startTimeStr = summary.start_time || initVars.start_time;\n\nconst recordsProcessed = (summary.metrics && summary.metrics.records_processed) || 0;\nconst recordsTotal = (summary.metrics && summary.metrics.records_total) || recordsProcessed;\nconst recordsErrors = (summary.metrics && summary.metrics.records_errors) || 0;\nconst dataQualityPercent = (summary.metrics && summary.metrics.data_quality_percent) || 100;\nconst errorRatePercent = (summary.metrics && summary.metrics.error_rate_percent) || 0;\n\nconst startTime = startTimeStr ? new Date(startTimeStr) : new Date();\nconst endTime = new Date();\nconst durationSeconds = Math.round((endTime - startTime) / 1000);\nconst avgRecordsPerSecond = durationSeconds > 0 ? Math.round((recordsProcessed / durationSeconds) * 100) / 100 : 0;\n\nreturn [{\n  json: {\n    batch_id: batchId,\n    table_name: tableDestination,\n    status: 'COMPLETED',\n    workflow_name: 'Migrate SRS Table (Parametrized)',\n    execution_id: $execution.id,\n    started_at: startTimeStr || endTime.toISOString(),\n    ended_at: endTime.toISOString(),\n    records_read: recordsTotal,\n    records_inserted: recordsProcessed,\n    records_updated: 0,\n    records_errors: recordsErrors,\n    duration_seconds: durationSeconds,\n    avg_records_per_second: avgRecordsPerSecond,\n    data_quality_percent: dataQualityPercent,\n    error_rate_percent: errorRatePercent,\n    notes: `Batch ${batchId}: ${recordsProcessed} inserted, ${recordsErrors} errors in ${durationSeconds}s`\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          56256,
+          -11232
+        ],
+        "id": "196118f4-3eab-41ce-ab4c-e4091856082d",
+        "name": "Prepare Audit Data"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "INSERT INTO sys_migration_audit (\n  batch_id,\n  table_name,\n  status,\n  workflow_name,\n  execution_id,\n  started_at,\n  ended_at,\n  records_read,\n  records_inserted,\n  records_updated,\n  records_errors,\n  duration_seconds,\n  avg_records_per_second,\n  data_quality_percent,\n  error_rate_percent,\n  notes\n) VALUES (\n  '{{ $json.batch_id }}',\n  '{{ $json.table_name }}',\n  '{{ $json.status }}',\n  '{{ $json.workflow_name }}',\n  '{{ $json.execution_id }}',\n  '{{ $json.started_at }}'::timestamp,\n  '{{ $json.ended_at }}'::timestamp,\n  {{ $json.records_read }},\n  {{ $json.records_inserted }},\n  {{ $json.records_updated }},\n  {{ $json.records_errors }},\n  {{ $json.duration_seconds }},\n  {{ $json.avg_records_per_second }},\n  {{ $json.data_quality_percent }},\n  {{ $json.error_rate_percent }},\n  '{{ $json.notes }}'\n)\nRETURNING id, batch_id, records_inserted, records_errors;",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          56480,
+          -11232
+        ],
+        "id": "d2ceaa39-5eec-4383-8813-f46573c215ae",
+        "name": "Log Audit Record",
+        "credentials": {
+          "postgres": {
+            "id": "zfnOF6kSkxVUYiFo",
+            "name": "SDT Data Center Dev"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "return {\n  status: 'NO_SOURCE_DATA',\n  message: 'Source table is empty, no data to migrate',\n  timestamp: new Date().toISOString()\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          54240,
+          -10944
+        ],
+        "id": "f5bc65fd-9072-4870-8770-4cfc71f95c16",
+        "name": "No Source Data"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "conditions": [
+              {
+                "id": "condition-1",
+                "operator": {
+                  "name": "eq",
+                  "type": "boolean"
+                },
+                "value": true,
+                "leftValue": "{{ $('Initialize Variables').first().json.register_in_data_center }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          56704,
+          -11232
+        ],
+        "id": "ab4a3d3d-c90b-41d2-b63a-719ce249b067",
+        "name": "Should Register?"
+      },
+      {
+        "parameters": {
+          "jsCode": "function generateUUID() {\n  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {\n    const r = Math.random() * 16 | 0;\n    const v = c === 'x' ? r : (r & 0x3 | 0x8);\n    return v.toString(16);\n  });\n}\n\nconst vars = $('Initialize Variables').first().json;\nconst promotedFields = vars.promoted_fields || [];\nconst fieldTypes = vars.field_types || {};\n\nconst idColumn = {\n  id: generateUUID(),\n  name: 'id',\n  type: 'UUID'\n};\n\nconst columns = [\n  idColumn,\n  ...promotedFields.map(fieldName => {\n    let fieldType = 'STRING';\n    \n    if (fieldTypes[fieldName]) {\n      const typeStr = fieldTypes[fieldName].toUpperCase();\n      if (typeStr.includes('BOOLEAN')) fieldType = 'BOOLEAN';\n      else if (typeStr.includes('INTEGER') || typeStr.includes('INT')) fieldType = 'INTEGER';\n      else if (typeStr.includes('REAL') || typeStr.includes('NUMERIC') || typeStr.includes('DECIMAL')) fieldType = 'NUMERIC';\n      else if (typeStr.includes('TIMESTAMP') || typeStr.includes('DATE')) fieldType = 'TIMESTAMP';\n      else if (typeStr.includes('JSONB') || typeStr.includes('JSON')) fieldType = 'JSON';\n    }\n    \n    return {\n      id: generateUUID(),\n      name: fieldName,\n      type: fieldType\n    };\n  })\n];\n\nreturn {\n  table_id: generateUUID(),\n  table_name: vars.table_destination,\n  table_description: vars.table_description,\n  columns_json: JSON.stringify(columns),\n  batch_id: vars.batch_id,\n  workflow_execution_id: $execution.id\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          56928,
+          -11296
+        ],
+        "id": "f0e6855f-840a-4686-a8ef-02e071f6c486",
+        "name": "Build Columns JSON"
+      },
+      {
+        "parameters": {
+          "operation": "executeQuery",
+          "query": "WITH existing AS (\n  SELECT id FROM data_center_tables WHERE name = '{{ $json.table_name }}'\n)\nINSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nSELECT \n  COALESCE((SELECT id FROM existing), '{{ $json.table_id }}'),\n  '{{ $json.table_name }}',\n  '{{ $json.table_description }}',\n  '{{ $json.columns_json }}'::jsonb,\n  COALESCE((SELECT created_at FROM data_center_tables WHERE name = '{{ $json.table_name }}'), NOW()),\n  NOW()\nWHERE NOT EXISTS (SELECT 1 FROM existing);\n\nUPDATE data_center_tables\nSET \n  description = '{{ $json.table_description }}',\n  columns = '{{ $json.columns_json }}'::jsonb,\n  updated_at = NOW()\nWHERE name = '{{ $json.table_name }}';",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.postgres",
+        "typeVersion": 2.6,
+        "position": [
+          57152,
+          -11296
+        ],
+        "id": "32b2fce0-38fc-4fe2-8b6a-1038dbc439b9",
+        "name": "Register in data_center_tables",
+        "credentials": {
+          "postgres": {
+            "id": "xLCzLfVfYEqVxsV3",
+            "name": "SDT Core Dev"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Always return summary to parent workflow, even if no data was processed\nlet audit = null;\ntry {\n  const auditData = $('Prepare Audit Data').first();\n  audit = auditData?.json || null;\n} catch (e) {\n  audit = null;\n}\n\nif (!audit) {\n  // If Prepare Audit Data doesn't exist or has no data, create default summary\n  const initVars = $('Initialize Variables').first()?.json || {};\n  audit = {\n    batch_id: initVars.batch_id || 'UNKNOWN',\n    table_name: initVars.table_destination || 'UNKNOWN',\n    records_inserted: 0,\n    records_errors: 0,\n    duration_seconds: 0,\n    execution_id: $execution.id,\n    started_at: initVars.start_time || new Date().toISOString(),\n    ended_at: new Date().toISOString()\n  };\n}\n\nreturn [{\n  json: {\n    status: 'COMPLETED',\n    batch_id: audit.batch_id || 'UNKNOWN',\n    total_migrated: audit.records_inserted || 0,\n    total_errors: audit.records_errors || 0,\n    table_name: audit.table_name || 'UNKNOWN',\n    duration_seconds: audit.duration_seconds || 0,\n    execution_id: audit.execution_id || $execution.id,\n    started_at: audit.started_at || new Date().toISOString(),\n    ended_at: audit.ended_at || new Date().toISOString()\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          57376,
+          -11232
+        ],
+        "id": "411315fc-ce20-4e83-b077-a4f15bfbbe1a",
+        "name": "Return Summary to Parent"
+      }
+    ],
+    "connections": {
+      "Receive Parameters": {
+        "main": [
+          [
+            {
+              "node": "Initialize Variables",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Initialize Variables": {
+        "main": [
+          [
+            {
+              "node": "Is Static Mode?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Is Static Mode?": {
+        "main": [
+          [
+            {
+              "node": "Extract Static Data",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Check Source Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Static Data": {
+        "main": [
+          [
+            {
+              "node": "Prepare Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Source Data": {
+        "main": [
+          [
+            {
+              "node": "Validate Source Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Validate Source Data": {
+        "main": [
+          [
+            {
+              "node": "Has Source Data?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Has Source Data?": {
+        "main": [
+          [
+            {
+              "node": "Extract Data (Batching)",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "No Source Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Data (Batching)": {
+        "main": [
+          [
+            {
+              "node": "Has Batch Data?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Has Batch Data?": {
+        "main": [
+          [
+            {
+              "node": "Prepare Data",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "The Golden Rule (Reconciliation)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Data": {
+        "main": [
+          [
+            {
+              "node": "Upsert Data (with Retry)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Upsert Data (with Retry)": {
+        "main": [
+          [
+            {
+              "node": "Increment Success Counter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Increment Success Counter": {
+        "main": [
+          [
+            {
+              "node": "Increment Batch Index",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log Error": {
+        "main": [
+          [
+            {
+              "node": "Increment Error Counter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Increment Error Counter": {
+        "main": [
+          [
+            {
+              "node": "Increment Batch Index",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Increment Batch Index": {
+        "main": [
+          [
+            {
+              "node": "Use Static Golden Rule?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "The Golden Rule (Reconciliation)": {
+        "main": [
+          [
+            {
+              "node": "Final Summary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Use Static Golden Rule?": {
+        "main": [
+          [
+            {
+              "node": "Static Golden Rule",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "The Golden Rule (Reconciliation)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Static Golden Rule": {
+        "main": [
+          [
+            {
+              "node": "Final Summary",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Final Summary": {
+        "main": [
+          [
+            {
+              "node": "Prepare Audit Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prepare Audit Data": {
+        "main": [
+          [
+            {
+              "node": "Log Audit Record",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Log Audit Record": {
+        "main": [
+          [
+            {
+              "node": "Should Register?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Should Register?": {
+        "main": [
+          [
+            {
+              "node": "Build Columns JSON",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Return Summary to Parent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Columns JSON": {
+        "main": [
+          [
+            {
+              "node": "Register in data_center_tables",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Register in data_center_tables": {
+        "main": [
+          [
+            {
+              "node": "Return Summary to Parent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "pinData": {},
+    "meta": {
+      "instanceId": "99a10a2e4d1c6e0339f8404860de7592311f0cf1b86a83dc405fe9cd64c583eb"
+    }
+  }

@@ -1,0 +1,710 @@
+{
+  "name": "Data Center Migration",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        100
+      ],
+      "id": "start-001",
+      "name": "Start"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DROP TABLE IF EXISTS srs_marca CASCADE;\n\nCREATE TABLE srs_marca (\n    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    nombre      TEXT NOT NULL,\n    legacy_id   VARCHAR(20) NOT NULL UNIQUE,\n    created_at  TIMESTAMP DEFAULT now(),\n    updated_at  TIMESTAMP DEFAULT now(),\n    deleted_at  TIMESTAMP\n);\n\nCREATE INDEX idx_srs_marca_legacy ON srs_marca(legacy_id);\nCREATE INDEX idx_srs_marca_nombre ON srs_marca(nombre);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        220,
+        0
+      ],
+      "id": "create-table-001",
+      "name": "1. Create srs_marca",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, nombre, legacy_id, created_at, updated_at, deleted_at FROM srs_marca ORDER BY id;"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        440,
+        0
+      ],
+      "id": "extract-001",
+      "name": "2. Extract srs_marca",
+      "credentials": {
+        "postgres": {
+          "id": "FE5FZumu7wjrkwiJ",
+          "name": "Data Center Dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO srs_marca (id, nombre, legacy_id, created_at, updated_at, deleted_at)\nVALUES \n{{ $json.id ? \"('\" + $json.id + \"', '\" + ($json.nombre || '').replace(/'/g, \"''\") + \"', '\" + ($json.legacy_id || '') + \"', \" + ($json.created_at ? \"'\" + $json.created_at + \"'\" : \"NOW()\") + \", \" + ($json.updated_at ? \"'\" + $json.updated_at + \"'\" : \"NULL\") + \", \" + ($json.deleted_at ? \"'\" + $json.deleted_at + \"'\" : \"NULL\") + \")\" : '' }}\nON CONFLICT (legacy_id) DO UPDATE SET\n    nombre = EXCLUDED.nombre,\n    updated_at = NOW();",
+        "options": {
+          "queryBatching": "transaction"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        660,
+        0
+      ],
+      "id": "insert-001",
+      "name": "3. Insert srs_marca",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM data_center_tables WHERE name = 'srs_marca';\n\nINSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nVALUES (\n    gen_random_uuid(),\n    'srs_marca',\n    'Catálogo de marcas comerciales de productos alimenticios',\n    '[{\"name\": \"id\", \"type\": \"UUID\"}, {\"name\": \"nombre\", \"type\": \"TEXT\"}, {\"name\": \"legacy_id\", \"type\": \"VARCHAR(20)\"}, {\"name\": \"created_at\", \"type\": \"TIMESTAMP\"}, {\"name\": \"updated_at\", \"type\": \"TIMESTAMP\"}, {\"name\": \"deleted_at\", \"type\": \"TIMESTAMP\"}]'::jsonb,\n    NOW(),\n    NOW()\n);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        880,
+        0
+      ],
+      "id": "register-001",
+      "name": "4. Register srs_marca",
+      "credentials": {
+        "postgres": {
+          "id": "GD8QgKfRASwPpsel",
+          "name": "SDT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DROP TABLE IF EXISTS srs_bodega CASCADE;\n\nCREATE TABLE srs_bodega (\n    id                    UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    codigo_bodega         VARCHAR(15) NOT NULL,\n    nombre                VARCHAR(100) NOT NULL,\n    estado                VARCHAR(20) NOT NULL,\n    direccion             VARCHAR(300) NOT NULL,\n    municipio             VARCHAR(100) NOT NULL,\n    departamento          VARCHAR(100),\n    tipo_bodega           VARCHAR(100),\n    tipo_establecimiento  VARCHAR(20) NOT NULL,\n    legacy_id             VARCHAR(20) NOT NULL UNIQUE,\n    created_at            TIMESTAMP DEFAULT now(),\n    updated_at            TIMESTAMP DEFAULT now(),\n    deleted_at            TIMESTAMP\n);\n\nCREATE INDEX idx_srs_bodega_legacy ON srs_bodega(legacy_id);\nCREATE INDEX idx_srs_bodega_codigo ON srs_bodega(codigo_bodega);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        220,
+        200
+      ],
+      "id": "create-table-002",
+      "name": "5. Create srs_bodega",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, codigo_bodega, nombre, estado, direccion, municipio, departamento, tipo_bodega, tipo_establecimiento, legacy_id, created_at, updated_at, deleted_at FROM srs_bodega ORDER BY id;"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        440,
+        200
+      ],
+      "id": "extract-002",
+      "name": "6. Extract srs_bodega",
+      "credentials": {
+        "postgres": {
+          "id": "FE5FZumu7wjrkwiJ",
+          "name": "Data Center Dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO srs_bodega (id, codigo_bodega, nombre, estado, direccion, municipio, departamento, tipo_bodega, tipo_establecimiento, legacy_id, created_at, updated_at, deleted_at)\nVALUES \n{{ $json.id ? \"('\" + $json.id + \"', '\" + ($json.codigo_bodega || '').replace(/'/g, \"''\") + \"', '\" + ($json.nombre || '').replace(/'/g, \"''\") + \"', '\" + ($json.estado || '').replace(/'/g, \"''\") + \"', '\" + ($json.direccion || '').replace(/'/g, \"''\") + \"', '\" + ($json.municipio || '').replace(/'/g, \"''\") + \"', \" + ($json.departamento ? \"'\" + $json.departamento.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.tipo_bodega ? \"'\" + $json.tipo_bodega.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", '\" + ($json.tipo_establecimiento || '').replace(/'/g, \"''\") + \"', '\" + ($json.legacy_id || '') + \"', \" + ($json.created_at ? \"'\" + $json.created_at + \"'\" : \"NOW()\") + \", \" + ($json.updated_at ? \"'\" + $json.updated_at + \"'\" : \"NULL\") + \", \" + ($json.deleted_at ? \"'\" + $json.deleted_at + \"'\" : \"NULL\") + \")\" : '' }}\nON CONFLICT (legacy_id) DO UPDATE SET\n    nombre = EXCLUDED.nombre,\n    estado = EXCLUDED.estado,\n    direccion = EXCLUDED.direccion,\n    updated_at = NOW();",
+        "options": {
+          "queryBatching": "transaction"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        660,
+        200
+      ],
+      "id": "insert-002",
+      "name": "7. Insert srs_bodega",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM data_center_tables WHERE name = 'srs_bodega';\n\nINSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nVALUES (\n    gen_random_uuid(),\n    'srs_bodega',\n    'Bodegas y establecimientos de almacenamiento',\n    '[{\"name\": \"id\", \"type\": \"UUID\"}, {\"name\": \"codigo_bodega\", \"type\": \"VARCHAR(15)\"}, {\"name\": \"nombre\", \"type\": \"VARCHAR(100)\"}, {\"name\": \"estado\", \"type\": \"VARCHAR(20)\"}, {\"name\": \"direccion\", \"type\": \"VARCHAR(300)\"}, {\"name\": \"municipio\", \"type\": \"VARCHAR(100)\"}, {\"name\": \"departamento\", \"type\": \"VARCHAR(100)\"}, {\"name\": \"tipo_bodega\", \"type\": \"VARCHAR(100)\"}, {\"name\": \"tipo_establecimiento\", \"type\": \"VARCHAR(20)\"}, {\"name\": \"legacy_id\", \"type\": \"VARCHAR(20)\"}, {\"name\": \"created_at\", \"type\": \"TIMESTAMP\"}, {\"name\": \"updated_at\", \"type\": \"TIMESTAMP\"}, {\"name\": \"deleted_at\", \"type\": \"TIMESTAMP\"}]'::jsonb,\n    NOW(),\n    NOW()\n);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        880,
+        200
+      ],
+      "id": "register-002",
+      "name": "8. Register srs_bodega",
+      "credentials": {
+        "postgres": {
+          "id": "GD8QgKfRASwPpsel",
+          "name": "SDT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DROP TABLE IF EXISTS alim_producto CASCADE;\n\nCREATE TABLE alim_producto (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    nombre VARCHAR(600) NOT NULL,\n    tipo_producto INTEGER NOT NULL,\n    num_partida_arancelaria VARCHAR(14),\n    fecha_emision_registro DATE,\n    fecha_vigencia_registro DATE,\n    num_autorizacion_reconocimiento VARCHAR(100),\n    num_registro_sanitario VARCHAR(15),\n    num_certificacion VARCHAR(100),\n    estado_registro INTEGER NOT NULL,\n    id_ctl_estado_producto INTEGER,\n    pais VARCHAR(100),\n    sub_grupo_alimenticio VARCHAR(200),\n    tipo_de_laboratorio INTEGER NOT NULL DEFAULT 1,\n    legacy_id VARCHAR(20) NOT NULL UNIQUE,\n    created_at TIMESTAMP DEFAULT now(),\n    updated_at TIMESTAMP DEFAULT now(),\n    deleted_at TIMESTAMP\n);\n\nCREATE INDEX idx_alim_producto_legacy ON alim_producto(legacy_id);\nCREATE INDEX idx_alim_producto_registro ON alim_producto(num_registro_sanitario);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        220,
+        400
+      ],
+      "id": "create-table-003",
+      "name": "10. Create alim_producto",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, nombre, tipo_producto, num_partida_arancelaria, fecha_emision_registro, fecha_vigencia_registro, num_autorizacion_reconocimiento, num_registro_sanitario, num_certificacion, estado_registro, id_ctl_estado_producto, pais, sub_grupo_alimenticio, tipo_de_laboratorio, legacy_id, created_at, updated_at, deleted_at FROM alim_producto ORDER BY id;"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        440,
+        400
+      ],
+      "id": "extract-003",
+      "name": "11. Extract alim_producto",
+      "credentials": {
+        "postgres": {
+          "id": "FE5FZumu7wjrkwiJ",
+          "name": "Data Center Dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO alim_producto (id, nombre, tipo_producto, num_partida_arancelaria, fecha_emision_registro, fecha_vigencia_registro, num_autorizacion_reconocimiento, num_registro_sanitario, num_certificacion, estado_registro, id_ctl_estado_producto, pais, sub_grupo_alimenticio, tipo_de_laboratorio, legacy_id, created_at, updated_at, deleted_at)\nVALUES \n{{ $json.id ? \"('\" + $json.id + \"', '\" + ($json.nombre || '').replace(/'/g, \"''\") + \"', \" + $json.tipo_producto + \", \" + ($json.num_partida_arancelaria ? \"'\" + $json.num_partida_arancelaria + \"'\" : \"NULL\") + \", \" + ($json.fecha_emision_registro ? \"'\" + $json.fecha_emision_registro + \"'\" : \"NULL\") + \", \" + ($json.fecha_vigencia_registro ? \"'\" + $json.fecha_vigencia_registro + \"'\" : \"NULL\") + \", \" + ($json.num_autorizacion_reconocimiento ? \"'\" + $json.num_autorizacion_reconocimiento.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.num_registro_sanitario ? \"'\" + $json.num_registro_sanitario + \"'\" : \"NULL\") + \", \" + ($json.num_certificacion ? \"'\" + $json.num_certificacion.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + $json.estado_registro + \", \" + ($json.id_ctl_estado_producto || \"NULL\") + \", \" + ($json.pais ? \"'\" + $json.pais.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.sub_grupo_alimenticio ? \"'\" + $json.sub_grupo_alimenticio.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + $json.tipo_de_laboratorio + \", '\" + $json.legacy_id + \"', \" + ($json.created_at ? \"'\" + $json.created_at + \"'\" : \"NOW()\") + \", \" + ($json.updated_at ? \"'\" + $json.updated_at + \"'\" : \"NULL\") + \", \" + ($json.deleted_at ? \"'\" + $json.deleted_at + \"'\" : \"NULL\") + \")\" : '' }}\nON CONFLICT (legacy_id) DO UPDATE SET nombre = EXCLUDED.nombre, updated_at = NOW();",
+        "options": {
+          "queryBatching": "transaction"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        660,
+        400
+      ],
+      "id": "insert-003",
+      "name": "12. Insert alim_producto",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM data_center_tables WHERE name = 'alim_producto';\n\nINSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nVALUES (\n    gen_random_uuid(),\n    'alim_producto',\n    'Productos alimenticios con registro sanitario',\n    '[{\"name\": \"id\", \"type\": \"UUID\"}, {\"name\": \"nombre\", \"type\": \"VARCHAR(600)\"}, {\"name\": \"tipo_producto\", \"type\": \"INTEGER\"}, {\"name\": \"num_registro_sanitario\", \"type\": \"VARCHAR(15)\"}, {\"name\": \"legacy_id\", \"type\": \"VARCHAR(20)\"}]'::jsonb,\n    NOW(), NOW()\n);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        880,
+        400
+      ],
+      "id": "register-003",
+      "name": "13. Register alim_producto",
+      "credentials": {
+        "postgres": {
+          "id": "GD8QgKfRASwPpsel",
+          "name": "SDT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DROP TABLE IF EXISTS alim_solicitud_importacion_bcr CASCADE;\n\nCREATE TABLE alim_solicitud_importacion_bcr (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    fecha_registro_bcr DATE NOT NULL,\n    numero_solicitud VARCHAR(30),\n    tipo_solicitud CHAR(1),\n    nombre_importador VARCHAR(156),\n    nit_importador VARCHAR(20),\n    legacy_id VARCHAR(20) NOT NULL UNIQUE,\n    created_at TIMESTAMP DEFAULT now(),\n    updated_at TIMESTAMP DEFAULT now(),\n    deleted_at TIMESTAMP\n);\n\nCREATE INDEX idx_sol_bcr_legacy ON alim_solicitud_importacion_bcr(legacy_id);\nCREATE INDEX idx_sol_bcr_numero ON alim_solicitud_importacion_bcr(numero_solicitud);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        220,
+        600
+      ],
+      "id": "create-table-004",
+      "name": "14. Create sol_import_bcr",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, fecha_registro_bcr, numero_solicitud, tipo_solicitud, nombre_importador, nit_importador, legacy_id, created_at, updated_at, deleted_at FROM alim_solicitud_importacion_bcr ORDER BY id;"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        440,
+        600
+      ],
+      "id": "extract-004",
+      "name": "15. Extract sol_import_bcr",
+      "credentials": {
+        "postgres": {
+          "id": "FE5FZumu7wjrkwiJ",
+          "name": "Data Center Dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO alim_solicitud_importacion_bcr (id, fecha_registro_bcr, numero_solicitud, tipo_solicitud, nombre_importador, nit_importador, legacy_id, created_at, updated_at, deleted_at)\nVALUES \n{{ $json.id ? \"('\" + $json.id + \"', '\" + $json.fecha_registro_bcr + \"', \" + ($json.numero_solicitud ? \"'\" + $json.numero_solicitud + \"'\" : \"NULL\") + \", \" + ($json.tipo_solicitud ? \"'\" + $json.tipo_solicitud + \"'\" : \"NULL\") + \", \" + ($json.nombre_importador ? \"'\" + $json.nombre_importador.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.nit_importador ? \"'\" + $json.nit_importador + \"'\" : \"NULL\") + \", '\" + $json.legacy_id + \"', \" + ($json.created_at ? \"'\" + $json.created_at + \"'\" : \"NOW()\") + \", \" + ($json.updated_at ? \"'\" + $json.updated_at + \"'\" : \"NULL\") + \", \" + ($json.deleted_at ? \"'\" + $json.deleted_at + \"'\" : \"NULL\") + \")\" : '' }}\nON CONFLICT (legacy_id) DO UPDATE SET nombre_importador = EXCLUDED.nombre_importador, updated_at = NOW();",
+        "options": {
+          "queryBatching": "transaction"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        660,
+        600
+      ],
+      "id": "insert-004",
+      "name": "16. Insert sol_import_bcr",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM data_center_tables WHERE name = 'alim_solicitud_importacion_bcr';\n\nINSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nVALUES (\n    gen_random_uuid(),\n    'alim_solicitud_importacion_bcr',\n    'Solicitudes de importación registradas por BCR',\n    '[{\"name\": \"id\", \"type\": \"UUID\"}, {\"name\": \"fecha_registro_bcr\", \"type\": \"DATE\"}, {\"name\": \"numero_solicitud\", \"type\": \"VARCHAR(30)\"}, {\"name\": \"legacy_id\", \"type\": \"VARCHAR(20)\"}]'::jsonb,\n    NOW(), NOW()\n);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        880,
+        600
+      ],
+      "id": "register-004",
+      "name": "17. Register sol_import_bcr",
+      "credentials": {
+        "postgres": {
+          "id": "GD8QgKfRASwPpsel",
+          "name": "SDT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DROP TABLE IF EXISTS alim_solicitud_importacion_minsal CASCADE;\n\nCREATE TABLE alim_solicitud_importacion_minsal (\n    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n    estado_solicitud INTEGER NOT NULL,\n    justificacion_resolucion VARCHAR(750),\n    fecha_registro_minsal DATE NOT NULL,\n    fecha_resolucion_minsal DATE,\n    estado_externo CHAR(2),\n    fecha_estado_externo DATE,\n    id_alim_solicitud_importacion_bcr UUID,\n    pais VARCHAR(100),\n    nombre_tramitador VARCHAR(100),\n    tipo_documento_tramitador VARCHAR(50),\n    numero_documento_tramitador VARCHAR(14),\n    numero_solicitud_minsal VARCHAR(30),\n    departamento VARCHAR(100),\n    municipio VARCHAR(100),\n    direccion_importador VARCHAR(500),\n    legacy_id VARCHAR(20) NOT NULL UNIQUE,\n    legacy_bcr_id VARCHAR(20),\n    created_at TIMESTAMP DEFAULT now(),\n    updated_at TIMESTAMP DEFAULT now(),\n    deleted_at TIMESTAMP\n);\n\nCREATE INDEX idx_sol_minsal_legacy ON alim_solicitud_importacion_minsal(legacy_id);\nCREATE INDEX idx_sol_minsal_estado ON alim_solicitud_importacion_minsal(estado_solicitud);\nCREATE INDEX idx_sol_minsal_bcr ON alim_solicitud_importacion_minsal(id_alim_solicitud_importacion_bcr);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        220,
+        800
+      ],
+      "id": "create-table-005",
+      "name": "18. Create sol_import_minsal",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, estado_solicitud, justificacion_resolucion, fecha_registro_minsal, fecha_resolucion_minsal, estado_externo, fecha_estado_externo, id_alim_solicitud_importacion_bcr, pais, nombre_tramitador, tipo_documento_tramitador, numero_documento_tramitador, numero_solicitud_minsal, departamento, municipio, direccion_importador, legacy_id, legacy_bcr_id, created_at, updated_at, deleted_at FROM alim_solicitud_importacion_minsal ORDER BY id;"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        440,
+        800
+      ],
+      "id": "extract-005",
+      "name": "19. Extract sol_import_minsal",
+      "credentials": {
+        "postgres": {
+          "id": "FE5FZumu7wjrkwiJ",
+          "name": "Data Center Dev"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO alim_solicitud_importacion_minsal (id, estado_solicitud, justificacion_resolucion, fecha_registro_minsal, fecha_resolucion_minsal, estado_externo, fecha_estado_externo, id_alim_solicitud_importacion_bcr, pais, nombre_tramitador, tipo_documento_tramitador, numero_documento_tramitador, numero_solicitud_minsal, departamento, municipio, direccion_importador, legacy_id, legacy_bcr_id, created_at, updated_at, deleted_at)\nVALUES \n{{ $json.id ? \"('\" + $json.id + \"', \" + $json.estado_solicitud + \", \" + ($json.justificacion_resolucion ? \"'\" + $json.justificacion_resolucion.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", '\" + $json.fecha_registro_minsal + \"', \" + ($json.fecha_resolucion_minsal ? \"'\" + $json.fecha_resolucion_minsal + \"'\" : \"NULL\") + \", \" + ($json.estado_externo ? \"'\" + $json.estado_externo + \"'\" : \"NULL\") + \", \" + ($json.fecha_estado_externo ? \"'\" + $json.fecha_estado_externo + \"'\" : \"NULL\") + \", \" + ($json.id_alim_solicitud_importacion_bcr ? \"'\" + $json.id_alim_solicitud_importacion_bcr + \"'\" : \"NULL\") + \", \" + ($json.pais ? \"'\" + $json.pais.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.nombre_tramitador ? \"'\" + $json.nombre_tramitador.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.tipo_documento_tramitador ? \"'\" + $json.tipo_documento_tramitador + \"'\" : \"NULL\") + \", \" + ($json.numero_documento_tramitador ? \"'\" + $json.numero_documento_tramitador + \"'\" : \"NULL\") + \", \" + ($json.numero_solicitud_minsal ? \"'\" + $json.numero_solicitud_minsal + \"'\" : \"NULL\") + \", \" + ($json.departamento ? \"'\" + $json.departamento.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.municipio ? \"'\" + $json.municipio.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.direccion_importador ? \"'\" + $json.direccion_importador.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", '\" + $json.legacy_id + \"', \" + ($json.legacy_bcr_id ? \"'\" + $json.legacy_bcr_id + \"'\" : \"NULL\") + \", \" + ($json.created_at ? \"'\" + $json.created_at + \"'\" : \"NOW()\") + \", \" + ($json.updated_at ? \"'\" + $json.updated_at + \"'\" : \"NULL\") + \", \" + ($json.deleted_at ? \"'\" + $json.deleted_at + \"'\" : \"NULL\") + \")\" : '' }}\nON CONFLICT (legacy_id) DO UPDATE SET estado_solicitud = EXCLUDED.estado_solicitud, updated_at = NOW();",
+        "options": {
+          "queryBatching": "transaction"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        660,
+        800
+      ],
+      "id": "insert-005",
+      "name": "20. Insert sol_import_minsal",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "DELETE FROM data_center_tables WHERE name = 'alim_solicitud_importacion_minsal';\n\nINSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nVALUES (\n    gen_random_uuid(),\n    'alim_solicitud_importacion_minsal',\n    'Solicitudes de importación procesadas por MINSAL',\n    '[{\"name\": \"id\", \"type\": \"UUID\"}, {\"name\": \"estado_solicitud\", \"type\": \"INTEGER\"}, {\"name\": \"fecha_registro_minsal\", \"type\": \"DATE\"}, {\"name\": \"numero_solicitud_minsal\", \"type\": \"VARCHAR(30)\"}, {\"name\": \"legacy_id\", \"type\": \"VARCHAR(20)\"}]'::jsonb,\n    NOW(), NOW()\n);"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        880,
+        800
+      ],
+      "id": "register-005",
+      "name": "21. Register sol_import_minsal",
+      "credentials": {
+        "postgres": {
+          "id": "GD8QgKfRASwPpsel",
+          "name": "SDT"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT \n  (SELECT COUNT(*) FROM srs_marca) as srs_marca,\n  (SELECT COUNT(*) FROM srs_bodega) as srs_bodega,\n  (SELECT COUNT(*) FROM alim_producto) as alim_producto,\n  (SELECT COUNT(*) FROM alim_solicitud_importacion_bcr) as sol_import_bcr,\n  (SELECT COUNT(*) FROM alim_solicitud_importacion_minsal) as sol_import_minsal;"
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1100,
+        400
+      ],
+      "id": "validate-001",
+      "name": "22. Validate Counts",
+      "credentials": {
+        "postgres": {
+          "id": "93iQeymqB7H7uPyc",
+          "name": "Centro de Datos"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "1. Create srs_marca",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "5. Create srs_bodega",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "10. Create alim_producto",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "14. Create sol_import_bcr",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "18. Create sol_import_minsal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Create srs_marca": {
+      "main": [
+        [
+          {
+            "node": "2. Extract srs_marca",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2. Extract srs_marca": {
+      "main": [
+        [
+          {
+            "node": "3. Insert srs_marca",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3. Insert srs_marca": {
+      "main": [
+        [
+          {
+            "node": "4. Register srs_marca",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "4. Register srs_marca": {
+      "main": [
+        [
+          {
+            "node": "22. Validate Counts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "5. Create srs_bodega": {
+      "main": [
+        [
+          {
+            "node": "6. Extract srs_bodega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "6. Extract srs_bodega": {
+      "main": [
+        [
+          {
+            "node": "7. Insert srs_bodega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "7. Insert srs_bodega": {
+      "main": [
+        [
+          {
+            "node": "8. Register srs_bodega",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "8. Register srs_bodega": {
+      "main": [
+        [
+          {
+            "node": "22. Validate Counts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "10. Create alim_producto": {
+      "main": [
+        [
+          {
+            "node": "11. Extract alim_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "11. Extract alim_producto": {
+      "main": [
+        [
+          {
+            "node": "12. Insert alim_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "12. Insert alim_producto": {
+      "main": [
+        [
+          {
+            "node": "13. Register alim_producto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "13. Register alim_producto": {
+      "main": [
+        [
+          {
+            "node": "22. Validate Counts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "14. Create sol_import_bcr": {
+      "main": [
+        [
+          {
+            "node": "15. Extract sol_import_bcr",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "15. Extract sol_import_bcr": {
+      "main": [
+        [
+          {
+            "node": "16. Insert sol_import_bcr",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "16. Insert sol_import_bcr": {
+      "main": [
+        [
+          {
+            "node": "17. Register sol_import_bcr",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "17. Register sol_import_bcr": {
+      "main": [
+        [
+          {
+            "node": "22. Validate Counts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "18. Create sol_import_minsal": {
+      "main": [
+        [
+          {
+            "node": "19. Extract sol_import_minsal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "19. Extract sol_import_minsal": {
+      "main": [
+        [
+          {
+            "node": "20. Insert sol_import_minsal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "20. Insert sol_import_minsal": {
+      "main": [
+        [
+          {
+            "node": "21. Register sol_import_minsal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "21. Register sol_import_minsal": {
+      "main": [
+        [
+          {
+            "node": "22. Validate Counts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": []
+}
