@@ -4,11 +4,8 @@
 
 CREATE TABLE IF NOT EXISTS public.srs_tramites_tipo_establecimiento (
   id integer NOT NULL PRIMARY KEY,            -- Maps to establet_id
-  tipo character varying(255),              -- Maps to establet_tipo
-  descripcion text,                         -- Maps to establet_descripcion
-  form_id character varying(50),            -- Maps to form_id
-  tramite_abreviado character varying(50),  -- Maps to tramite_abreviado
-  activo_cnr boolean,                       -- Maps to activo_cnr
+  nombre character varying(255),              -- Maps to establet_tipo
+  codigo text,                                -- Maps to establet_descripcion
 
   -- Traceability field
   legacy_id character varying(50)

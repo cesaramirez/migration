@@ -15,7 +15,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "CREATE TABLE IF NOT EXISTS public.srs_tramites_tipo_establecimiento (\n  id integer NOT NULL PRIMARY KEY,\n  tipo character varying(255),\n  descripcion text,\n  form_id character varying(50),\n  tramite_abreviado character varying(50),\n  activo_cnr boolean,\n  legacy_id character varying(50) \n);\n\nCREATE UNIQUE INDEX IF NOT EXISTS pk_srs_tramites_tipo_establecimiento ON public.srs_tramites_tipo_establecimiento USING btree (id);\nCREATE INDEX IF NOT EXISTS idx_srs_tramites_tipo_establecimiento_legacy_id ON public.srs_tramites_tipo_establecimiento USING btree (legacy_id);"
+        "query": "CREATE TABLE IF NOT EXISTS public.srs_tramites_tipo_establecimiento (\n  id integer NOT NULL PRIMARY KEY,\n  nombre character varying(255),\n  codigo text,\n  legacy_id character varying(50) \n);\n\nCREATE UNIQUE INDEX IF NOT EXISTS pk_srs_tramites_tipo_establecimiento ON public.srs_tramites_tipo_establecimiento USING btree (id);\nCREATE INDEX IF NOT EXISTS idx_srs_tramites_tipo_establecimiento_legacy_id ON public.srs_tramites_tipo_establecimiento USING btree (legacy_id);"
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
@@ -35,7 +35,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT\n    establet_id as id,\n    establet_tipo as tipo,\n    establet_descripcion as descripcion,\n    form_id,\n    tramite_abreviado,\n    activo_cnr,\n    CONCAT('TIPO_EST-', establet_id) as legacy_id\nFROM\n    public.tipo_establecimiento;"
+        "query": "SELECT\n    establet_id as id,\n    establet_tipo as nombre,\n    establet_descripcion as codigo,\n    CONCAT('TIPO_EST-', establet_id) as legacy_id\nFROM\n    public.tipo_establecimiento;"
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
@@ -55,7 +55,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "INSERT INTO public.srs_tramites_tipo_establecimiento (id, tipo, descripcion, form_id, tramite_abreviado, activo_cnr, legacy_id)\nVALUES \n{{ $json.id ? \"(\" + $json.id + \", \" + ($json.tipo ? \"'\" + $json.tipo.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.descripcion ? \"'\" + $json.descripcion.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.form_id ? \"'\" + $json.form_id.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.tramite_abreviado ? \"'\" + $json.tramite_abreviado.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.activo_cnr === null ? \"NULL\" : $json.activo_cnr) + \", '\" + $json.legacy_id + \"')\" : '' }}\nON CONFLICT (id) DO UPDATE SET\n    tipo = EXCLUDED.tipo,\n    descripcion = EXCLUDED.descripcion,\n    form_id = EXCLUDED.form_id,\n    tramite_abreviado = EXCLUDED.tramite_abreviado,\n    activo_cnr = EXCLUDED.activo_cnr;",
+        "query": "INSERT INTO public.srs_tramites_tipo_establecimiento (id, nombre, codigo, legacy_id)\nVALUES \n{{ $json.id ? \"(\" + $json.id + \", \" + ($json.nombre ? \"'\" + $json.nombre.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", \" + ($json.codigo ? \"'\" + $json.codigo.replace(/'/g, \"''\") + \"'\" : \"NULL\") + \", '\" + $json.legacy_id + \"')\" : '' }}\nON CONFLICT (id) DO UPDATE SET\n    nombre = EXCLUDED.nombre,\n    codigo = EXCLUDED.codigo;",
         "options": {
           "queryBatching": "transaction"
         }
@@ -78,7 +78,7 @@
     {
       "parameters": {
         "operation": "executeQuery",
-        "query": "DELETE FROM data_center_tables WHERE name = 'srs_tramites_tipo_establecimiento';\n\nINSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nVALUES (\n    gen_random_uuid(),\n    'srs_tramites_tipo_establecimiento',\n    'Catálogo de tipos de establecimientos migrado desde tramites-srs',\n    '[{\"name\": \"id\", \"type\": \"INTEGER\"}, {\"name\": \"tipo\", \"type\": \"VARCHAR\"}, {\"name\": \"descripcion\", \"type\": \"TEXT\"}, {\"name\": \"legacy_id\", \"type\": \"VARCHAR\"}]'::jsonb,\n    NOW(), NOW()\n);"
+        "query": "DELETE FROM data_center_tables WHERE name = 'srs_tramites_tipo_establecimiento';\n\nINSERT INTO data_center_tables (id, name, description, columns, created_at, updated_at)\nVALUES (\n    gen_random_uuid(),\n    'srs_tramites_tipo_establecimiento',\n    'Catálogo de tipos de establecimientos migrado desde tramites-srs',\n    '[{\"name\": \"id\", \"type\": \"INTEGER\"}, {\"name\": \"nombre\", \"type\": \"VARCHAR\"}, {\"name\": \"codigo\", \"type\": \"TEXT\"}, {\"name\": \"legacy_id\", \"type\": \"VARCHAR\"}]'::jsonb,\n    NOW(), NOW()\n);"
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
