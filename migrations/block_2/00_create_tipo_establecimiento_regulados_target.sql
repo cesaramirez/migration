@@ -8,7 +8,12 @@ CREATE TABLE IF NOT EXISTS public.srs_tipo_establecimiento_regulados (
   code character varying(255),                -- Maps to establet_descripcion
 
   -- Traceability field
-  legacy_id character varying(50)
+  legacy_id character varying(50),
+
+  -- Timestamps
+  created_at timestamp without time zone DEFAULT now(),
+  updated_at timestamp without time zone DEFAULT now(),
+  deleted_at timestamp without time zone
 );
 
 -- Indices
