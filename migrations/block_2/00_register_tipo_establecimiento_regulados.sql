@@ -8,7 +8,7 @@ VALUES (
     gen_random_uuid(),
     'srs_tipo_establecimiento_regulados',
     'Catálogo de tipos de establecimientos migrado desde tramites-srs',
-    '[{"name": "id", "type": "INTEGER"}, {"name": "nombre", "type": "VARCHAR"}, {"name": "codigo", "type": "TEXT"}, {"name": "legacy_id", "type": "VARCHAR"}]'::jsonb,
+    '[{"id": "7e93c44b-ff9a-4136-92c5-ed2604c4d00c", "name": "id", "type": "UUID"}, {"id": "48f5df64-f3ff-4d6b-a45a-c3cfe8726e82", "name": "code", "type": "STRING"}, {"id": "c9cbab98-76a7-4616-9ca0-5ed8baaf6052", "name": "nombre", "type": "STRING"}, {"id": "0ac6c9f2-1a41-4c17-8149-d04b6b6cc38a", "name": "legacy_id", "type": "STRING"}]'::jsonb,
     NOW(),
     NOW()
 );
